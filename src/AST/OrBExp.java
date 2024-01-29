@@ -1,6 +1,7 @@
 package AST;
 
 import Interfaces.Ibexp;
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
 public class OrBExp implements Ibexp {
 	
@@ -12,14 +13,9 @@ public class OrBExp implements Ibexp {
 		    this.bexp1 = bexp1;
 		    this.bexp2 = bexp1;
 		  }
-	public Ibexp getbexp1() {
-		// TODO Auto-generated method stub
-		return bexp1;
-	}
-
-	public Ibexp getbexp2() {
-		// TODO Auto-generated method stub
-		return bexp2;
+	
+	public boolean eval(ProcessingNodeI curentNode){
+		return bexp1.eval(curentNode) || bexp2.eval(curentNode);
 	}
 
 }

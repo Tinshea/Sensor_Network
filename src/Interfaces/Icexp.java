@@ -1,6 +1,7 @@
 package Interfaces;
 
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
+
 public interface Icexp {
-	public Irand getrand1();
-	public Irand getrand2();
+	public boolean eval(ProcessingNodeI curentNode);
 }

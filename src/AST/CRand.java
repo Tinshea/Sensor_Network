@@ -1,8 +1,9 @@
 package AST;
 
-import Interfaces.ICRand;
+import Interfaces.IRand;
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
-public class CRand implements ICRand {
+public class CRand implements IRand {
 	
 	private Double capteur;
 	
@@ -10,7 +11,7 @@ public class CRand implements ICRand {
 		    this.capteur = capteur;
 		  }
 	@Override
-	public Double getcapteur() {
+	public double eval(ProcessingNodeI curentNode) {
 		// TODO Auto-generated method stub
 		return capteur;
 	}

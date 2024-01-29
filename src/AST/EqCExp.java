@@ -1,27 +1,21 @@
 package AST;
 
 import Interfaces.Icexp;
-import Interfaces.Irand;
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
+import Interfaces.IRand;
 
 public class EqCExp implements Icexp {
 
-	private Irand rand1;
-	private Irand rand2;
+	private IRand rand1;
+	private IRand rand2;
 	
-	 public EqCExp(Irand rand1, Irand rand2) {
+	 public EqCExp(IRand rand1, IRand rand2) {
 		    this.rand1 = rand1;
 		    this.rand1 = rand2;
 		  }
-	@Override
-	public Irand getrand1() {
-		// TODO Auto-generated method stub
-		return rand1;
-	}
-
-	@Override
-	public Irand getrand2() {
-		// TODO Auto-generated method stub
-		return rand2;
-	}
+		   @Override
+    public boolean eval(ProcessingNodeI curentNode) {
+        return rand1.eval(curentNode) == rand2.eval(curentNode);
+    }
 
 }

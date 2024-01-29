@@ -1,25 +1,18 @@
 package AST;
 
 import Interfaces.Ibexp;
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
 public class NotBExp implements Ibexp {
 	
+	private Ibexp bexp;
 	
-	private Ibexp bexp1;
-	private Ibexp bexp2;
-	
-	  public NotBExp(Ibexp bexp1,Ibexp bexp2 ) {
-		    this.bexp1 = bexp1;
-		    this.bexp2 = bexp1;
-		  }
-	public Ibexp getbexp1() {
-		// TODO Auto-generated method stub
-		return bexp1;
-	}
+	public NotBExp(Ibexp bexp) {
+		this.bexp = bexp;
+		}
 
-	public Ibexp getbexp2() {
-		// TODO Auto-generated method stub
-		return bexp2;
+	public boolean eval(ProcessingNodeI curentNode){
+		return !bexp.eval(curentNode);
 	}
 
 }
