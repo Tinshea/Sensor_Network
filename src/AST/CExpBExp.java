@@ -16,11 +16,6 @@ public class CExpBExp implements Ibexp {
 		return cexp.eval(curentNode);
 		}
 
-	
-	public boolean eval() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 }
 
