@@ -2,16 +2,18 @@ package AST;
 
 import java.util.ArrayList;
 
-import Enums.Dir;
+import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 
 public class Fdirs {
-	private Dir direction;
+	private Direction direction;
 	
-	public Fdirs(Dir direction) {
+	public Fdirs(Direction direction) {
 		this.direction = direction;
 	}
 	
-	public Dir getDirection() {
-		return this.direction;
+	public ArrayList<Direction> eval(){
+		ArrayList<Direction> res =  new ArrayList<Direction>();
+		res.add(this.direction);
+		return res;
 	}
 }

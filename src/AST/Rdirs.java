@@ -3,21 +3,22 @@ package AST;
 import java.util.ArrayList;
 
 import Enums.Dir;
+import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 
 public class Rdirs {
 
-	private Dir direction;
-	private ArrayList<Dir> directions;
+	private Direction direction;
+	private ArrayList<Direction> directions;
 	
-	public Rdirs(Dir direction, ArrayList<Dir> directions) {
+	public Rdirs(Direction direction, ArrayList<Direction> directions) {
 		this.direction = direction;
 		this.directions = directions;
 	}
 	
-	public Dir getDirection() {
+	public Direction getDirection() {
 		return this.direction;
 	}
-	public ArrayList<Dir> getDirections(){
+	public ArrayList<Direction> getDirections(){
 		return this.directions;
 	}
 }

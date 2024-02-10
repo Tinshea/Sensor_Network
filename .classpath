@@ -6,7 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/home/malek/Documents/Project/Master 1/Semestre 2/CPS/CPS/sensor-network-interfaces.jar">
+	<classpathentry kind="lib" path="D:/Sorbonne/CPS/CPS/sensor-network-interfaces.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
