@@ -11,11 +11,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="BCM4Java-28112023.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/youne/Downloads/CPS-2024/CPS-2024/BCM4Java-28112023-src/javassist.jar"/>
+	<classpathentry kind="lib" path="D:/Sorbonne/CPS/CPS/BCM4JavaModifiedWithJavaAssist.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
