@@ -95,7 +95,7 @@ extends		AbstractComponent
 	protected final static int	N = 1 ;
 
 	/**	the outbound port used to call the service.							*/
-	protected URIConsumerOutboundPort	uriGetterPort ; //todo
+	protected URIClientOutboundPort	uriGetterPort ; //todo
 	/**	counting service invocations.										*/
 	protected int						counter ;
 
@@ -119,11 +119,11 @@ extends		AbstractComponent
 
 		// create the port that exposes the required interface
 		this.uriGetterPort =
-						new URIConsumerOutboundPort(outboundPortURI, this) ; //todo
+						new URIClientOutboundPort(outboundPortURI, this) ; //todo
 		// publish the port (an outbound port is always local)
 		this.uriGetterPort.localPublishPort() ;
 		this.counter = 0 ;
-
+		/*
 		if (AbstractCVM.isDistributed) {
 			this.getLogger().setDirectory(System.getProperty("user.dir")) ;
 		} else {
@@ -131,7 +131,7 @@ extends		AbstractComponent
 		}
 		this.getTracer().setTitle("consumer") ; // Remplacer peut etre par client
 		this.getTracer().setRelativePosition(1, 1) ;
-
+		*/
 		AbstractComponent.checkImplementationInvariant(this);
 		AbstractComponent.checkInvariant(this);
 	}
@@ -140,7 +140,27 @@ extends		AbstractComponent
 	// Component internal services
 	//-------------------------------------------------------------------------
 
-	
+	/**
+	 * method that implements the component's behaviour: call the URI service
+	 * ten times and print the URI on the terminal, waiting a second between
+	 * each call.
+	 *
+	 * <p><strong>Contract</strong></p>
+	 *
+	 * <pre>
+	 * pre	true			// no precondition.
+	 * post	true			// no postcondition.
+	 * </pre>
+	 *
+	 * @throws Exception	<i>todo.</i>
+	 */
+	public void			executeAndPrintNode() throws Exception
+	{
+		QueryResult queryR= this.uriGetterPort.
+	}
+
+
+
 	//-------------------------------------------------------------------------
 	// Component life-cycle
 	//-------------------------------------------------------------------------

@@ -119,6 +119,11 @@ implements	URIClientJava
 	 * @see fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI#getURI()
 	 */
 	@Override
+	public QueryResultI executeSensorService(Query query) throws Exception
+	{
+		return ((URIClientJava)this.getConnector()).executeSensorService(query) ;
+	}
+
 	public String		getURI() throws Exception
 	{
 		return ((URIClientJava)this.getConnector()).getURI() ;
