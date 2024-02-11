@@ -129,7 +129,7 @@ extends		AbstractComponent
 		} else {
 			this.getLogger().setDirectory(System.getProperty("user.home")) ;
 		}
-		this.getTracer().setTitle("consumer") ;
+		this.getTracer().setTitle("consumer") ; // Remplacer peut etre par client
 		this.getTracer().setRelativePosition(1, 1) ;
 
 		AbstractComponent.checkImplementationInvariant(this);

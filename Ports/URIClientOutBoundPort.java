@@ -35,7 +35,6 @@ package fr.sorbonne_u.components.examples.basic_cs.ports;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 
 //-----------------------------------------------------------------------------
@@ -54,9 +53,9 @@ import fr.sorbonne_u.components.ports.AbstractOutboundPort;
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public class			URIConsumerOutboundPort
+public class			URIClientOutboundPort
 extends		AbstractOutboundPort
-implements	URIConsumerCI
+implements	URIClientJava
 {
 	private static final long serialVersionUID = 1L;
 
@@ -74,12 +73,12 @@ implements	URIConsumerCI
 	 * @param owner		owner of the port.
 	 * @throws Exception	<i>todo.</i>
 	 */
-	public				URIConsumerOutboundPort(
+	public				URIClientOutboundPort(
 		String uri,
-		ComponentI owner
+		ComponentI owner // On lui passe la référence au composant qui le détient
 		) throws Exception
 	{
-		super(uri, URIConsumerCI.class, owner) ;
+		super(uri, URIClientJava.class, owner) ;
 
 		assert	uri != null && owner != null ;
 	}
@@ -97,10 +96,10 @@ implements	URIConsumerCI
 	 * @param owner		owner of the port.
 	 * @throws Exception	<i>todo.</i>
 	 */
-	public				URIConsumerOutboundPort(ComponentI owner)
+	public				URIClientOutboundPort(ComponentI owner)
 	throws Exception
 	{
-		super(URIConsumerCI.class, owner) ;
+		super(URIClientJava.class, owner) ;
 
 		assert	owner != null ;
 	}
@@ -121,7 +120,7 @@ implements	URIConsumerCI
 	@Override
 	public String		getURI() throws Exception
 	{
-		return ((URIConsumerCI)this.getConnector()).getURI() ;
+		return ((URIClientJava)this.getConnector()).getURI() ;
 	}
 
 	/**
@@ -130,7 +129,7 @@ implements	URIConsumerCI
 	@Override
 	public String[]		getURIs(int numberOfURIs) throws Exception
 	{
-		return ((URIConsumerCI)this.getConnector()).getURIs(numberOfURIs) ;
+		return ((URIClientJava)this.getConnector()).getURIs(numberOfURIs) ;
 	}
 }
 //-----------------------------------------------------------------------------
