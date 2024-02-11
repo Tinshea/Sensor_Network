@@ -53,16 +53,16 @@ import fr.sorbonne_u.components.examples.cps.interfaces.ValueProvidingCI;
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public class				ValueProvidingConnector
+public class				Connector
 extends		AbstractConnector
-implements	ValueProvidingCI
+implements	URIClientCI
 {
 	/**
 	 * @see fr.sorbonne_u.components.examples.cps.interfaces.ValueProvidingCI#getValue()
 	 */
 	@Override
-	public int			getValue() throws Exception
+	public int executeSensorService(Query query) throws Exception
 	{
-		return ((ValueProvidingCI)this.offering).getValue();
+		return ((URISensorCI)this.offering).executeSensorService(query);
 	}
 }

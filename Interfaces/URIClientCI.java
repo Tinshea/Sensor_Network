@@ -68,7 +68,7 @@ public interface		URIClientJava
      * @return			the requested URI.
      * @throws Exception	<i>todo.</i>
      */
-    public String		getURI() throws Exception ;
+    //public String		getURI() throws Exception ;
 
     /**
      * get several new URIs at once.
@@ -85,8 +85,14 @@ public interface		URIClientJava
      * @return				array of URIs.
      * @throws Exception		<i>todo.</i>
      */
-    public String[]		getURIs(int numberOfURIs) throws Exception ;
+   //public String[]		getURIs(int numberOfURIs) throws Exception ;
 
+
+
+    /**
+     *TODO Documentation
+     **/
+    public int executeSensorService(Query query);
 
 }
 //-----------------------------------------------------------------------------

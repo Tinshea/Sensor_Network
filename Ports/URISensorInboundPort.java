@@ -84,7 +84,7 @@ implements	URISensorCI
 	 * @param owner		component owning the port.
 	 * @throws Exception	<i>todo.</i>
 	 */
-	public				URISensorCIInboundPort(
+	public				URISensorInboundPort(
 		String uri,
 		ComponentI owner
 		) throws Exception

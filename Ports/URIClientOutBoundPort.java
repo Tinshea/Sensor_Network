@@ -1,4 +1,5 @@
-package fr.sorbonne_u.components.examples.basic_cs.ports;
+package Ports;
+
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
