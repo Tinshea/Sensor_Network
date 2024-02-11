@@ -38,6 +38,7 @@ package app.Ports;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 import app.Interfaces.URIClientCI;
 
@@ -122,7 +123,7 @@ implements	URIClientCI
 	 * @see fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI#getURI()
 	 */
 	@Override
-	public String executeSensorService(QueryI query) throws Exception
+	public QueryResultI executeSensorService(QueryI query) throws Exception
 	{
 		return ((URIClientCI)this.getConnector()).executeSensorService(query) ;
 	}

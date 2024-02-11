@@ -227,19 +227,11 @@ implements RequestingCI
 	// Component internal services
 	//--------------------------------------------------------------------------
 	
-	public String executeSensorService(QueryI query) {
-		/*ExecutionStateI es = this.getExecutorService();
-		QueryResultI queryR = query.eval(es);
-		String res = "";
-		for(SensorDataI sd : queryR.gatheredSensorsValues()) {
-			String id = sd.getSensorIdentifier();
-			String value = (String) sd.getValue();
-			res += id + " : " + value + "\n";
-		}
-		return res;*/
-		return null;
+	public QueryResultI executeSensorService(QueryI query) {
+		ExecutionStateI es = new ExecutionState();
+		return query.eval(es);
 	}
-// -----------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------
 
 	@Override
 	public QueryResultI execute(RequestI request) throws Exception {

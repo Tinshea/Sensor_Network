@@ -165,7 +165,7 @@ extends		AbstractComponent
 	 */
 	public void			executeAndPrintNode() throws Exception
 	{
-		String queryR = this.uriGetterPort.executeSensorService(new GQuery
+		QueryResultI queryR = this.uriGetterPort.executeSensorService(new GQuery
 				(new FGather("temperature"), 
 				new ECont()));
 		System.out.println(queryR);

@@ -37,6 +37,7 @@ import fr.sorbonne_u.components.interfaces.OfferedCI;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.interfaces.RequiredCI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
 //-----------------------------------------------------------------------------
@@ -58,6 +59,6 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 public interface		URISensorCI
 extends		OfferedCI
 {	
-	public String executeSensorService(QueryI query) throws Exception;
+	public QueryResultI executeSensorService(QueryI query) throws Exception;
 }
 //-----------------------------------------------------------------------------

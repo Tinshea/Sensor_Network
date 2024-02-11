@@ -43,6 +43,7 @@ import fr.sorbonne_u.components.examples.basic_cs.components.URIProvider;
 import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIProviderCI;
 import fr.sorbonne_u.components.interfaces.OfferedCI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
 //-----------------------------------------------------------------------------
@@ -143,7 +144,7 @@ implements	URISensorCI
 	 */
 
 	@Override
-	public String executeSensorService(QueryI query) throws Exception{
+	public QueryResultI executeSensorService(QueryI query) throws Exception{
 		return this.getOwner().handleRequest(
 				owner -> ((URISensor)owner).executeSensorService(query)) ;
 	}

@@ -35,6 +35,7 @@ package app.connectors;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.connectors.AbstractConnector;
+import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 import app.Interfaces.URIClientCI;
 import app.Interfaces.URISensorCI;
@@ -63,7 +64,7 @@ implements	URIClientCI
 	 * @see fr.sorbonne_u.components.examples.cps.interfaces.ValueProvidingCI#getValue()
 	 */
 	@Override
-	public String executeSensorService(QueryI query) throws Exception
+	public QueryResultI executeSensorService(QueryI query) throws Exception
 	{
 		return ((URISensorCI)this.offering).executeSensorService(query);
 	}
