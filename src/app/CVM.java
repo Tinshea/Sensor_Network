@@ -1,4 +1,4 @@
-package fr.sorbonne_u.components.examples.basic_cs;
+package app;
 
 // Copyright Jacques Malenfant, Sorbonne Universite.
 // Jacques.Malenfant@lip6.fr
@@ -35,6 +35,8 @@ package fr.sorbonne_u.components.examples.basic_cs;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
+import app.Components.URIClient;
+import app.Components.URISensor;
 import fr.sorbonne_u.components.examples.basic_cs.connectors.URIServiceConnector;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
 

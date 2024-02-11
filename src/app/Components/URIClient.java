@@ -1,4 +1,4 @@
-package fr.sorbonne_u.components.examples.basic_cs.components;
+package app.Components;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -35,6 +35,13 @@ package fr.sorbonne_u.components.examples.basic_cs.components;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import java.util.concurrent.TimeUnit;
+
+import AST.ECont;
+import AST.FGather;
+import AST.GQuery;
+import app.Interfaces.URISensorCI;
+import app.Ports.URIClientOutBoundPort;
+import app.Ports.URIClientOutBoundPort;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
@@ -96,7 +103,7 @@ extends		AbstractComponent
 	protected final static int	N = 1 ;
 
 	/**	the outbound port used to call the service.							*/
-	protected URIClientOutboundPort	uriGetterPort ; //todo
+	protected URIClientOutBoundPort	uriGetterPort ; //todo
 	/**	counting service invocations.										*/
 	protected int						counter ;
 
@@ -120,7 +127,7 @@ extends		AbstractComponent
 
 		// create the port that exposes the required interface
 		this.uriGetterPort =
-						new URIClientOutboundPort(outboundPortURI, this) ; //todo
+						new URIClientOutBoundPort(outboundPortURI, this) ; //todo
 		// publish the port (an outbound port is always local)
 		this.uriGetterPort.localPublishPort() ;
 		this.counter = 0 ;
@@ -157,7 +164,7 @@ extends		AbstractComponent
 	 */
 	public void			executeAndPrintNode() throws Exception
 	{
-		String queryR = this.uriGetterPort.executeSensorService(new AST.GQuery
+		String queryR = this.uriGetterPort.executeSensorService(new GQuery
 				(new FGather("temperature"), 
 				new ECont()));
 		System.out.println(queryR);

@@ -1,4 +1,4 @@
-package fr.sorbonne_u.components.examples.cps.connectors;
+package app.Interfaces;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -34,35 +34,28 @@ package fr.sorbonne_u.components.examples.cps.connectors;
 //The fact that you are presently reading this means that you have had
 //knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.connectors.AbstractConnector;
-import fr.sorbonne_u.components.examples.cps.interfaces.ValueProvidingCI;
+import fr.sorbonne_u.components.interfaces.RequiredCI;
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
+//-----------------------------------------------------------------------------
 /**
- * The class <code>ValueProvidingConnector</code> implements a connector
- * for the <code>ValueProvidingI</code> interface.
+ * The interface <code>URIConsumerCI</code> defines the interface required by a
+ * component that needs to get URI from an URI provider component.
  *
  * <p><strong>Description</strong></p>
  * 
- * <p><strong>Invariant</strong></p>
+ * As a RMI remote interface, all of the methods must return
+ * <code>RemoteException</code>. The choice here is to throw
+ * <code>Exception</code> to cater for potential exceptions
+ * thrown by the implementation methods.
  * 
- * <pre>
- * invariant		true
- * </pre>
- * 
- * <p>Created on : 2018-03-17</p>
+ * <p>Created on : 2014-01-22</p>
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public class				Connector
-extends		AbstractConnector
-implements	URIClientCI
-{
-	/**
-	 * @see fr.sorbonne_u.components.examples.cps.interfaces.ValueProvidingCI#getValue()
-	 */
-	@Override
-	public String executeSensorService(Query query) throws Exception
-	{
-		return ((URISensorCI)this.offering).executeSensorService(query);
-	}
+public interface		URISensorCI
+extends		RequiredCI
+{	
+	public String executeSensorService(QueryI query) throws Exception;
 }
+//-----------------------------------------------------------------------------

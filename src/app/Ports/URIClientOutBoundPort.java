@@ -1,4 +1,5 @@
-package fr.sorbonne_u.components.examples.basic_cs.ports;
+package app.Ports;
+
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -34,20 +35,18 @@ package fr.sorbonne_u.components.examples.basic_cs.ports;
 //The fact that you are presently reading this means that you have had
 //knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.examples.basic_cs.components.URIProvider;
-import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIProviderCI;
-import fr.sorbonne_u.components.ports.AbstractInboundPort;
+import fr.sorbonne_u.components.interfaces.RequiredCI;
+import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
+import app.Interfaces.URIClientCI;
 
 //-----------------------------------------------------------------------------
 /**
- * The class <code>URIProviderInboundPort</code> defines the inbound port
- * exposing the interface <code>URIProviderI</code> for components of
- * type <code>URIProvider</code>.
+ * The class <code>URIConsumerOutboundPort</code> implements the outbound port
+ * of a component that requires an URI service through the
+ * <code>URIConsumerI</code> interface.
  *
- * <p><strong>Description</strong></p>
- * 
  * <p><strong>Invariant</strong></p>
  * 
  * <pre>
@@ -58,89 +57,74 @@ import fr.sorbonne_u.components.ports.AbstractInboundPort;
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public class			URISensorCIInboundPort
-extends		AbstractInboundPort
-implements	URISensorCI
+public class			URIClientOutBoundPort
+extends		AbstractOutboundPort
+implements	URIClientCI
 {
-	/** required by UnicastRemonteObject.									*/
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * create the port under some given URI and for a given owner.
-	 * 
-	 * The constructor for <code>AbstractInboundPort</code> requires the
-	 * interface that the port is implementing as an instance of
-	 * <code>java.lang.CLass</code>, but this is statically known so
-	 * the constructor does not need to receive the information as parameter.
+	 * create the port with the given URI and the given owner.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	uri != null and owner instanceof URIProvider
+	 * pre	uri != null and owner != null
 	 * post	true			// no postcondition.
 	 * </pre>
 	 *
-	 * @param uri		URI under which the port will be published.
-	 * @param owner		component owning the port.
+	 * @param uri		URI of the port.
+	 * @param owner		owner of the port.
 	 * @throws Exception	<i>todo.</i>
 	 */
-	public				URISensorInboundPort(
+	public	URIClientOutBoundPort(
 		String uri,
-		ComponentI owner
+		ComponentI owner // On lui passe la référence au composant qui le détient
 		) throws Exception
 	{
-		// the implemented interface is statically known
-		super(uri, URISensorCI.class, owner) ;
+		super(uri, URIClientCI.class, owner) ;
 
-		assert	uri != null && owner instanceof URISensor;
+		assert	uri != null && owner != null ;
 	}
 
 	/**
-	 * create the port for a given owner.
-	 * 
-	 * The constructor for <code>AbstractInboundPort</code> requires the
-	 * interface that the port is implementing as an instance of
-	 * <code>java.lang.CLass</code>, but this is statically known so
-	 * the constructor does not need to receive the information as parameter.
+	 * create the port with the given owner.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	uri != null and owner instanceof URIProvider
+	 * pre	owner != null
 	 * post	true			// no postcondition.
 	 * </pre>
 	 *
-	 * @param owner		component owning the port.
+	 * @param owner		owner of the port.
 	 * @throws Exception	<i>todo.</i>
 	 */
-	public				URISensorCIInboundPort(
-		ComponentI owner
-		) throws Exception
+	public	URIClientOutBoundPort(ComponentI owner)
+	throws Exception
 	{
-		// the implemented interface is statically known
-		super(URISensorCI.class, owner) ;
+		super(URIClientCI.class, owner) ;
 
-		assert	owner instanceof URISensorCI ;
+		assert	owner != null ;
 	}
 
 	/**
-	 * calls the service method of the owner component by executing a task
-	 * using one of the component's threads.
+	 * get an URI by calling the server component through the connector that
+	 * implements the required interface.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
 	 * pre	true				// no more preconditions.
-	 * post	ret != null
+	 * post	true				// no more postconditions.
 	 * </pre>
 	 * 
-	 * @see fr.sorbonne_u.components.examples.basic_cs.interfaces.URIProviderCI#provideURI()
+	 * @see fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI#getURI()
 	 */
-
 	@Override
-	public String executeSensorService(QueryI query) {
-		return this.getOwner().handleRequest(
-				owner -> ((URISensor)owner).executeSensorService(query)) ;
+	public String executeSensorService(QueryI query) throws Exception
+	{
+		return ((URIClientCI)this.getConnector()).executeSensorService(query) ;
 	}
 }
 //-----------------------------------------------------------------------------

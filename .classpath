@@ -16,5 +16,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/youne/Downloads/CPS-2024/CPS-2024/BCM4Java-28112023-src/javassist.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

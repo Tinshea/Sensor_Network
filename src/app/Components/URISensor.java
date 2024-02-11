@@ -1,4 +1,4 @@
-
+package app.Components;
 // Copyright Jacques Malenfant, Sorbonne Universite.
 // Jacques.Malenfant@lip6.fr
 //
@@ -32,6 +32,9 @@
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
+import app.Interfaces.URISensorCI;
+import app.Ports.URISensorInboundPort;
+import app.Components.URISensor;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
@@ -42,6 +45,7 @@ import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 import fr.sorbonne_u.exceptions.InvariantException;
 import fr.sorbonne_u.exceptions.PostconditionException;
 import fr.sorbonne_u.exceptions.PreconditionException;
@@ -74,13 +78,15 @@ extends		AbstractComponent
 
 	/**	a string prefix that will identify the URI Sensor.				*/
 	protected String		uriPrefix;
+	/**	the outbound port used to call the service.							*/
+	protected URISensorInboundPort uriGiverPort ;
 
 	/**
 	 * check the invariant of the class on an instance.
 	 *
 	 * @param c	the component to be tested.
 	 */
-	protected static void	checkInvariant(URIProvider c)
+	protected static void	checkInvariant(URISensor c)
 	{
 		assert	c.uriPrefix != null :
 					new InvariantException("The URI prefix is null!");
@@ -127,11 +133,11 @@ extends		AbstractComponent
 		// following instruction:
 		//this.addOfferedInterface(URIProviderI.class) ;
 
-		// create the port that exposes the offered interface with the
-		// given URI to ease the connection from client components.
-		PortI p = new URISensorCIInboundPort(sensorPortURI, this); 
-		// publish the port
-		p.publishPort();
+		// create the port that exposes the required interface
+		this.uriGiverPort =
+						new URISensorInboundPort(sensorPortURI, this) ; //todo
+		// publish the port (an outbound port is always local)
+		this.uriGiverPort.localPublishPort() ;
 
 		/*if (AbstractCVM.isDistributed) {
 			this.getLogger().setDirectory(System.getProperty("user.dir"));
@@ -218,15 +224,17 @@ extends		AbstractComponent
 	// Component internal services
 	//--------------------------------------------------------------------------
 
-public String executeSensorService(QueryI query) {
-	
-	ExecutionStateI es = this.getExecutorService();
-	QueryResultI queryR = query.eval(es);
-	for(SensorDataI sd : queryR.gatheredSensorsValues()) {
-		String id = sd.getSensorIdentifier();
-		String value = sd.getValue();
-		String res = id + " : " + value + "\n";
+	public String executeSensorService(QueryI query) {
+		
+		ExecutionStateI es = this.getExecutorService();
+		QueryResultI queryR = query.eval(es);
+		String res = "";
+		for(SensorDataI sd : queryR.gatheredSensorsValues()) {
+			String id = sd.getSensorIdentifier();
+			String value = (String) sd.getValue();
+			res += id + " : " + value + "\n";
+		}
+		return res;
 	}
-	return res;
-}
 // -----------------------------------------------------------------------------
+}
