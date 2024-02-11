@@ -4,10 +4,14 @@ import Interfaces.Ibexp;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
 public class AndBExp implements Ibexp {
-	
+
+
+	/*
+	Commit test
+	 */
 	
 	private Ibexp bexp1;
-	private Ibexp bexp2;
+	private Ibexp bnexp2;
 	
 	  public AndBExp(Ibexp bexp1,Ibexp bexp2 ) {
 		    this.bexp1 = bexp1;
