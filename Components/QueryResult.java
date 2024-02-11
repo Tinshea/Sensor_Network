@@ -1,4 +1,4 @@
 
-public class QueryResult {
+public class QueryResult{
 
 }

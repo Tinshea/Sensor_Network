@@ -41,6 +41,7 @@ import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI;
 import fr.sorbonne_u.components.examples.basic_cs.ports.URIConsumerOutboundPort;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 
 //-----------------------------------------------------------------------------
 /**
@@ -156,7 +157,11 @@ extends		AbstractComponent
 	 */
 	public void			executeAndPrintNode() throws Exception
 	{
-		QueryResult queryR= this.uriGetterPort.
+		String queryR = this.uriGetterPort.executeSensorService(new AST.GQuery
+				(new FGather("temperature"), 
+				new ECont()));
+		System.out.println(queryR);
+		
 	}
 
 
@@ -208,7 +213,7 @@ extends		AbstractComponent
 				@Override
 				public void run() {
 					try {
-						((URIConsumer)this.getTaskOwner()).getURIandPrint() ;
+						((URIClient)this.getTaskOwner()).executeAndPrintNode() ;
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -222,8 +227,8 @@ extends		AbstractComponent
 	@Override
 	public void			finalise() throws Exception
 	{
-		this.logMessage("stopping consumer component.") ;
-		this.printExecutionLogOnFile("consumer");
+		this.logMessage("stopping client component.") ;
+		this.printExecutionLogOnFile("client");
 		// This is the place where to clean up resources, such as
 		// disconnecting ports and unpublishing outbound ports that
 		// will be destroyed when shutting down.
@@ -236,5 +241,7 @@ extends		AbstractComponent
 		// state move to the finalised state.
 		super.finalise();
 	}
+	
+	// TODO : pas de shutdown ?
 }
 //-----------------------------------------------------------------------------

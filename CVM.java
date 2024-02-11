@@ -64,9 +64,9 @@ public class			CVM
 extends		AbstractCVM
 {
 	/** URI of the provider component (convenience).						*/
-	protected static final String	CLIENT_COMPONENT_URI = "my-URI-provider";
+	protected static final String	CLIENT_COMPONENT_URI = "my-URI-sensor";
 	/** URI of the consumer component (convenience).						*/
-	protected static final String	SENSORNODE_COMPONENT_URI = "my-URI-consumer";
+	protected static final String	SENSORNODE_COMPONENT_URI = "my-URI-client";
 	/** URI of the provider outbound port (simplifies the connection).		*/
 	protected static final String	URIGetterOutboundPortURI = "oport";
 	/** URI of the consumer inbound port (simplifies the connection).		*/
@@ -204,8 +204,9 @@ extends		AbstractCVM
 
 		super.shutdown();
 	}
-
-	public static void		main(String[] args)
+	
+	
+	public static void main(String[] args)
 	{
 		try {
 			// Create an instance of the defined component virtual machine.

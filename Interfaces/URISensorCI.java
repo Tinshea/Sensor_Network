@@ -55,6 +55,6 @@ import fr.sorbonne_u.components.interfaces.RequiredCI;
 public interface		URISensorCI
 extends		RequiredCI
 {	
-	public QueryResultI executeSensorService(QueryI query);
+	public String executeSensorService(QueryI query);
 }
 //-----------------------------------------------------------------------------

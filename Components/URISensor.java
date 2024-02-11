@@ -40,6 +40,8 @@ import fr.sorbonne_u.components.examples.basic_cs.ports.URIProviderInboundPort;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 import fr.sorbonne_u.exceptions.InvariantException;
 import fr.sorbonne_u.exceptions.PostconditionException;
 import fr.sorbonne_u.exceptions.PreconditionException;
@@ -94,15 +96,15 @@ extends		AbstractComponent
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	uriPrefix != null and providerPortURI != null
+	 * pre	uriPrefix != null and sensorPortURI != null
 	 * post	this.uriPrefix.equals(uriPrefix)
-	 * post	this.isPortExisting(providerPortURI)
-	 * post	this.findPortFromURI(providerPortURI).getImplementedInterface().equals(URIProviderI.class)
-	 * post	this.findPortFromURI(providerPortURI).isPublished()
+	 * post	this.isPortExisting(sensorPortURI)
+	 * post	this.findPortFromURI(sensorPortURI).getImplementedInterface().equals(URIProviderI.class)
+	 * post	this.findPortFromURI(sensorPortURI).isPublished()
 	 * </pre>
 	 *
 	 * @param uriPrefix			the URI prefix of this provider.
-	 * @param providerPortURI	the URI of the port exposing the service.
+	 * @param sensorPortURI	the URI of the port exposing the service.
 	 * @throws Exception			<i>todo.</i>
 	 */
 	protected				URISensor(
@@ -116,7 +118,7 @@ extends		AbstractComponent
 		assert	uriPrefix != null :
 					new PreconditionException("uri can't be null!");
 		assert	sensorPortURI != null :
-					new PreconditionException("providerPortURI can't be null!");
+					new PreconditionException("sensorPortURI can't be null!");
 
 		this.uriPrefix = uriPrefix ;
 
@@ -131,31 +133,30 @@ extends		AbstractComponent
 		// publish the port
 		p.publishPort();
 
-		if (AbstractCVM.isDistributed) {
+		/*if (AbstractCVM.isDistributed) {
 			this.getLogger().setDirectory(System.getProperty("user.dir"));
 		} else {
 			this.getLogger().setDirectory(System.getProperty("user.home"));
 		}
 		this.getTracer().setTitle("provider");
-		this.getTracer().setRelativePosition(1, 0);
+		this.getTracer().setRelativePosition(1, 0);*/
 
-		//faire ça
 		URISensor.checkInvariant(this) ;
 		AbstractComponent.checkImplementationInvariant(this);
 		AbstractComponent.checkInvariant(this);
 		assert	this.uriPrefix.equals(uriPrefix) :
 					new PostconditionException("The URI prefix has not "
 												+ "been initialised!");
-		assert	this.isPortExisting(providerPortURI) :
+		assert	this.isPortExisting(sensorPortURI) :
 					new PostconditionException("The component must have a "
-							+ "port with URI " + providerPortURI);
+							+ "port with URI " + sensorPortURI);
 		assert	this.findPortFromURI(sensorPortURI).
 					getImplementedInterface().equals(URISensorCI.class) :
 					new PostconditionException("The component must have a "
 							+ "port with implemented interface URIProviderI");
-		assert	this.findPortFromURI(providerPortURI).isPublished() :
+		assert	this.findPortFromURI(sensorPortURI).isPublished() :
 					new PostconditionException("The component must have a "
-							+ "port published with URI " + providerPortURI);
+							+ "port published with URI " + sensorPortURI);
 	}
 
 	//--------------------------------------------------------------------------
@@ -217,9 +218,15 @@ extends		AbstractComponent
 	// Component internal services
 	//--------------------------------------------------------------------------
 
-public QueryResultI executeSensorService(QueryI query) {
+public String executeSensorService(QueryI query) {
 	
-	ExecutionStateI
-	return query.eval(//provide ExecutionState);
+	ExecutionStateI es = this.getExecutorService();
+	QueryResultI queryR = query.eval(es);
+	for(SensorDataI sd : queryR.gatheredSensorsValues()) {
+		String id = sd.getSensorIdentifier();
+		String value = sd.getValue();
+		String res = id + " : " + value + "\n";
+	}
+	return res;
 }
 // -----------------------------------------------------------------------------

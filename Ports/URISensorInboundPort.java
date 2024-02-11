@@ -138,7 +138,7 @@ implements	URISensorCI
 	 */
 
 	@Override
-	public QueryResultI executeSensorService(QueryI query) {
+	public String executeSensorService(QueryI query) {
 		return this.getOwner().handleRequest(
 				owner -> ((URISensor)owner).executeSensorService(query)) ;
 	}

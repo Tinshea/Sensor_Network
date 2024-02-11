@@ -92,7 +92,7 @@ public interface		URIClientJava
     /**
      *TODO Documentation
      **/
-    public QueryResultI executeSensorService(Query query);
+    public String executeSensorService(Query query);
 
 }
 //-----------------------------------------------------------------------------

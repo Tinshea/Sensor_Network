@@ -61,7 +61,7 @@ implements	URIClientCI
 	 * @see fr.sorbonne_u.components.examples.cps.interfaces.ValueProvidingCI#getValue()
 	 */
 	@Override
-	public QueryResultI executeSensorService(Query query) throws Exception
+	public String executeSensorService(Query query) throws Exception
 	{
 		return ((URISensorCI)this.offering).executeSensorService(query);
 	}
