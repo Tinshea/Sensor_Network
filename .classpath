@@ -11,6 +11,10 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/Sorbonne/CPS/CPS/BCM4JavaModifiedWithJavaAssist.jar"/>
+	<classpathentry kind="lib" path="D:/Sorbonne/CPS/CPS/BCM4JavaModifiedWithJavaAssist.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

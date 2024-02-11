@@ -1,5 +1,7 @@
 package app.Interfaces;
 
+import fr.sorbonne_u.components.interfaces.OfferedCI;
+
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
 //Jacques.Malenfant@lip6.fr
@@ -54,7 +56,7 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
 public interface		URISensorCI
-extends		RequiredCI
+extends		OfferedCI
 {	
 	public String executeSensorService(QueryI query) throws Exception;
 }

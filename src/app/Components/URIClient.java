@@ -39,8 +39,7 @@ import java.util.concurrent.TimeUnit;
 import AST.ECont;
 import AST.FGather;
 import AST.GQuery;
-import app.Interfaces.URISensorCI;
-import app.Ports.URIClientOutBoundPort;
+import app.Interfaces.URIClientCI;
 import app.Ports.URIClientOutBoundPort;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
@@ -49,6 +48,8 @@ import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI;
 import fr.sorbonne_u.components.examples.basic_cs.ports.URIConsumerOutboundPort;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
+import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 
 //-----------------------------------------------------------------------------
 /**
@@ -90,7 +91,7 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
  */
 // The next annotation requires that the referenced interface is added to
 // the required interfaces of the component.
-@RequiredInterfaces(required = {URISensorCI.class})
+@RequiredInterfaces(required = {URIClientCI.class})
 public class			URIClient
 extends		AbstractComponent
 {
