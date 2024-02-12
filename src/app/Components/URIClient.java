@@ -91,7 +91,7 @@ import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
  */
 // The next annotation requires that the referenced interface is added to
 // the required interfaces of the component.
-@RequiredInterfaces(required = {URIClientCI.class})
+@RequiredInterfaces(required = {RequestingCI.class})
 public class			URIClient
 extends		AbstractComponent
 {

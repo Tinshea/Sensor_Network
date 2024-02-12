@@ -39,6 +39,8 @@ import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
+import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 import app.Interfaces.URIClientCI;
 
@@ -60,7 +62,7 @@ import app.Interfaces.URIClientCI;
  */
 public class			URIClientOutBoundPort
 extends		AbstractOutboundPort
-implements	URIClientCI
+implements	RequestingCI
 {
 	private static final long serialVersionUID = 1L;
 
@@ -126,6 +128,18 @@ implements	URIClientCI
 	public QueryResultI executeSensorService(QueryI query) throws Exception
 	{
 		return ((URIClientCI)this.getConnector()).executeSensorService(query) ;
+	}
+
+	@Override
+	public QueryResultI execute(RequestI request) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void executeAsync(RequestI request) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 }
 //-----------------------------------------------------------------------------

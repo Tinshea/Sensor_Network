@@ -38,6 +38,7 @@ import app.Components.URISensor;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
+import fr.sorbonne_u.components.examples.cps.interfaces.ports.ValueProvidingInboundPort;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
@@ -70,128 +71,85 @@ import fr.sorbonne_u.exceptions.PreconditionException;
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-@OfferedInterfaces(offered = {URISensorCI.class})
+@OfferedInterfaces(offered = {RequestingCI.class})
 public class			URISensor
 extends		AbstractComponent
-implements RequestingCI
 {
-	// -------------------------------------------------------------------------
-	// Constructors and instance variables
-	// -------------------------------------------------------------------------
+	protected final URISensorInboundPort	inboundPort ;
 
-	/**	a string prefix that will identify the URI Sensor.				*/
-	protected String		uriPrefix;
-	/**	the outbound port used to call the service.							*/
-	protected URISensorInboundPort uriGiverPort ;
+	// ------------------------------------------------------------------------
+	// Constructors
+	// ------------------------------------------------------------------------
 
 	/**
-	 * check the invariant of the class on an instance.
-	 *
-	 * @param c	the component to be tested.
-	 */
-	protected static void	checkInvariant(URISensor c)
-	{
-		assert	c.uriPrefix != null :
-					new InvariantException("The URI prefix is null!");
-		assert	c.isOfferedInterface(URISensorCI.class) :
-					new InvariantException("The URI component should "
-							+ "offer the interface URISensorCI!");
-	}
-
-	/**
-	 * create a component with a given uri prefix and that will expose its
-	 * service through a port of the given URI.
+	 * create a value provider with the given URI for its value providing
+	 * inbound port.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	uriPrefix != null and sensorPortURI != null
-	 * post	this.uriPrefix.equals(uriPrefix)
-	 * post	this.isPortExisting(sensorPortURI)
-	 * post	this.findPortFromURI(sensorPortURI).getImplementedInterface().equals(URIProviderI.class)
-	 * post	this.findPortFromURI(sensorPortURI).isPublished()
+	 * pre	valueProvidingInboundPortURI != null
+	 * post	true			// no postcondition.
 	 * </pre>
 	 *
-	 * @param uriPrefix			the URI prefix of this provider.
-	 * @param sensorPortURI	the URI of the port exposing the service.
-	 * @throws Exception			<i>todo.</i>
+	 * @param valueProvidingInboundPortURI	URI to be used to create the inbound port.
+	 * @throws Exception						<i>todo.</i>
 	 */
-	protected				URISensor(
-		String uriPrefix,
-		String sensorPortURI
+	protected			URISensor(
+		String valueProvidingInboundPortURI
 		) throws Exception
 	{
-		// the reflection inbound port URI is the URI of the component
-		super(uriPrefix, 1, 0) ;
+		// only one thread to ensure the serialised execution of services
+		// inside the component.
+		super(1, 0) ;
+		assert	valueProvidingInboundPortURI != null ;
 
-		assert	uriPrefix != null :
-					new PreconditionException("uri can't be null!");
-		assert	sensorPortURI != null :
-					new PreconditionException("sensorPortURI can't be null!");
+		this.inboundPort =
+			new URISensorInboundPort(valueProvidingInboundPortURI,
+										 this) ;
+		this.inboundPort.publishPort() ;
 
-		this.uriPrefix = uriPrefix ;
+		this.getTracer().setTitle("RandomValueProvider") ;
+		this.getTracer().setRelativePosition(1, 1) ;
 
-		// if the offered interface is not declared in an annotation on
-		// the component class, it can be added manually with the
-		// following instruction:
-		//this.addOfferedInterface(URIProviderI.class) ;
-
-		// create the port that exposes the required interface
-		this.uriGiverPort =
-						new URISensorInboundPort(sensorPortURI, this) ; //todo
-		// publish the port (an outbound port is always local)
-		this.uriGiverPort.localPublishPort() ;
-
-		/*if (AbstractCVM.isDistributed) {
-			this.getLogger().setDirectory(System.getProperty("user.dir"));
-		} else {
-			this.getLogger().setDirectory(System.getProperty("user.home"));
-		}
-		this.getTracer().setTitle("provider");
-		this.getTracer().setRelativePosition(1, 0);*/
-
-		URISensor.checkInvariant(this) ;
 		AbstractComponent.checkImplementationInvariant(this);
 		AbstractComponent.checkInvariant(this);
-		assert	this.uriPrefix.equals(uriPrefix) :
-					new PostconditionException("The URI prefix has not "
-												+ "been initialised!");
-		assert	this.isPortExisting(sensorPortURI) :
-					new PostconditionException("The component must have a "
-							+ "port with URI " + sensorPortURI);
-		assert	this.findPortFromURI(sensorPortURI).
-					getImplementedInterface().equals(URISensorCI.class) :
-					new PostconditionException("The component must have a "
-							+ "port with implemented interface URIProviderI");
-		assert	this.findPortFromURI(sensorPortURI).isPublished() :
-					new PostconditionException("The component must have a "
-							+ "port published with URI " + sensorPortURI);
 	}
 
-	//--------------------------------------------------------------------------
+	/**
+	 * create a value provider with the given URI for its value providing
+	 * inbound port.
+	 * 
+	 * <p><strong>Contract</strong></p>
+	 * 
+	 * <pre>
+	 * pre	valueProvidingInboundPortURI != null
+	 * post	true			// no postcondition.
+	 * </pre>
+	 *
+	 * @param reflectionInboundPortURI		URI of the component reflection inbound port.
+	 * @param valueProvidingInboundPortURI	URI to be used to create the inbound port.
+	 * @throws Exception						<i>todo.</i>
+	 */
+	protected			URISensor(
+		String reflectionInboundPortURI,
+		String valueProvidingInboundPortURI
+		) throws Exception
+	{
+		super(reflectionInboundPortURI, 1, 0);
+
+		this.inboundPort =
+			new URISensorInboundPort(valueProvidingInboundPortURI,
+										 this) ;
+		this.inboundPort.publishPort();
+
+		this.getTracer().setTitle("RandomValueProvider") ;
+		this.getTracer().setRelativePosition(1, 1) ;
+	}
+
+	// ------------------------------------------------------------------------
 	// Component life-cycle
-	//--------------------------------------------------------------------------
-
-	/**
-	 * @see fr.sorbonne_u.components.AbstractComponent#start()
-	 */
-	@Override
-	public void			start() throws ComponentStartException
-	{
-		this.logMessage("starting sensor component.");
-		super.start();
-	}
-
-	/**
-	 * @see fr.sorbonne_u.components.AbstractComponent#finalise()
-	 */
-	@Override
-	public void			finalise() throws Exception
-	{
-		this.logMessage("stopping sensor component.");
-		this.printExecutionLogOnFile("sensor");
-		super.finalise();
-	}
+	// ------------------------------------------------------------------------
 
 	/**
 	 * @see fr.sorbonne_u.components.AbstractComponent#shutdown()
@@ -199,12 +157,12 @@ implements RequestingCI
 	@Override
 	public void			shutdown() throws ComponentShutdownException
 	{
+		// the shutdown is a good place to unpublish inbound ports.
 		try {
-			PortI[] p = this.findPortsFromInterface(URISensorCI.class);
-			p[0].unpublishPort();
+			this.inboundPort.unpublishPort() ;
 		} catch (Exception e) {
-			throw new ComponentShutdownException(e);
-		}
+			throw new ComponentShutdownException(e) ;
+		};
 		super.shutdown();
 	}
 
@@ -214,12 +172,12 @@ implements RequestingCI
 	@Override
 	public void			shutdownNow() throws ComponentShutdownException
 	{
+		// the shutdown is a good place to unpublish inbound ports.
 		try {
-			PortI[] p = this.findPortsFromInterface(URISensorCI.class);
-			p[0].unpublishPort();
+			this.inboundPort.unpublishPort() ;
 		} catch (Exception e) {
-			throw new ComponentShutdownException(e);
-		}
+			throw new ComponentShutdownException(e) ;
+		};
 		super.shutdownNow();
 	}
 
@@ -232,18 +190,6 @@ implements RequestingCI
 		return query.eval(es);
 	}
 	// -----------------------------------------------------------------------------
-
-	@Override
-	public QueryResultI execute(RequestI request) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void executeAsync(RequestI request) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
 
 	
 }

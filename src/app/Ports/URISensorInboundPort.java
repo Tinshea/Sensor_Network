@@ -44,6 +44,8 @@ import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIProviderCI;
 import fr.sorbonne_u.components.interfaces.OfferedCI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
+import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
 //-----------------------------------------------------------------------------
@@ -66,7 +68,7 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
  */
 public class			URISensorInboundPort
 extends		AbstractInboundPort
-implements	URISensorCI
+implements	RequestingCI
 {
 	/** required by UnicastRemonteObject.									*/
 	private static final long serialVersionUID = 1L;
@@ -143,10 +145,21 @@ implements	URISensorCI
 	 * @see fr.sorbonne_u.components.examples.basic_cs.interfaces.URIProviderCI#provideURI()
 	 */
 
-	@Override
 	public QueryResultI executeSensorService(QueryI query) throws Exception{
 		return this.getOwner().handleRequest(
 				owner -> ((URISensor)owner).executeSensorService(query)) ;
+	}
+
+	@Override
+	public QueryResultI execute(RequestI request) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void executeAsync(RequestI request) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 }
 //-----------------------------------------------------------------------------
