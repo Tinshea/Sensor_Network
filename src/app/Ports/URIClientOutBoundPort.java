@@ -124,7 +124,7 @@ implements	RequestingCI
 	 * 
 	 * @see fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI#getURI()
 	 */
-	@Override
+	
 	public QueryResultI executeSensorService(QueryI query) throws Exception
 	{
 		return ((URIClientCI)this.getConnector()).executeSensorService(query) ;
