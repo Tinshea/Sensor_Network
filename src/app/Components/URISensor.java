@@ -1,37 +1,4 @@
 package app.Components;
-// Copyright Jacques Malenfant, Sorbonne Universite.
-// Jacques.Malenfant@lip6.fr
-//
-// This software is a computer program whose purpose is to provide a
-// basic component programming model to program with components
-// distributed applications in the Java programming language.
-//
-// This software is governed by the CeCILL-C license under French law and
-// abiding by the rules of distribution of free software.  You can use,
-// modify and/ or redistribute the software under the terms of the
-// CeCILL-C license as circulated by CEA, CNRS and INRIA at the following
-// URL "http://www.cecill.info".
-//
-// As a counterpart to the access to the source code and  rights to copy,
-// modify and redistribute granted by the license, users are provided only
-// with a limited warranty  and the software's author,  the holder of the
-// economic rights,  and the successive licensors  have only  limited
-// liability. 
-//
-// In this respect, the user's attention is drawn to the risks associated
-// with loading,  using,  modifying and/or developing or reproducing the
-// software by the user in light of its specific status of free software,
-// that may mean  that it is complicated to manipulate,  and  that  also
-// therefore means  that it is reserved for developers  and  experienced
-// professionals having in-depth computer knowledge. Users are therefore
-// encouraged to load and test the software's suitability as regards their
-// requirements in conditions enabling the security of their systems and/or 
-// data to be ensured and,  more generally, to use and operate it in the 
-// same conditions as regards security. 
-//
-// The fact that you are presently reading this means that you have had
-// knowledge of the CeCILL-C license and that you accept its terms.
-
 import app.Interfaces.URISensorCI;
 import app.Ports.URISensorInboundPort;
 import app.Components.URISensor;
@@ -55,7 +22,7 @@ import fr.sorbonne_u.exceptions.PreconditionException;
 
 // -----------------------------------------------------------------------------
 /**
- * The class <code>URISensor</code> implements a component that provides
+ * The class <code>URISensor.java</code> implements a component that provides
  * URI creation services.
  *
  * <p><strong>Description</strong></p>
@@ -63,19 +30,18 @@ import fr.sorbonne_u.exceptions.PreconditionException;
  * <p><strong>Invariant</strong></p>
  * 
  * <pre>
- * invariant		this.uriPrefix != null
- * invariant		c.isOfferedInterface(URIProviderI.class)
+ 
  * </pre>
  * 
- * <p>Created on : 2014-01-22</p>
+ * <p>Created on : 2024-02-17</p>
  * 
- * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
+ * @author	<a>Malek Bouzarkouna, Younes Chetouani & Mohamed Amine Zemali </a>
  */
 @OfferedInterfaces(offered = {RequestingCI.class})
-public class			URISensor
-extends		AbstractComponent
+public class URISensor extends AbstractComponent
 {
-	protected final URISensorInboundPort	inboundPort ;
+	// todo : pour la continuation : implements SensorNodeP2PImplI
+	protected final URISensorInboundPort inboundPort ;
 
 	// ------------------------------------------------------------------------
 	// Constructors
@@ -95,18 +61,14 @@ extends		AbstractComponent
 	 * @param valueProvidingInboundPortURI	URI to be used to create the inbound port.
 	 * @throws Exception						<i>todo.</i>
 	 */
-	protected			URISensor(
-		String valueProvidingInboundPortURI
-		) throws Exception
+	protected URISensor(String valueProvidingInboundPortURI) throws Exception
 	{
 		// only one thread to ensure the serialised execution of services
 		// inside the component.
 		super(1, 0) ;
 		assert	valueProvidingInboundPortURI != null ;
 
-		this.inboundPort =
-			new URISensorInboundPort(valueProvidingInboundPortURI,
-										 this) ;
+		this.inboundPort = new URISensorInboundPort(valueProvidingInboundPortURI,this) ;
 		this.inboundPort.publishPort() ;
 
 		this.getTracer().setTitle("RandomValueProvider") ;
@@ -131,21 +93,23 @@ extends		AbstractComponent
 	 * @param valueProvidingInboundPortURI	URI to be used to create the inbound port.
 	 * @throws Exception						<i>todo.</i>
 	 */
-	protected			URISensor(
-		String reflectionInboundPortURI,
-		String valueProvidingInboundPortURI
-		) throws Exception
-	{
-		super(reflectionInboundPortURI, 1, 0);
-
-		this.inboundPort =
-			new URISensorInboundPort(valueProvidingInboundPortURI,
-										 this) ;
-		this.inboundPort.publishPort();
-
-		this.getTracer().setTitle("RandomValueProvider") ;
-		this.getTracer().setRelativePosition(1, 1) ;
-	}
+	
+	// POUR LE MOMENT PAS UTILE
+//	protected	URISensor(
+//		String reflectionInboundPortURI,
+//		String valueProvidingInboundPortURI
+//		) throws Exception
+//	{
+//		super(reflectionInboundPortURI, 1, 0);
+//
+//		this.inboundPort =
+//			new URISensorInboundPort(valueProvidingInboundPortURI,
+//										 this) ;
+//		this.inboundPort.publishPort();
+//
+//		this.getTracer().setTitle("RandomValueProvider") ;
+//		this.getTracer().setRelativePosition(1, 1) ;
+//	}
 
 	// ------------------------------------------------------------------------
 	// Component life-cycle
@@ -155,7 +119,7 @@ extends		AbstractComponent
 	 * @see fr.sorbonne_u.components.AbstractComponent#shutdown()
 	 */
 	@Override
-	public void			shutdown() throws ComponentShutdownException
+	public void shutdown() throws ComponentShutdownException
 	{
 		// the shutdown is a good place to unpublish inbound ports.
 		try {
@@ -170,7 +134,7 @@ extends		AbstractComponent
 	 * @see fr.sorbonne_u.components.AbstractComponent#shutdownNow()
 	 */
 	@Override
-	public void			shutdownNow() throws ComponentShutdownException
+	public void shutdownNow() throws ComponentShutdownException
 	{
 		// the shutdown is a good place to unpublish inbound ports.
 		try {
@@ -185,9 +149,9 @@ extends		AbstractComponent
 	// Component internal services
 	//--------------------------------------------------------------------------
 	
-	public QueryResultI executeSensorService(QueryI query) {
+	public QueryResultI execute(RequestI request) throws Exception{
 		ExecutionStateI es = new ExecutionState();
-		return query.eval(es);
+		return null; /*request.eval(es); */
 	}
 	// -----------------------------------------------------------------------------
 

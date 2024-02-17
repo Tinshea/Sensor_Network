@@ -92,8 +92,7 @@ import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 // The next annotation requires that the referenced interface is added to
 // the required interfaces of the component.
 @RequiredInterfaces(required = {RequestingCI.class})
-public class			URIClient
-extends		AbstractComponent
+public class URIClient extends AbstractComponent
 {
 	// ------------------------------------------------------------------------
 	// Constructors and instance variables
@@ -113,10 +112,7 @@ extends		AbstractComponent
 	 * @param outboundPortURI	URI of the URI getter outbound port.
 	 * @throws Exception		<i>todo.</i>
 	 */
-	protected				URIClient(
-		String uri,
-		String outboundPortURI
-		) throws Exception
+	protected URIClient(String uri, String outboundPortURI) throws Exception
 	{
 		// the reflection inbound port URI is the URI of the component
 		// no simple thread and one schedulable thread
@@ -127,8 +123,7 @@ extends		AbstractComponent
 		//this.addRequiredInterface(URIConsumerI.class) ;
 
 		// create the port that exposes the required interface
-		this.uriGetterPort =
-						new URIClientOutBoundPort(outboundPortURI, this) ; //todo
+		this.uriGetterPort = new URIClientOutBoundPort(outboundPortURI, this) ; //todo
 		// publish the port (an outbound port is always local)
 		this.uriGetterPort.localPublishPort() ;
 		this.counter = 0 ;
@@ -163,9 +158,9 @@ extends		AbstractComponent
 	 *
 	 * @throws Exception	<i>todo.</i>
 	 */
-	public void			executeAndPrintNode() throws Exception
+	public void	executeAndPrintNode() throws Exception
 	{
-		QueryResultI queryR = this.uriGetterPort.executeSensorService(new GQuery
+		QueryResultI queryR = this.uriGetterPort.execute((RequestI) new GQuery
 				(new FGather("temperature"), 
 				new ECont()));
 		System.out.println(queryR);

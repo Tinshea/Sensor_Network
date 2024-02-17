@@ -54,9 +54,7 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
  *
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface		URIClientCI
-        extends		RequiredCI
-{
+public interface URIClientCI extends RequiredCI{
     /**
      * get a new URI.
      *

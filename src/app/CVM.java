@@ -37,7 +37,7 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import app.Components.URIClient;
 import app.Components.URISensor;
-import fr.sorbonne_u.components.examples.basic_cs.connectors.URIServiceConnector;
+import app.connectors.Connector;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
 
 // -----------------------------------------------------------------------------
@@ -153,7 +153,7 @@ extends		AbstractCVM
 				this.uriSensorURI,
 				URIGetterOutboundPortURI,
 				URIClientInboundPortURI,
-				URIServiceConnector.class.getCanonicalName()) ;
+				Connector.class.getCanonicalName()) ;
 		// Nota: the above use of the reference to the object representing
 		// the URI consumer component is allowed only in the deployment
 		// phase of the component virtual machine (to perform the static
