@@ -68,8 +68,8 @@ public class URISensor extends AbstractComponent
 		super(1, 0) ;
 		assert	valueProvidingInboundPortURI != null ;
 
-		this.inboundPort = new URISensorInboundPort(valueProvidingInboundPortURI,this) ;
-		this.inboundPort.publishPort() ;
+		this.inboundPort = new URISensorInboundPort("mon-URI" ,this) ;
+		this.inboundPort.localPublishPort() ;
 
 		this.getTracer().setTitle("RandomValueProvider") ;
 		this.getTracer().setRelativePosition(1, 1) ;
@@ -95,21 +95,19 @@ public class URISensor extends AbstractComponent
 	 */
 	
 	// POUR LE MOMENT PAS UTILE
-//	protected	URISensor(
-//		String reflectionInboundPortURI,
-//		String valueProvidingInboundPortURI
-//		) throws Exception
-//	{
-//		super(reflectionInboundPortURI, 1, 0);
-//
-//		this.inboundPort =
-//			new URISensorInboundPort(valueProvidingInboundPortURI,
-//										 this) ;
-//		this.inboundPort.publishPort();
-//
-//		this.getTracer().setTitle("RandomValueProvider") ;
-//		this.getTracer().setRelativePosition(1, 1) ;
-//	}
+	protected	URISensor(
+		String reflectionInboundPortURI,
+		String valueProvidingInboundPortURI
+		) throws Exception
+	{
+		super(reflectionInboundPortURI, 1, 0);
+
+		this.inboundPort = new URISensorInboundPort("mon-URI", this) ;
+		this.inboundPort.publishPort();
+
+		this.getTracer().setTitle("RandomValueProvider") ;
+		this.getTracer().setRelativePosition(1, 1) ;
+	}
 
 	// ------------------------------------------------------------------------
 	// Component life-cycle

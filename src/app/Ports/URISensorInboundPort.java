@@ -23,7 +23,7 @@ public class URISensorInboundPort extends AbstractInboundPort implements Request
 	{
 		// the implemented interface is statically known
 		super(RequestingCI.class, owner) ;
-		assert	owner instanceof RequestingCI ;
+//		assert	owner instanceof RequestingCI ;
 	}
 
 	@Override

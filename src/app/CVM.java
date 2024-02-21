@@ -125,7 +125,7 @@ extends		AbstractCVM
 			AbstractComponent.createComponent(
 					URIClient.class.getCanonicalName(),
 					new Object[]{CLIENT_COMPONENT_URI,
-								 URIClientInboundPortURI});
+								URIGetterOutboundPortURI});
 		assert	this.isDeployedComponent(this.URIClientURI);
 		// make it trace its operations; comment and uncomment the line to see
 		// the difference
@@ -137,23 +137,14 @@ extends		AbstractCVM
 			AbstractComponent.createComponent(
 					URISensor.class.getCanonicalName(),
 					new Object[]{SENSORNODE_COMPONENT_URI,
-								 URIGetterOutboundPortURI});
+								URIClientInboundPortURI});
 		assert	this.isDeployedComponent(this.uriSensorURI);
 		// make it trace its operations; comment and uncomment the line to see
 		// the difference
 		this.toggleTracing(this.uriSensorURI);
 		this.toggleLogging(this.uriSensorURI);
 		
-		// ---------------------------------------------------------------------
-		// Connection phase
-		// ---------------------------------------------------------------------
-
-		// do the connection
-		this.doPortConnection(
-				this.uriSensorURI,
-				URIGetterOutboundPortURI,
-				URIClientInboundPortURI,
-				Connector.class.getCanonicalName()) ;
+	
 		// Nota: the above use of the reference to the object representing
 		// the URI consumer component is allowed only in the deployment
 		// phase of the component virtual machine (to perform the static
@@ -180,8 +171,7 @@ extends		AbstractCVM
 	{
 		// Port disconnections can be done here for static architectures
 		// otherwise, they can be done in the finalise methods of components.
-		this.doPortDisconnection(this.uriSensorURI,
-								 URIGetterOutboundPortURI);
+		
 
 		super.finalise();
 	}

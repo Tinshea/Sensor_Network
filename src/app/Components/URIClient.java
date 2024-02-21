@@ -41,6 +41,7 @@ import AST.FGather;
 import AST.GQuery;
 import app.Interfaces.URIClientCI;
 import app.Ports.URIClientOutBoundPort;
+import app.connectors.Connector;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
@@ -123,9 +124,9 @@ public class URIClient extends AbstractComponent
 		//this.addRequiredInterface(URIConsumerI.class) ;
 
 		// create the port that exposes the required interface
-		this.uriGetterPort = new URIClientOutBoundPort(outboundPortURI, this) ; //todo
+		this.uriGetterPort = new URIClientOutBoundPort(this) ; //todo
 		// publish the port (an outbound port is always local)
-		this.uriGetterPort.localPublishPort() ;
+		this.uriGetterPort.publishPort() ;
 		this.counter = 0 ;
 		/*
 		if (AbstractCVM.isDistributed) {
@@ -190,6 +191,20 @@ public class URIClient extends AbstractComponent
 	public void			start() throws ComponentStartException
 	{
 		this.logMessage("starting client component.") ;
+		// ---------------------------------------------------------------------
+		// Connection phase
+		// ---------------------------------------------------------------------
+
+		// do the connection
+		try {
+			this.doPortConnection(
+					this.uriGetterPort.getPortURI(),
+					"mon-URI",
+					Connector.class.getCanonicalName()) ;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		super.start() ;
 		// initialisation code can be put here; do not however call any
 		// services of this component or of another component as they will
@@ -238,8 +253,9 @@ public class URIClient extends AbstractComponent
 		// In static architectures like in this example, ports can also
 		// be disconnected by the finalise method of the component
 		// virtual machine.
+		this.doPortDisconnection(this.uriGetterPort.getPortURI());
 		this.uriGetterPort.unpublishPort() ;
-
+	
 		// This called at the end to make the component internal
 		// state move to the finalised state.
 		super.finalise();

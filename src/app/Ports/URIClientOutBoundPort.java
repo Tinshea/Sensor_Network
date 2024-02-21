@@ -22,7 +22,7 @@ public class URIClientOutBoundPort extends AbstractOutboundPort implements	Reque
 	{
 		super(RequestingCI.class, owner) ;
 
-		assert	owner != null ;
+//		assert	owner instanceof RequestingCI ;
 	}
 
 	@Override
