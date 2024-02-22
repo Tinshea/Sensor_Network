@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import AST.ECont;
 import AST.FGather;
 import AST.GQuery;
+import Interfaces.IGather;
 import app.Interfaces.URIClientCI;
 import app.Ports.URIClientOutBoundPort;
 import app.connectors.Connector;
@@ -48,9 +49,11 @@ import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.examples.basic_cs.interfaces.URIConsumerCI;
 import fr.sorbonne_u.components.examples.basic_cs.ports.URIConsumerOutboundPort;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.components.registry.protocol.Request;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
+import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
 //-----------------------------------------------------------------------------
 /**
@@ -159,14 +162,13 @@ public class URIClient extends AbstractComponent
 	 *
 	 * @throws Exception	<i>todo.</i>
 	 */
-	public void	executeAndPrintNode() throws Exception
-	{
-		QueryResultI queryR = this.uriGetterPort.execute((RequestI) new GQuery
-				(new FGather("temperature"), 
-				new ECont()));
-		System.out.println(queryR);
-		
-	}
+		public void executeAndPrintNode() throws Exception {
+	
+			MyRequest clientRequest = new MyRequest((QueryI) new GQuery (new FGather("temperature"), new ECont()));
+		    QueryResultI queryR = this.uriGetterPort.execute((RequestI) clientRequest);
+		    System.out.println(queryR);
+		}
+
 
 
 

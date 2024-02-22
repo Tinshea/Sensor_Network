@@ -149,7 +149,8 @@ public class URISensor extends AbstractComponent
 	
 	public QueryResultI execute(RequestI request) throws Exception{
 		ExecutionStateI es = new ExecutionState();
-		return null; /*request.eval(es); */
+		 QueryResultI result = request.eval(es);
+		return result ;
 	}
 	// -----------------------------------------------------------------------------
 

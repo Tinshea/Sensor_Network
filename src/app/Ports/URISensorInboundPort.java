@@ -29,9 +29,8 @@ public class URISensorInboundPort extends AbstractInboundPort implements Request
 	@Override
 	public QueryResultI execute(RequestI request) throws Exception {
 		return this.getOwner().handleRequest(
-				owner -> ((RequestingCI)owner).execute(request)) ;
+				owner -> ((URISensor)owner).execute(request)) ;
 	}
-
 	@Override
 	public void executeAsync(RequestI request) throws Exception {
 		// TODO Auto-generated method stub
