@@ -3,6 +3,9 @@ package app.Components;
 import app.Interfaces.URISensorCI;
 import app.Ports.URISensorInboundPort;
 import app.connectors.Connector;
+
+import java.util.Set;
+
 import app.Components.URISensor;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
@@ -43,40 +46,25 @@ import fr.sorbonne_u.exceptions.PreconditionException;
 public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 	
 	protected final URISensorInboundPort inboundPort ;
+	protected NodeInfoI descriptor;
 
 	// ------------------------------------------------------------------------
 	// Constructors
 	// ------------------------------------------------------------------------
 
-	protected URISensor(String valueProvidingInboundPortURI, NodeInfoI descriptor) throws Exception {
+	protected URISensor(NodeInfoI descriptor) throws Exception {
 		
 		super(1, 0) ;
-		assert	valueProvidingInboundPortURI != null ;
-
+		this.descriptor = descriptor;
 		this.inboundPort = new URISensorInboundPort("mon-URI" ,this) ;
 		this.inboundPort.localPublishPort() ;
 
-		this.getTracer().setTitle("RandomValueProvider") ;
-		this.getTracer().setRelativePosition(1, 1) ;
-
-		AbstractComponent.checkImplementationInvariant(this);
-		AbstractComponent.checkInvariant(this);
-	}
-
-	protected	URISensor(String reflectionInboundPortURI,String valueProvidingInboundPortURI) throws Exception {
-		
-		super(reflectionInboundPortURI, 1, 0);
-
-		this.inboundPort = new URISensorInboundPort("mon-URI", this) ;
-		this.inboundPort.publishPort();
-
-		this.getTracer().setTitle("RandomValueProvider") ;
-		this.getTracer().setRelativePosition(1, 1) ;
 	}
 
 	// ------------------------------------------------------------------------
 	// Component life-cycle
 	// ------------------------------------------------------------------------
+	
 	@Override
 	public void	start() throws ComponentStartException
 	{
@@ -98,11 +86,12 @@ public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 	public void	 execute() throws Exception {
 		
 		this.logMessage("executing client component.") ;
-		// il faut exec ça 
-		public Set<NodeInfoI> register(NodeInfoI nodeInfo) throws Exception; 
-		//ça va nous retourner un truc du genre 
-		//le registre va lui retourner l’ensemble des informations sur les nœuds
-		//qui pourront devenir ses voisins dans le réseau
+		
+		Set<NodeInfoI> neighbor =   this.handleRequest( 
+					new AbstractComponent.AbstractService<Set<NodeInfoI>>() {
+				public Set<NodeInfoI> call() {
+				return this.register(descriptor);;
+				});
 		
 		
 		//faire un  ask4connection sur les 4 voisons ici
@@ -154,6 +143,7 @@ public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 	//--------------------------------------------------------------------------
 	// Component internal services
 	//--------------------------------------------------------------------------
+	 
 	
 	public QueryResultI execute(RequestI request) throws Exception{
 		ExecutionStateI es = new ExecutionState();

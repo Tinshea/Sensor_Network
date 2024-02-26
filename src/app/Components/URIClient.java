@@ -97,13 +97,13 @@ public class URIClient extends AbstractComponent {
 				@Override
 				public void run() {
 					try {
-						((URIClient)this.getTaskOwner()).executeAndPrintNode() ;
+						((URIClient)this.()).executeAndPrintNode() ;
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
 			}) ;
-	}
+	}	
 
 	@Override
 	public void finalise() throws Exception {
