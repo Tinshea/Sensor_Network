@@ -4,7 +4,7 @@ import AST.ECont;
 import AST.FGather;
 import AST.GQuery;
 import app.Ports.URIClientOutBoundPort;
-import app.connectors.Connector;
+import app.connectors.ConnectorRegistre;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
@@ -17,16 +17,14 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
 @RequiredInterfaces(required = {RequestingCI.class, LookupCI.class})
 public class URIClient extends AbstractComponent {
+	
 	// ------------------------------------------------------------------------
 	// Constructors and instance variables
 	// ------------------------------------------------------------------------
 
-	/** number of URIs that will be required by the consumer when calling
-	 *  for several URIs at the same time.									*/
-	protected final static int	N = 1 ;
-
-	/**	the outbound port used to call the service.							*/
+	/**	the outbound port usedy to call the service.							*/
 	protected URIClientOutBoundPort	uriGetterPort ; //todo
+	private final String outboundPortRegister;
 	/**	counting service invocations.										*/
 
 	/**
@@ -34,10 +32,12 @@ public class URIClient extends AbstractComponent {
 	 * @param outboundPortURI	URI of the URI getter outbound port.
 	 * @throws Exception		<i>todo.</i>
 	 */
-	protected URIClient(String uri, String outboundPortURI) throws Exception {
-		super(uri, 0, 1) ;
+	protected URIClient(String outboundPortRegister) throws Exception {
+		super(0, 1) ;
 		this.uriGetterPort = new URIClientOutBoundPort(this) ; //todo
 		this.uriGetterPort.publishPort() ;
+		
+		this.outboundPortRegister  = outboundPortRegister;
 
 		AbstractComponent.checkImplementationInvariant(this);
 		AbstractComponent.checkInvariant(this);
@@ -65,9 +65,20 @@ public class URIClient extends AbstractComponent {
 		// Connection phase
 		// ---------------------------------------------------------------------
 		
+		
 //		Le composant client se connecte au composant registre via l’interface de composant LookupCI
 //		(figure 5).
 		
+		// do the connection
+		try {
+			this.doPortConnection(
+							this.uriGetterPort.getPortURI(),
+							outboundPortRegister,
+							ConnectorRegistre.class.getCanonicalName()) ;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
 //		Le client appelle le registre soit par la méthode findByIdentifier, auqeul cas il va récupé-
 //		rer les informations de connexion à ce nœud, ou encore par la méthode findByZone, auquel
 //		cas il va récupérer un ensemble d’informations de connexion aux nœuds dans cette zone,
@@ -81,7 +92,7 @@ public class URIClient extends AbstractComponent {
 		try {
 			this.doPortConnection(
 					this.uriGetterPort.getPortURI(),
-					"mon-URI",
+					outboundPortRegister,
 					Connector.class.getCanonicalName()) ;
 		} catch (Exception e) {
 			e.printStackTrace();

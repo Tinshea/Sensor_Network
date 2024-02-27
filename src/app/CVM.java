@@ -34,10 +34,11 @@ package app;
 // knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import app.Components.URIClient;
 import app.Components.URISensor;
-import app.connectors.Connector;
+import app.connectors.ConnectorSensor;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
 
 // -----------------------------------------------------------------------------
@@ -73,6 +74,9 @@ extends		AbstractCVM
 	protected static final String	URIGetterOutboundPortURI = "oport";
 	/** URI of the consumer inbound port (simplifies the connection).		*/
 	protected static final String	URIClientInboundPortURI = "iport";
+
+	
+	String URIRegisterInboundPortURI = AbstractPort.generatePortURI();
 
 	public				CVM() throws Exception
 	{

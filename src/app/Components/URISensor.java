@@ -153,7 +153,7 @@ public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 
 	@Override
 	public void ask4Connection(NodeInfoI neighbour) throws Exception {
-		// TODO Auto-generated method stub
+		//ici on se connecte et on check les voisins etc je pense
 		
 	}
 

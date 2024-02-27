@@ -4,14 +4,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import app.Ports.URIRegisterInboundPort;
 import app.Ports.URISensorInboundPort;
-import app.connectors.Connector;
+import app.connectors.ConnectorSensor;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.GeographicalZoneI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
@@ -20,18 +22,17 @@ import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
 
 public class Register  extends AbstractComponent {
 	
-	protected final URISensorInboundPort inboundPort ;
+	protected final URIRegisterInboundPort inboundPort ;
 	
 	private Set<NodeInfoI> registeredNodes = new HashSet<>();
 	//identité, position, portée de ses émetteurs et informations de connexion dans le cas de ce projet
-	protected Register() {
+	protected Register(String outboundPortURI) throws Exception {
 		
 		super(1, 0) ;
 		
-		this.inboundPort = new URISensorInboundPort("mon-URI" ,this) ;
+		this.inboundPort = new URIRegisterInboundPort(outboundPortURI ,this) ;
 		this.inboundPort.localPublishPort() ;
 		
-		//faire gaf avec l'uri
 	}
 	
 	//-------------------------------------------------------------------------
@@ -121,12 +122,28 @@ public class Register  extends AbstractComponent {
 		}
 
 		
-		//pas fait
-		public NodeInfoI findNewNeighbour(NodeInfoI nodeInfo) throws Exception{
-		     // Trouve un nouveau voisin pour le nœud donné
-	        // Cette implémentation est simplifiée, elle retourne simplement le premier voisin qui n'est pas le nœud lui-même
-	        return null;
-	    }
+		public NodeInfoI findNewNeighbour(NodeInfoI nodeInfo, Direction direction) throws Exception {
+		    Position position = (Position) nodeInfo.nodePosition();
+		    NodeInfoI closestNeighbour = null;
+		    double closestDistance = Double.MAX_VALUE;
+
+		    for (NodeInfoI potentialNeighbour : registeredNodes) {
+		        if (!potentialNeighbour.nodeIdentifier().equals(nodeInfo.nodeIdentifier())) {
+		            Position potentialPosition = (Position) potentialNeighbour.nodePosition();
+		            double distance = position.distance(potentialPosition);
+		            Direction potentialDirection = position.directionFrom(potentialPosition);
+
+		            if (distance <= nodeInfo.nodeRange() && distance <= potentialNeighbour.nodeRange() && potentialDirection == direction) {
+		                if (distance < closestDistance) {
+		                    closestDistance = distance;
+		                    closestNeighbour = potentialNeighbour;
+		                }
+		            }
+		        }
+		    }
+
+		    return closestNeighbour;
+		}
 
 		public void unregister(String nodeIdentifier) throws Exception{
 			// Désenregistre un nœud

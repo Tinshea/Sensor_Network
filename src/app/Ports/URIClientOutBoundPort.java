@@ -44,13 +44,13 @@ public class URIClientOutBoundPort extends AbstractOutboundPort implements	Reque
 	@Override
 	public ConnectionInfoI findByIdentifier(String sensorNodeId) throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return ((LookupCI)this.getConnector()).findByIdentifier(sensorNodeId) ;
 	}
 
 	@Override
 	public Set<ConnectionInfoI> findByZone(GeographicalZoneI z) throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return ((LookupCI)this.getConnector()).findByZone(z) ;
 	}
 	
 	
