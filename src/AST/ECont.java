@@ -10,7 +10,7 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 public class ECont implements ICont {
 
 	@Override
-	public List<ProcessingNodeI> eval(ExecutionStateI es) {
+	public List<String> eval(ExecutionStateI es) {
 		// TODO Auto-generated method stub
 		return new ArrayList<>();
 	}

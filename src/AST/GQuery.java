@@ -20,8 +20,8 @@ public class GQuery implements QueryI {
 	
 	public QueryResultI eval(ExecutionStateI es) {
 		QueryResultI res = es.getCurrentResult();
-		List<ProcessingNodeI> i = cont.eval(es);
-		i.add(0,es.getProcessingNode());
+		List<String> i = cont.eval(es);
+		i.add(0,es.getProcessingNode().getNodeIdentifier());
 		if(i.size() == 1) {
 			res.gatheredSensorsValues().addAll(gather.eval(es));
 			i.remove(0);
@@ -29,7 +29,7 @@ public class GQuery implements QueryI {
 		else {
 			res.gatheredSensorsValues().addAll(gather.eval(es));
 			i.remove(0);
-			es.updateProcessingNode(i.get(0));
+			es.
 			this.eval(es);
 		}
 		return res;
