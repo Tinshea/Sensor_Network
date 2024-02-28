@@ -1,5 +1,7 @@
 package app.Interfaces;
 
+import java.util.Set;
+
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
 //Jacques.Malenfant@lip6.fr
@@ -35,8 +37,10 @@ package app.Interfaces;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.interfaces.RequiredCI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.GeographicalZoneI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
-import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 
 //-----------------------------------------------------------------------------
 /**
@@ -54,45 +58,16 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
  *
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface URIClientCI extends RequiredCI{
-    /**
-     * get a new URI.
-     *
-     * <p><strong>Contract</strong></p>
-     *
-     * <pre>
-     * pre	true			// no precondition.
-     * post	ret != null
-     * </pre>
-     *
-     * @return			the requested URI.
-     * @throws Exception	<i>todo.</i>
-     */
-    //public String		getURI() throws Exception ;
+public interface URIClientCI extends RequiredCI {
 
-    /**
-     * get several new URIs at once.
-     *
-     * <p><strong>Contract</strong></p>
-     *
-     * <pre>
-     * pre	numberOfURIs &gt; 0
-     * post	ret != null and ret.length == numberOfURIs
-     * post	forall i in 0..numberOfURIs-1, ret[i] !! null
-     * </pre>
-     *
-     * @param numberOfURIs	number of requested URIs.
-     * @return				array of URIs.
-     * @throws Exception		<i>todo.</i>
-     */
-   //public QueryResult[]		getURIs(int numberOfURIs) throws Exception ;
+	
+	public QueryResultI execute(RequestI request) throws Exception ;
 
+	public void executeAsync(RequestI request) throws Exception;
 
-
-    /**
-     *TODO Documentation
-     **/
-    public QueryResultI executeSensorService(QueryI query) throws Exception;
-
+	public ConnectionInfoI findByIdentifier(String sensorNodeId) throws Exception ;
+	
+	public Set<ConnectionInfoI> findByZone(GeographicalZoneI z) throws Exception ;
+	
 }
 //-----------------------------------------------------------------------------

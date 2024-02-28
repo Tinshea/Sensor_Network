@@ -2,35 +2,31 @@ package app.Ports;
 
 import java.util.Set;
 
+import app.Interfaces.URISensoroutCI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
-import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
-import fr.sorbonne_u.cps.sensor_network.interfaces.GeographicalZoneI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
-import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 import fr.sorbonne_u.cps.sensor_network.network.interfaces.SensorNodeP2PCI;
-import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
-import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
 
 
-public class URISensorOutBoundPort extends AbstractOutboundPort implements	SensorNodeP2PCI, RegistrationCI
+public class URISensorOutBoundPort extends AbstractOutboundPort implements	URISensoroutCI
 {
 	private static final long serialVersionUID = 1L;
 	
 	 // On lui passe la référence au composant qui le détient
 	public	URISensorOutBoundPort(String uri,ComponentI owner) throws Exception
 	{
-		super(uri, RequestingCI.class, owner) ;
+		super(uri, URISensoroutCI.class, owner) ;
 		assert	uri != null && owner != null ;
 	}
 
 	public	URISensorOutBoundPort(ComponentI owner) throws Exception
 	{
-		super(RequestingCI.class, owner) ;
+		super(URISensoroutCI.class, owner) ;
 
 //		assert	owner instanceof RequestingCI ;
 	}

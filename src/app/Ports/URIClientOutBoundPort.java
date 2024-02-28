@@ -2,6 +2,7 @@ package app.Ports;
 
 import java.util.Set;
 
+import app.Interfaces.URIClientCI;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
@@ -12,20 +13,20 @@ import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
 
 
-public class URIClientOutBoundPort extends AbstractOutboundPort implements	RequestingCI , LookupCI
+public class URIClientOutBoundPort extends AbstractOutboundPort implements	URIClientCI
 {
 	private static final long serialVersionUID = 1L;
 	
 	 // On lui passe la référence au composant qui le détient
 	public	URIClientOutBoundPort(String uri,ComponentI owner) throws Exception
 	{
-		super(uri, RequestingCI.class, owner) ;
+		super(uri, URIClientCI.class, owner) ;
 		assert	uri != null && owner != null ;
 	}
 
 	public	URIClientOutBoundPort(ComponentI owner) throws Exception
 	{
-		super(RequestingCI.class, owner) ;
+		super(URIClientCI.class, owner) ;
 
 //		assert	owner instanceof RequestingCI ;
 	}

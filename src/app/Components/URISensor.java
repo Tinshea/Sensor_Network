@@ -1,8 +1,10 @@
 package app.Components;
 
-import app.Interfaces.URISensorCI;
+import app.Ports.URIClientOutBoundPort;
 import app.Ports.URISensorInboundPort;
-import app.connectors.Connector;
+import app.Ports.URISensorOutBoundPort;
+import app.connectors.ConnectorRegistre;
+import app.connectors.ConnectorSensor;
 
 import java.util.Set;
 
@@ -12,10 +14,13 @@ import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.components.examples.cps.interfaces.ports.ValueProvidingInboundPort;
+import fr.sorbonne_u.components.examples.ddeployment_cs.components.DynamicAssembler;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
@@ -46,18 +51,43 @@ import fr.sorbonne_u.exceptions.PreconditionException;
 public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 	
 	protected final URISensorInboundPort inboundPort ;
+	
+	protected URISensorOutBoundPort	outboundPort ;
+	
+	protected URISensorOutBoundPort	outboundPortNE ;
+	protected URISensorOutBoundPort	outboundPortNW ;
+	protected URISensorOutBoundPort	outboundPortSE ;
+	protected URISensorOutBoundPort	outboundPortSW ;
+	
 	protected NodeInfoI descriptor;
+	private final String inboundPortRegister;
 
 	// ------------------------------------------------------------------------
 	// Constructors
 	// ------------------------------------------------------------------------
 
-	protected URISensor(NodeInfoI descriptor) throws Exception {
+	protected URISensor(NodeInfoI descriptor, String inboundPortRegister) throws Exception {
 		
 		super(1, 0) ;
 		this.descriptor = descriptor;
-		this.inboundPort = new URISensorInboundPort("mon-URI" ,this) ;
+		String URI = ((BCM4JavaEndPointDescriptorI) descriptor.endPointInfo()).getInboundPortURI();
+		this.inboundPort = new URISensorInboundPort(URI,this) ;
 		this.inboundPort.localPublishPort() ;
+		
+		this.inboundPortRegister  = inboundPortRegister;
+		
+		this.outboundPort = new URISensorOutBoundPort(this) ; 
+		this.outboundPort.publishPort() ;
+		
+		this.outboundPortNE = new URISensorOutBoundPort(this) ; 
+		this.outboundPortNW = new URISensorOutBoundPort(this) ; 
+		this.outboundPortSE = new URISensorOutBoundPort(this) ; 
+		this.outboundPortSW = new URISensorOutBoundPort(this) ; 
+		
+		this.outboundPortNE.publishPort() ;
+		this.outboundPortNW.publishPort() ;
+		this.outboundPortSE.publishPort() ;
+		this.outboundPortSW.publishPort() ;
 
 	}
 
@@ -72,14 +102,16 @@ public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 		// ---------------------------------------------------------------------
 		// Connection phase
 		// ---------------------------------------------------------------------
-
-		// do the connection
+		
+		// do the connection with the register
 		try {
 			this.doPortConnection(
-					//connecter le noeud au register  via l’interface de composants RegistrationCI
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+							this.outboundPort.getPortURI(),
+							inboundPortRegister,
+							ConnectorRegistre.class.getCanonicalName()) ;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 		super.start() ;
 	}
 	
@@ -87,14 +119,53 @@ public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 		
 		this.logMessage("executing client component.") ;
 		
-		Set<NodeInfoI> neighbor =   this.handleRequest( 
-					new AbstractComponent.AbstractService<Set<NodeInfoI>>() {
-				public Set<NodeInfoI> call() {
-				return this.register(descriptor);;
-				});
+		Set<NodeInfoI> neighbor = this.handleRequest(
+				new AbstractComponent.AbstractService<Set<NodeInfoI>>() {
+					@Override
+					public Set<NodeInfoI> call() throws Exception {
+						return ((Register)this.getServiceOwner()).register(descriptor) ;
+					}});
 		
 		
 		//faire un  ask4connection sur les 4 voisons ici
+		
+		for (NodeInfoI node : neighbor) {
+			BCM4JavaEndPointDescriptorI EndPointDescriptorNode = (BCM4JavaEndPointDescriptorI) node.endPointInfo();
+			
+			String inboundPortSensor = EndPointDescriptorNode.getInboundPortURI();
+			Direction d = descriptor.nodePosition().directionFrom(node.nodePosition());
+			
+
+		    try {
+		        if (d.equals(Direction.NE)) {
+		            this.doPortConnection(
+		                this.outboundPortNE.getPortURI(),
+		                inboundPortSensor,
+		                ConnectorSensor.class.getCanonicalName());
+		            this.outboundPortNE.ask4Connection(descriptor);
+		        } else if (d.equals(Direction.NW)) {
+		            this.doPortConnection(
+		                this.outboundPortNW.getPortURI(),
+		                inboundPortSensor,
+		                ConnectorSensor.class.getCanonicalName());
+		            this.outboundPortNW.ask4Connection(descriptor);
+		        } else if (d.equals(Direction.SE)) {
+		            this.doPortConnection(
+		                this.outboundPortSE.getPortURI(),
+		                inboundPortSensor,
+		                ConnectorSensor.class.getCanonicalName());
+		            this.outboundPortSE.ask4Connection(descriptor);
+		        } else if (d.equals(Direction.SW)) {
+		            this.doPortConnection(
+		                this.outboundPortSW.getPortURI(),
+		                inboundPortSensor,
+		                ConnectorSensor.class.getCanonicalName());
+		            this.outboundPortSW.ask4Connection(descriptor);
+		        }
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		}
 		
 //		Si un nœud Y reçoit une demande de connexion d’un nouveau nœud X dans une direction où
 //		Y avait déjà un voisin Z, Y doit d’abord se déconnecter de Z. Pour cela, Y appelle d’abord la
@@ -155,6 +226,41 @@ public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 	public void ask4Connection(NodeInfoI neighbour) throws Exception {
 		//ici on se connecte et on check les voisins etc je pense
 		
+		Direction d =  this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
+		
+
+	    try {
+	        if (d.equals(Direction.NE)) {
+	        	if(this.outboundPortNE.connected()){
+	        		ask4Disconnection(descriptor);
+	        		this.doPortDisconnection(this.inboundPort.getPortURI());
+	        	}
+	            this.doPortConnection(
+	                this.outboundPortNE.getPortURI(),
+	                this.inboundPort.getClientPortURI(),
+	                ConnectorSensor.class.getCanonicalName());
+	        } else if (d.equals(Direction.NW)) {
+	            this.doPortConnection(
+	                this.outboundPortNW.getPortURI(),
+	                this.inboundPort.getClientPortURI(),
+	                ConnectorSensor.class.getCanonicalName());
+	            this.outboundPortNW.ask4Connection(descriptor);
+	        } else if (d.equals(Direction.SE)) {
+	            this.doPortConnection(
+	                this.outboundPortSE.getPortURI(),
+	                this.inboundPort.getClientPortURI(),
+	                ConnectorSensor.class.getCanonicalName());
+	            this.outboundPortSE.ask4Connection(descriptor);
+	        } else if (d.equals(Direction.SW)) {
+	            this.doPortConnection(
+	                this.outboundPortSW.getPortURI(),
+	                this.inboundPort.getClientPortURI(),
+	                ConnectorSensor.class.getCanonicalName());
+	            this.outboundPortSW.ask4Connection(descriptor);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }		
 	}
 
 	@Override

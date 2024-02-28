@@ -3,25 +3,23 @@ package app.Ports;
 import java.util.Set;
 
 import app.Components.Register;
-import app.Components.URISensor;
+import app.Interfaces.RegisterCI;
 import fr.sorbonne_u.components.ComponentI;
+import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.GeographicalZoneI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
-import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
-import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
-import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
 
-public class URIRegisterInboundPort extends AbstractInboundPort implements LookupCI, RegistrationCI
+public class URIRegisterInboundPort extends AbstractInboundPort implements RegisterCI
 {
 	private static final long serialVersionUID = 1L;
 
 	public URIRegisterInboundPort( String uri, ComponentI owner) throws Exception
 	{
 		// the implemented interface is statically known
-		super(uri, RegistrationCI.class, owner) ;
+		super(uri, RegisterCI.class, owner) ;
 
 		assert	uri != null && owner instanceof Register;
 	}
@@ -29,7 +27,7 @@ public class URIRegisterInboundPort extends AbstractInboundPort implements Looku
 	public URIRegisterInboundPort(ComponentI owner) throws Exception
 	{
 		// the implemented interface is statically known
-		super(RegistrationCI.class, owner) ;
+		super(RegisterCI.class, owner) ;
 //		assert	owner instanceof RequestingCI ;
 	}
 
@@ -53,14 +51,24 @@ public class URIRegisterInboundPort extends AbstractInboundPort implements Looku
 
 	@Override
 	public void unregister(String nodeIdentifier) throws Exception {
-		this.getOwner().handleRequest(owner -> ((Register)owner).unregister(nodeIdentifier)) ;
+
+		this.owner.runTask(
+				new AbstractComponent.AbstractTask() {
+					@Override
+					public void run() {
+						try {
+							((Register)this.getTaskOwner()).unregister(nodeIdentifier);
+						} catch (Exception e) {
+							e.printStackTrace(); ;
+						}
+					}
+				}) ;
 	}
 
 	@Override
 	public ConnectionInfoI findByIdentifier(String sensorNodeId) throws Exception {
 		// TODO Auto-generated method stub
 		return this.getOwner().handleRequest(owner -> ((Register)owner).findByIdentifier(sensorNodeId)) ;
-;
 	}
 
 	@Override

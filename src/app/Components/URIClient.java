@@ -1,13 +1,22 @@
 package app.Components;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RejectedExecutionException;
+
 import AST.ECont;
 import AST.FGather;
 import AST.GQuery;
 import app.Ports.URIClientOutBoundPort;
 import app.connectors.ConnectorRegistre;
+import app.connectors.ConnectorSensor;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import fr.sorbonne_u.components.examples.pingpong.components.PingPongPlayer;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.components.interfaces.DataOfferedCI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.EndPointDescriptorI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
@@ -24,7 +33,7 @@ public class URIClient extends AbstractComponent {
 
 	/**	the outbound port usedy to call the service.							*/
 	protected URIClientOutBoundPort	uriGetterPort ; //todo
-	private final String outboundPortRegister;
+	private final String inboundPortRegister;
 	/**	counting service invocations.										*/
 
 	/**
@@ -32,12 +41,12 @@ public class URIClient extends AbstractComponent {
 	 * @param outboundPortURI	URI of the URI getter outbound port.
 	 * @throws Exception		<i>todo.</i>
 	 */
-	protected URIClient(String outboundPortRegister) throws Exception {
+	protected URIClient(String inboundPortRegister) throws Exception {
 		super(0, 1) ;
-		this.uriGetterPort = new URIClientOutBoundPort(this) ; //todo
+		this.uriGetterPort = new URIClientOutBoundPort(this) ;
 		this.uriGetterPort.publishPort() ;
 		
-		this.outboundPortRegister  = outboundPortRegister;
+		this.inboundPortRegister  = inboundPortRegister;
 
 		AbstractComponent.checkImplementationInvariant(this);
 		AbstractComponent.checkInvariant(this);
@@ -69,11 +78,11 @@ public class URIClient extends AbstractComponent {
 //		Le composant client se connecte au composant registre via l’interface de composant LookupCI
 //		(figure 5).
 		
-		// do the connection
+		// do the connection with the register
 		try {
 			this.doPortConnection(
 							this.uriGetterPort.getPortURI(),
-							outboundPortRegister,
+							inboundPortRegister,
 							ConnectorRegistre.class.getCanonicalName()) ;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -83,17 +92,33 @@ public class URIClient extends AbstractComponent {
 //		rer les informations de connexion à ce nœud, ou encore par la méthode findByZone, auquel
 //		cas il va récupérer un ensemble d’informations de connexion aux nœuds dans cette zone,
 //		parmi lesquels il va en sélectionner un
-//		
+		
+		ConnectionInfoI node = null;
+		try {
+			node = this.handleRequest(
+					new AbstractComponent.AbstractService<ConnectionInfoI>() {
+						@Override
+						public ConnectionInfoI call() throws Exception {
+							return ((Register)this.getServiceOwner()).findByIdentifier("n1") ;
+						}
+					}			);
+		} catch (RejectedExecutionException | AssertionError | InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		Avec les informations de connexion reçues du registre, le client se connecte au composant
 //		nœud via l’interface de composants RequestingCI (figure 6) qui lui permettra d’envoyer sa
 //		requête.
 		
+		BCM4JavaEndPointDescriptorI EndPointDescriptorNode = (BCM4JavaEndPointDescriptorI) node.endPointInfo();
+		
+		String inboundPortSensor = EndPointDescriptorNode.getInboundPortURI();
 		// do the connection
 		try {
 			this.doPortConnection(
 					this.uriGetterPort.getPortURI(),
-					outboundPortRegister,
-					Connector.class.getCanonicalName()) ;
+					inboundPortSensor,
+					ConnectorSensor.class.getCanonicalName()) ;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -103,17 +128,17 @@ public class URIClient extends AbstractComponent {
 	@Override
 	public void execute() throws Exception {
 		this.logMessage("executing client component.") ;
-		this.runTask(
-			new AbstractComponent.AbstractTask() {
-				@Override
-				public void run() {
-					try {
-						((URIClient)this.()).executeAndPrintNode() ;
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}) ;
+//		this.runTask(
+//			new AbstractComponent.AbstractTask() {
+//				@Override
+//				public void run() {
+//					try {
+//						((URIClient)this.()).executeAndPrintNode() ;
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}) ;
 	}	
 
 	@Override
