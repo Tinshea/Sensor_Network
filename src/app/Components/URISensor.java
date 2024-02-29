@@ -224,50 +224,95 @@ public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 
 	@Override
 	public void ask4Connection(NodeInfoI neighbour) throws Exception {
-		//ici on se connecte et on check les voisins etc je pense
-		
-		Direction d =  this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
-		
+	    Direction d = this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
+	    BCM4JavaEndPointDescriptorI endPointDescriptorNode = (BCM4JavaEndPointDescriptorI) neighbour.endPointInfo();
+	    
+	    String inboundPortSensor = endPointDescriptorNode.getInboundPortURI();
 
 	    try {
 	        if (d.equals(Direction.NE)) {
-	        	if(this.outboundPortNE.connected()){
-	        		ask4Disconnection(descriptor);
-	        		this.doPortDisconnection(this.inboundPort.getPortURI());
-	        	}
+	            if (this.outboundPortNE.connected()) {
+	                this.outboundPortNE.ask4Disconnection(descriptor);
+	                this.doPortDisconnection(this.outboundPortNE.getPortURI());
+	            }
 	            this.doPortConnection(
 	                this.outboundPortNE.getPortURI(),
-	                this.inboundPort.getClientPortURI(),
+	                inboundPortSensor,
 	                ConnectorSensor.class.getCanonicalName());
+
 	        } else if (d.equals(Direction.NW)) {
+	            if (this.outboundPortNW.connected()) {
+	                this.outboundPortNW.ask4Disconnection(descriptor);
+	                this.doPortDisconnection(this.outboundPortNW.getPortURI());
+	            }
 	            this.doPortConnection(
 	                this.outboundPortNW.getPortURI(),
-	                this.inboundPort.getClientPortURI(),
+	                inboundPortSensor,
 	                ConnectorSensor.class.getCanonicalName());
-	            this.outboundPortNW.ask4Connection(descriptor);
+
 	        } else if (d.equals(Direction.SE)) {
+	            if (this.outboundPortSE.connected()) {
+	                this.outboundPortSE.ask4Disconnection(descriptor);
+	                this.doPortDisconnection(this.outboundPortSE.getPortURI());
+	            }
 	            this.doPortConnection(
 	                this.outboundPortSE.getPortURI(),
-	                this.inboundPort.getClientPortURI(),
+	                inboundPortSensor,
 	                ConnectorSensor.class.getCanonicalName());
-	            this.outboundPortSE.ask4Connection(descriptor);
+
 	        } else if (d.equals(Direction.SW)) {
+	            if (this.outboundPortSW.connected()) {
+	                this.outboundPortSW.ask4Disconnection(descriptor);
+	                this.doPortDisconnection(this.outboundPortSW.getPortURI());
+	            }
 	            this.doPortConnection(
 	                this.outboundPortSW.getPortURI(),
-	                this.inboundPort.getClientPortURI(),
+	                inboundPortSensor,
 	                ConnectorSensor.class.getCanonicalName());
-	            this.outboundPortSW.ask4Connection(descriptor);
+
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	    }		
+	    }
+	}
+
+
+	
+	private void handleDisconnectionAndReconnection(URISensorOutBoundPort outboundPort, Direction d) throws Exception {
+	    if(outboundPort.connected()) {
+	        this.doPortDisconnection(outboundPort.getPortURI());
+	    }
+	    NodeInfoI node = outboundPort.findNewNeighbour(this.descriptor, d);
+	    if (node != null) {
+	        BCM4JavaEndPointDescriptorI endPointDescriptorNode = (BCM4JavaEndPointDescriptorI) node.endPointInfo();
+	        String inboundPortSensor = endPointDescriptorNode.getInboundPortURI();
+	        this.doPortConnection(
+	            outboundPort.getPortURI(),
+	            inboundPortSensor,
+	            ConnectorSensor.class.getCanonicalName());
+	        outboundPort.ask4Connection(node);
+	    }
 	}
 
 	@Override
 	public void ask4Disconnection(NodeInfoI neighbour) throws Exception {
-		// TODO Auto-generated method stub
-		
+	    Direction d = this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
+	    
+	    try {
+	        if (d.equals(Direction.NE)) {
+	            handleDisconnectionAndReconnection(this.outboundPortNE, d);
+	        } else if (d.equals(Direction.NW)) {
+	            handleDisconnectionAndReconnection(this.outboundPortNW, d);
+	        } else if (d.equals(Direction.SE)) {
+	            handleDisconnectionAndReconnection(this.outboundPortSE, d);
+	        } else if (d.equals(Direction.SW)) {
+	            handleDisconnectionAndReconnection(this.outboundPortSW, d);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }       
 	}
+
 
 	@Override
 	public QueryResultI execute(RequestContinuationI request) throws Exception {

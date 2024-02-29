@@ -33,7 +33,7 @@ public class URIClientOutBoundPort extends AbstractOutboundPort implements	URICl
 
 	@Override
 	public QueryResultI execute(RequestI request) throws Exception {
-		return ((RequestingCI)this.getConnector()).execute(request) ;
+		return ((URIClientCI)this.getConnector()).execute(request) ;
 	}
 
 	@Override
@@ -45,13 +45,13 @@ public class URIClientOutBoundPort extends AbstractOutboundPort implements	URICl
 	@Override
 	public ConnectionInfoI findByIdentifier(String sensorNodeId) throws Exception {
 		// TODO Auto-generated method stub
-		return ((LookupCI)this.getConnector()).findByIdentifier(sensorNodeId) ;
+		return ((URIClientCI)this.getConnector()).findByIdentifier(sensorNodeId) ;
 	}
 
 	@Override
 	public Set<ConnectionInfoI> findByZone(GeographicalZoneI z) throws Exception {
 		// TODO Auto-generated method stub
-		return ((LookupCI)this.getConnector()).findByZone(z) ;
+		return ((URIClientCI)this.getConnector()).findByZone(z) ;
 	}
 	
 	

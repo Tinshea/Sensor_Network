@@ -36,6 +36,7 @@ package app;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
+import app.Components.Register;
 import app.Components.URIClient;
 import app.Components.URISensor;
 import app.connectors.ConnectorSensor;
@@ -76,7 +77,7 @@ extends		AbstractCVM
 	protected static final String	URIClientInboundPortURI = "iport";
 
 	
-	String URIRegisterInboundPortURI = AbstractPort.generatePortURI();
+	protected static final String URIRegisterInboundPortURI = AbstractPort.generatePortURI();
 
 	public				CVM() throws Exception
 	{
@@ -89,6 +90,8 @@ extends		AbstractCVM
 	/** Reference to the consumer component to share between deploy
 	 *  and shutdown.														*/
 	protected String	uriSensorURI;
+	
+	protected String	RegisterURI;
 
 	/**
 	 * instantiate the components, publish their port and interconnect them.
@@ -124,30 +127,41 @@ extends		AbstractCVM
 		// Creation phase
 		// ---------------------------------------------------------------------
 
+		
+		// create the consumer component
+				this.uriSensorURI =
+					AbstractComponent.createComponent(
+							Register.class.getCanonicalName(),
+							new Object[]{URIRegisterInboundPortURI,});
+				assert	this.isDeployedComponent(this.uriSensorURI);
+				// make it trace its operations; comment and uncomment the line to see
+				// the difference
+				this.toggleTracing(this.uriSensorURI);
+				this.toggleLogging(this.uriSensorURI);
+				
 		// create the client component
 		this.URIClientURI =
 			AbstractComponent.createComponent(
 					URIClient.class.getCanonicalName(),
-					new Object[]{CLIENT_COMPONENT_URI,
-								URIGetterOutboundPortURI});
+					new Object[]{URIRegisterInboundPortURI});
 		assert	this.isDeployedComponent(this.URIClientURI);
 		// make it trace its operations; comment and uncomment the line to see
 		// the difference
 		this.toggleTracing(this.URIClientURI);
 		this.toggleLogging(this.URIClientURI);
 
-		// create the consumer component
-		this.uriSensorURI =
-			AbstractComponent.createComponent(
-					URISensor.class.getCanonicalName(),
-					new Object[]{SENSORNODE_COMPONENT_URI,
-								URIClientInboundPortURI});
-		assert	this.isDeployedComponent(this.uriSensorURI);
-		// make it trace its operations; comment and uncomment the line to see
-		// the difference
-		this.toggleTracing(this.uriSensorURI);
-		this.toggleLogging(this.uriSensorURI);
-		
+//		// create the consumer component
+//		this.uriSensorURI =
+//			AbstractComponent.createComponent(
+//					URISensor.class.getCanonicalName(),
+//					new Object[]{SENSORNODE_COMPONENT_URI,
+//								URIClientInboundPortURI});
+//		assert	this.isDeployedComponent(this.uriSensorURI);
+//		// make it trace its operations; comment and uncomment the line to see
+//		// the difference
+//		this.toggleTracing(this.uriSensorURI);
+//		this.toggleLogging(this.uriSensorURI);
+//		
 	
 		// Nota: the above use of the reference to the object representing
 		// the URI consumer component is allowed only in the deployment

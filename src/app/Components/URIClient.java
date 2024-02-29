@@ -6,6 +6,7 @@ import java.util.concurrent.RejectedExecutionException;
 import AST.ECont;
 import AST.FGather;
 import AST.GQuery;
+import app.Interfaces.URIClientCI;
 import app.Ports.URIClientOutBoundPort;
 import app.connectors.ConnectorRegistre;
 import app.connectors.ConnectorSensor;
@@ -24,7 +25,7 @@ import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
 
-@RequiredInterfaces(required = {RequestingCI.class, LookupCI.class})
+@RequiredInterfaces(required = {RequestingCI.class, LookupCI.class, URIClientCI.class})
 public class URIClient extends AbstractComponent {
 	
 	// ------------------------------------------------------------------------
@@ -95,21 +96,18 @@ public class URIClient extends AbstractComponent {
 		
 		ConnectionInfoI node = null;
 		try {
-			node = this.handleRequest(
-					new AbstractComponent.AbstractService<ConnectionInfoI>() {
-						@Override
-						public ConnectionInfoI call() throws Exception {
-							return ((Register)this.getServiceOwner()).findByIdentifier("n1") ;
-						}
-					}			);
-		} catch (RejectedExecutionException | AssertionError | InterruptedException | ExecutionException e) {
+			node = this.uriGetterPort.findByIdentifier("n1") ;
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+						
+								
 //		Avec les informations de connexion reçues du registre, le client se connecte au composant
 //		nœud via l’interface de composants RequestingCI (figure 6) qui lui permettra d’envoyer sa
 //		requête.
 		
+		if(node != null) {
 		BCM4JavaEndPointDescriptorI EndPointDescriptorNode = (BCM4JavaEndPointDescriptorI) node.endPointInfo();
 		
 		String inboundPortSensor = EndPointDescriptorNode.getInboundPortURI();
@@ -121,6 +119,9 @@ public class URIClient extends AbstractComponent {
 					ConnectorSensor.class.getCanonicalName()) ;
 		} catch (Exception e) {
 			e.printStackTrace();
+		}}
+		else {
+			this.logMessage("No node found.") ;
 		}
 		super.start() ;
 	}

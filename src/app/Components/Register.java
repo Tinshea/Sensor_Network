@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import app.Interfaces.RegisterCI;
 import app.Ports.URIRegisterInboundPort;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
@@ -16,7 +17,8 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.GeographicalZoneI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
 
-@OfferedInterfaces(offered = {LookupCI.class, RegistrationCI.class})
+@OfferedInterfaces(offered = {LookupCI.class, RegistrationCI.class, RegisterCI.class})
+
 
 public class Register  extends AbstractComponent {
 	
@@ -121,6 +123,7 @@ public class Register  extends AbstractComponent {
 
 		
 		public NodeInfoI findNewNeighbour(NodeInfoI nodeInfo, Direction direction) throws Exception {
+			this.logMessage("Request received") ;
 		    Position position = (Position) nodeInfo.nodePosition();
 		    NodeInfoI closestNeighbour = null;
 		    double closestDistance = Double.MAX_VALUE;
