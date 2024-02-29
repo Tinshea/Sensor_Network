@@ -9,6 +9,10 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
 public class ExecutionState implements ExecutionStateI {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6009720675170853565L;
 	protected ProcessingNodeI pn;
 	protected QueryResultI qr;
 	

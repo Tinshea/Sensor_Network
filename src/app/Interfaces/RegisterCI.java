@@ -9,8 +9,10 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.GeographicalZoneI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
+import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
+import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
 
-public interface RegisterCI extends OfferedCI {
+public interface RegisterCI extends OfferedCI, LookupCI, RegistrationCI {
 
 
 	public boolean registered(String nodeIdentifier) throws Exception ;

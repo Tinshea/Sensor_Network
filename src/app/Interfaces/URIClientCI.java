@@ -41,6 +41,8 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.GeographicalZoneI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
+import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
+import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
 
 //-----------------------------------------------------------------------------
 /**
@@ -58,7 +60,7 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
  *
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface URIClientCI extends RequiredCI {
+public interface URIClientCI extends RequiredCI, LookupCI, RequestingCI {
 
 	
 	public QueryResultI execute(RequestI request) throws Exception ;

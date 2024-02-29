@@ -1,8 +1,5 @@
 package app.Components;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.RejectedExecutionException;
-
 import AST.ECont;
 import AST.FGather;
 import AST.GQuery;
@@ -12,12 +9,10 @@ import app.connectors.ConnectorRegistre;
 import app.connectors.ConnectorSensor;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
-import fr.sorbonne_u.components.examples.pingpong.components.PingPongPlayer;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
-import fr.sorbonne_u.components.interfaces.DataOfferedCI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
-import fr.sorbonne_u.cps.sensor_network.interfaces.EndPointDescriptorI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
@@ -34,6 +29,7 @@ public class URIClient extends AbstractComponent {
 
 	/**	the outbound port usedy to call the service.							*/
 	protected URIClientOutBoundPort	uriGetterPort ; //todo
+	protected URIClientOutBoundPort	urioutPortnode ; //todo
 	private final String inboundPortRegister;
 	/**	counting service invocations.										*/
 
@@ -43,9 +39,12 @@ public class URIClient extends AbstractComponent {
 	 * @throws Exception		<i>todo.</i>
 	 */
 	protected URIClient(String inboundPortRegister) throws Exception {
-		super(0, 1) ;
+		super("Client", 0, 1) ;
 		this.uriGetterPort = new URIClientOutBoundPort(this) ;
 		this.uriGetterPort.publishPort() ;
+		
+		this.urioutPortnode = new URIClientOutBoundPort(this) ;
+		this.urioutPortnode.publishPort() ;
 		
 		this.inboundPortRegister  = inboundPortRegister;
 
@@ -81,10 +80,17 @@ public class URIClient extends AbstractComponent {
 		
 		// do the connection with the register
 		try {
+			Thread.sleep(2000L);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
 			this.doPortConnection(
 							this.uriGetterPort.getPortURI(),
 							inboundPortRegister,
 							ConnectorRegistre.class.getCanonicalName()) ;
+			this.logMessage("Connected to Register");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -94,8 +100,15 @@ public class URIClient extends AbstractComponent {
 //		cas il va récupérer un ensemble d’informations de connexion aux nœuds dans cette zone,
 //		parmi lesquels il va en sélectionner un
 		
+		super.start() ;
+	}
+
+	@Override
+	public void execute() throws Exception {
+		this.logMessage("executing client component.") ;
 		ConnectionInfoI node = null;
 		try {
+			this.logMessage("requesting node ");
 			node = this.uriGetterPort.findByIdentifier("n1") ;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -110,25 +123,26 @@ public class URIClient extends AbstractComponent {
 		if(node != null) {
 		BCM4JavaEndPointDescriptorI EndPointDescriptorNode = (BCM4JavaEndPointDescriptorI) node.endPointInfo();
 		
+		
 		String inboundPortSensor = EndPointDescriptorNode.getInboundPortURI();
+		this.logMessage("found node : "+node.nodeIdentifier() +"\nUri :"+ inboundPortSensor);
 		// do the connection
 		try {
 			this.doPortConnection(
-					this.uriGetterPort.getPortURI(),
+					this.urioutPortnode.getPortURI(),
 					inboundPortSensor,
 					ConnectorSensor.class.getCanonicalName()) ;
 		} catch (Exception e) {
 			e.printStackTrace();
-		}}
+		}
+		MyRequest clientRequest = new MyRequest((QueryI) new GQuery (new FGather("temperature"), new ECont()));
+		this.urioutPortnode.execute(clientRequest);
+		}
 		else {
 			this.logMessage("No node found.") ;
 		}
-		super.start() ;
-	}
-
-	@Override
-	public void execute() throws Exception {
-		this.logMessage("executing client component.") ;
+		
+	
 //		this.runTask(
 //			new AbstractComponent.AbstractTask() {
 //				@Override
@@ -147,10 +161,42 @@ public class URIClient extends AbstractComponent {
 		this.logMessage("stopping client component.") ;
 		this.printExecutionLogOnFile("client");
 		this.doPortDisconnection(this.uriGetterPort.getPortURI());
-		this.uriGetterPort.unpublishPort() ;
+		this.doPortDisconnection(this.urioutPortnode.getPortURI());
 		super.finalise();
 	}
 	
-	// TODO : pas de shutdown ?
+	@Override
+	public void shutdown() throws ComponentShutdownException {
+		try {
+			this.uriGetterPort.unpublishPort() ;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			this.urioutPortnode.unpublishPort() ;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		super.shutdown();
+	}
+	
+	@Override
+	public void shutdownNow() throws ComponentShutdownException {
+		try {
+			this.uriGetterPort.unpublishPort() ;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			this.urioutPortnode.unpublishPort();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		super.shutdownNow();
+	}
 }
 //-----------------------------------------------------------------------------

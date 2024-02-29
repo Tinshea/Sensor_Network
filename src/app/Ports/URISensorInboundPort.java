@@ -8,6 +8,7 @@ import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 
 
 public class URISensorInboundPort extends AbstractInboundPort implements URISensorinCI
@@ -46,7 +47,17 @@ public class URISensorInboundPort extends AbstractInboundPort implements URISens
 
 	@Override
 	public void ask4Connection(NodeInfoI newNeighbour) throws Exception {
-		// TODO Auto-generated method stub
+		this.owner.runTask(
+				new AbstractComponent.AbstractTask() {
+					@Override
+					public void run() {
+						try {
+							((URISensor)this.getTaskOwner()).ask4Connection(newNeighbour) ;
+						} catch (Exception e) {
+							e.printStackTrace(); ;
+						}
+					}
+				}) ;
 		
 	}
 
@@ -58,6 +69,18 @@ public class URISensorInboundPort extends AbstractInboundPort implements URISens
 
 	@Override
 	public void executeAsync(RequestContinuationI requestContinuation) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public QueryResultI execute(RequestI request) throws Exception {
+		// TODO Auto-generated method stub
+		return this.getOwner().handleRequest(owner -> ((URISensor)owner).execute(request)) ;
+	}
+
+	@Override
+	public void executeAsync(RequestI request) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

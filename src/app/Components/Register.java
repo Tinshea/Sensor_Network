@@ -28,7 +28,7 @@ public class Register  extends AbstractComponent {
 	//identité, position, portée de ses émetteurs et informations de connexion dans le cas de ce projet
 	protected Register(String outboundPortURI) throws Exception {
 		
-		super(1, 0) ;
+		super("Register", 1, 0) ;
 		
 		this.inboundPort = new URIRegisterInboundPort(outboundPortURI ,this) ;
 		this.inboundPort.localPublishPort() ;
@@ -54,11 +54,23 @@ public class Register  extends AbstractComponent {
 	
 	@Override
 	public void shutdown() throws ComponentShutdownException {
+		try {
+			this.inboundPort.unpublishPort() ;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		super.shutdown();
 	}
 	
 	@Override
 	public void shutdownNow() throws ComponentShutdownException {
+		try {
+			this.inboundPort.unpublishPort() ;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		super.shutdownNow();
 	}
 
@@ -78,6 +90,7 @@ public class Register  extends AbstractComponent {
 			
 			this.logMessage("adding nodeInfo : " + nodeInfo.nodeIdentifier()) ;
 		    registeredNodes.add(nodeInfo);
+		
 		    Position p = (Position) nodeInfo.nodePosition();
 		    Set<NodeInfoI> neighbours = new HashSet<>();
 
@@ -117,13 +130,15 @@ public class Register  extends AbstractComponent {
 		    if (closestNorthWestNeighbour != null) neighbours.add(closestNorthWestNeighbour);
 		    if (closestSouthEastNeighbour != null) neighbours.add(closestSouthEastNeighbour);
 		    if (closestSouthWestNeighbour != null) neighbours.add(closestSouthWestNeighbour);
-
+		    this.logMessage("Neighbours of "+ nodeInfo.nodeIdentifier() +" : ");
+		    for (NodeInfoI neighbour : neighbours) {
+		    	this.logMessage(neighbour.nodeIdentifier());
+		    }
 		    return neighbours;
 		}
 
 		
 		public NodeInfoI findNewNeighbour(NodeInfoI nodeInfo, Direction direction) throws Exception {
-			this.logMessage("Request received") ;
 		    Position position = (Position) nodeInfo.nodePosition();
 		    NodeInfoI closestNeighbour = null;
 		    double closestDistance = Double.MAX_VALUE;
@@ -152,6 +167,8 @@ public class Register  extends AbstractComponent {
 		}
 		
 		public ConnectionInfoI findByIdentifier(String sensorNodeId) throws Exception {
+			this.logMessage("Request findByIdentifier received on "+sensorNodeId) ;
+			
 		    return registeredNodes.stream()
 		            .filter(nodeInfo -> nodeInfo.nodeIdentifier().equals(sensorNodeId))
 		            .findFirst()

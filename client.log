@@ -1,4 +1,7 @@
-1709211909278|starting client component.
-1709211909307|No node found.
-1709211909342|executing client component.
-1709211929343|stopping client component.
+1709232735083|starting client component.
+1709232737084|Connected to Register
+1709232737088|executing client component.
+1709232737088|requesting node 
+1709232737090|found node : n1
+Uri :d59d9302-1b53-4c01-adae-8d51130b2485
+1709232757092|stopping client component.
