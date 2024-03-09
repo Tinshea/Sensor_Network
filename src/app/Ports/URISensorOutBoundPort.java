@@ -1,5 +1,6 @@
 package app.Ports;
 
+import java.time.Instant;
 import java.util.Set;
 
 import app.Interfaces.URISensoroutCI;
@@ -11,30 +12,26 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
 import fr.sorbonne_u.cps.sensor_network.network.interfaces.SensorNodeP2PCI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
+import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
+import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
 
 
-public class URISensorOutBoundPort extends AbstractOutboundPort implements	URISensoroutCI
+public class URISensorOutBoundPort extends AbstractOutboundPort implements URISensoroutCI
 {
 	private static final long serialVersionUID = 1L;
 	
-	 // On lui passe la référence au composant qui le détient
-	public	URISensorOutBoundPort(String uri,ComponentI owner) throws Exception
-	{
+	public	URISensorOutBoundPort(String uri,ComponentI owner) throws Exception {
 		super(uri, URISensoroutCI.class, owner) ;
 		assert	uri != null && owner != null ;
 	}
 
-	public	URISensorOutBoundPort(ComponentI owner) throws Exception
-	{
+	public	URISensorOutBoundPort(ComponentI owner) throws Exception {
 		super(URISensoroutCI.class, owner) ;
 
-//		assert	owner instanceof RequestingCI ;
 	}
-
 
 	@Override
 	public boolean registered(String nodeIdentifier) throws Exception {
-		// TODO Auto-generated method stub
 		return ((RegistrationCI)this.getConnector()).registered(nodeIdentifier) ;
 	}
 
@@ -74,6 +71,15 @@ public class URISensorOutBoundPort extends AbstractOutboundPort implements	URISe
 		((SensorNodeP2PCI)this.getConnector()).executeAsync(requestContinuation) ;
 	}
 	
+	@Override
+	public AcceleratedClock createClock(String clockURI, long unixEpochStartTimeInNanos, Instant startInstant,
+			double accelerationFactor) throws Exception {
+		return ((ClocksServerCI)this.getConnector()).createClock(clockURI, unixEpochStartTimeInNanos, startInstant, accelerationFactor);
+	}
+
+	@Override
+	public AcceleratedClock getClock(String clockURI) throws Exception {
+		return ((ClocksServerCI)this.getConnector()).getClock(clockURI);
+	}
 	
 }
-//-----------------------------------------------------------------------------

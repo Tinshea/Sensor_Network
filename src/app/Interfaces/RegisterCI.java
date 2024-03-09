@@ -14,7 +14,6 @@ import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
 
 public interface RegisterCI extends OfferedCI, LookupCI, RegistrationCI {
 
-
 	public boolean registered(String nodeIdentifier) throws Exception ;
 	
 	public Set<NodeInfoI> register(NodeInfoI nodeInfo) throws Exception ;

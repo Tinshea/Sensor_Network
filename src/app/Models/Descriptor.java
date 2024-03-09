@@ -1,4 +1,4 @@
-package app.Components;
+package app.Models;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.EndPointDescriptorI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
@@ -14,7 +14,6 @@ public class Descriptor implements NodeInfoI {
     private double nodeRange;
     private EndPointDescriptorI p2pEndPointInfo;
 
-    // Constructeur complet
     public Descriptor(String nodeIdentifier, EndPointDescriptorI endPointInfo, PositionI nodePosition, double nodeRange, EndPointDescriptorI p2pEndPointInfo) {
         this.nodeIdentifier = nodeIdentifier;
         this.endPointInfo = endPointInfo;

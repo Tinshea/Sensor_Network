@@ -1,4 +1,4 @@
-package app.Components;
+package app.Models;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -6,6 +6,9 @@ import java.time.Instant;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 
 public class SensorData implements SensorDataI {
+	
+	private static final long serialVersionUID = -4202232058504256513L;
+	
 	private String nodeIdentifier;
 	private String sensorIdentifier;
 	private Double value;
@@ -19,33 +22,28 @@ public class SensorData implements SensorDataI {
 	}
 	@Override
 	public String getNodeIdentifier() {
-		// TODO Auto-generated method stub
 		return this.nodeIdentifier;
 	}
 
 
 	@Override
 	public Class<? extends Serializable> getType() {
-		// TODO Auto-generated method stub
 		return value.getClass();
 	}
 
 	@Override
 	public Serializable getValue() {
-		// TODO Auto-generated method stub
 		return this.value;
 	}
 
 	@Override
 	public Instant getTimestamp() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 
 	@Override
 	public String getSensorIdentifier() {
-		// TODO Auto-generated method stub
 		return this.sensorIdentifier;
 	}
 	

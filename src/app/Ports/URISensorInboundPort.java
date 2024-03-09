@@ -1,6 +1,6 @@
 package app.Ports;
 
-import app.Components.URISensor;
+import app.Components.Sensor;
 import app.Interfaces.URISensorinCI;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
@@ -15,17 +15,13 @@ public class URISensorInboundPort extends AbstractInboundPort implements URISens
 {
 	private static final long serialVersionUID = 1L;
 
-	public URISensorInboundPort( String uri, ComponentI owner) throws Exception
-	{
-		// the implemented interface is statically known
+	public URISensorInboundPort( String uri, ComponentI owner) throws Exception{
 		super(uri, URISensorinCI.class, owner) ;
 
-		assert	uri != null && owner instanceof URISensor;
+		assert	uri != null && owner instanceof Sensor;
 	}
 
-	public URISensorInboundPort(ComponentI owner) throws Exception
-	{
-		// the implemented interface is statically known
+	public URISensorInboundPort(ComponentI owner) throws Exception {
 		super(URISensorinCI.class, owner) ;
 //		assert	owner instanceof RequestingCI ;
 	}
@@ -37,7 +33,7 @@ public class URISensorInboundPort extends AbstractInboundPort implements URISens
 					@Override
 					public void run() {
 						try {
-							((URISensor)this.getTaskOwner()).ask4Disconnection(neighbour) ;
+							((Sensor)this.getTaskOwner()).ask4Disconnection(neighbour) ;
 						} catch (Exception e) {
 							e.printStackTrace(); ;
 						}
@@ -52,7 +48,7 @@ public class URISensorInboundPort extends AbstractInboundPort implements URISens
 					@Override
 					public void run() {
 						try {
-							((URISensor)this.getTaskOwner()).ask4Connection(newNeighbour) ;
+							((Sensor)this.getTaskOwner()).ask4Connection(newNeighbour) ;
 						} catch (Exception e) {
 							e.printStackTrace(); ;
 						}
@@ -63,26 +59,21 @@ public class URISensorInboundPort extends AbstractInboundPort implements URISens
 
 	@Override
 	public QueryResultI execute(RequestContinuationI request) throws Exception {
-		// TODO Auto-generated method stub
-		return this.getOwner().handleRequest(owner -> ((URISensor)owner).execute(request)) ;
+		return this.getOwner().handleRequest(owner -> ((Sensor)owner).execute(request)) ;
 	}
 
 	@Override
 	public void executeAsync(RequestContinuationI requestContinuation) throws Exception {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public QueryResultI execute(RequestI request) throws Exception {
-		// TODO Auto-generated method stub
-		return this.getOwner().handleRequest(owner -> ((URISensor)owner).execute(request)) ;
+		return this.getOwner().handleRequest(owner -> ((Sensor)owner).execute(request)) ;
 	}
 
 	@Override
 	public void executeAsync(RequestI request) throws Exception {
-		// TODO Auto-generated method stub
 		
 	}
 }
-//-----------------------------------------------------------------------------

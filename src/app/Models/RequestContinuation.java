@@ -1,4 +1,4 @@
-package app.Components;
+package app.Models;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
@@ -13,12 +13,10 @@ public class RequestContinuation extends Request implements RequestContinuationI
 	public RequestContinuation(QueryI queryCode, ConnectionInfoI clientConnectionInfo, ExecutionStateI es) {
 		super(queryCode, clientConnectionInfo);
 		this.es = es;
-
 	}
 	
 	@Override
 	public ExecutionStateI getExecutionState() {
-		// TODO Auto-generated method stub
 		return this.es;
 	}
 }

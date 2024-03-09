@@ -37,55 +37,52 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
-import app.Components.Bcm4javaEndPointDescriptor;
-import app.Components.Descriptor;
-import app.Components.Position;
 import app.Components.Register;
-import app.Components.URIClient;
-import app.Components.URISensor;
+import app.Components.Client;
+import app.Components.Sensor;
+import app.Models.Bcm4javaEndPointDescriptor;
+import app.Models.Descriptor;
+import app.Models.Position;
 import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
+import fr.sorbonne_u.utils.aclocks.ClocksServer;
 
-// -----------------------------------------------------------------------------
-/**
- * The class <code>CVM</code> implements the single JVM assembly for the client/sensornode
- *  example.
- *
- * <p><strong>Description</strong></p>
- * 
- * An URI provider component defined by the class <code>URIClient</code>
- * offers an URI creation service, which is used by an URI consumer component
- * defined by the class <code>URISensor</code>. Both are deployed within a
- * single JVM.
- * 
- * <p><strong>Invariant</strong></p>
- * 
- * <pre>
- * invariant		true
- * </pre>
- * 
- * <p>Created on : 2014-01-22</p>
- * 
- * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
- */
 public class CVM extends AbstractCVM
 {
+	// ------------------------------------------------------------------------
+	// Instance variables
+	// ------------------------------------------------------------------------
+	
+	public static final String TEST_CLOCK_URI = "test-clock";
+	public static final Instant START_INSTANT = Instant.parse("2024-03-09T20:05:00.00Z");
+	protected static final long START_DELAY = 3000L;
+	public static final double ACCELERATION_FACTOR = 60.0;
+	long unixEpochStartTimeInNanos = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis() + START_DELAY);
+	protected String serverClock;
 	
 	protected static final String URIRegisterInboundPortURI = AbstractPort.generatePortURI();
+	protected String RegisterURI;
+	
+	protected String URIClientURI;
+	
+	protected ArrayList<String> uriSensorsURI = new ArrayList<>();
 	protected static final int NBNODE = 3;
-
+	
+	
+	// ------------------------------------------------------------------------
+	// Constructor
+	// ------------------------------------------------------------------------
+	
 	public CVM() throws Exception
 	{
 		super() ;
 	}
 												
-	protected String URIClientURI;
-	protected ArrayList<String> uriSensorsURI = new ArrayList<>();
-	protected String RegisterURI;
-	
 	@Override
 	public void	deploy() throws Exception
 	{
@@ -108,38 +105,55 @@ public class CVM extends AbstractCVM
 		// Creation phase
 		// ---------------------------------------------------------------------
 		
+		//create the server clock component
+		
+		this.serverClock = AbstractComponent.createComponent(
+				ClocksServer.class.getCanonicalName(),
+				new Object[]{
+				TEST_CLOCK_URI,// URI attribuée à l’horloge 
+				unixEpochStartTimeInNanos, // moment du démarrage en temps réel Unix
+				START_INSTANT,// instant de démarrage du scénario
+				ACCELERATION_FACTOR});// facteur d’acccélération
+		
 		// create the register component
-				this.RegisterURI =
-					AbstractComponent.createComponent(
-							Register.class.getCanonicalName(),
-							new Object[]{URIRegisterInboundPortURI,});
-				assert	this.isDeployedComponent(this.RegisterURI);
+		this.RegisterURI =
+			AbstractComponent.createComponent(
+					Register.class.getCanonicalName(),
+					new Object[]{URIRegisterInboundPortURI,});
+		
+		assert this.isDeployedComponent(this.RegisterURI);
 
-				this.toggleTracing(this.RegisterURI);
-				this.toggleLogging(this.RegisterURI);
+		this.toggleTracing(this.RegisterURI);
+		this.toggleLogging(this.RegisterURI);
 				
 		// create the client component
 		this.URIClientURI =
 			AbstractComponent.createComponent(
-					URIClient.class.getCanonicalName(),
-					new Object[]{URIRegisterInboundPortURI});
-		assert	this.isDeployedComponent(this.URIClientURI);
+					Client.class.getCanonicalName(),
+					new Object[]{
+							URIRegisterInboundPortURI,
+							TEST_CLOCK_URI});
+		
+		assert this.isDeployedComponent(this.URIClientURI);
 
 		this.toggleTracing(this.URIClientURI);
 		this.toggleLogging(this.URIClientURI);
 
-	
 		// create the consumer component
 		
 		for (int i =0 ; i < NBNODE ; i++) {
 			Position position1 = new Position(i, i); // Pour le moment ils sont tous sur le memes axe
 			BCM4JavaEndPointDescriptorI urinode1 = new Bcm4javaEndPointDescriptor(AbstractPort.generatePortURI());
 			
-			NodeInfoI desc1 = new Descriptor("n"+(i+1),urinode1,position1,100,null);
+			NodeInfoI nodeDescription = new Descriptor("n"+(i+1),urinode1,position1,100,null);
 			
 			this.uriSensorsURI.add(	AbstractComponent.createComponent(
-						URISensor.class.getCanonicalName(),
-						new Object[]{desc1, URIRegisterInboundPortURI}));
+						Sensor.class.getCanonicalName(),
+						new Object[]{
+								nodeDescription, 
+								URIRegisterInboundPortURI,
+								TEST_CLOCK_URI
+								}));
 			
 			assert	this.isDeployedComponent(uriSensorsURI.get(i));
 	
@@ -169,7 +183,6 @@ public class CVM extends AbstractCVM
 
 		super.shutdown();
 	}
-	
 	
 	public static void main(String[] args)
 	{

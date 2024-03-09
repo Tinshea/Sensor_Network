@@ -1,4 +1,4 @@
-package app.Components;
+package app.Models;
 
 import java.util.Set;
 
@@ -9,9 +9,6 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
 public class ExecutionState implements ExecutionStateI {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6009720675170853565L;
 	private ProcessingNodeI pn;
 	private QueryResultI qr;
@@ -31,61 +28,51 @@ public class ExecutionState implements ExecutionStateI {
 
 	@Override
 	public ProcessingNodeI getProcessingNode() {
-		// TODO Auto-generated method stub
 		return this.pn;
 	}
 
 	@Override
 	public void updateProcessingNode(ProcessingNodeI pn) {
-		// TODO Auto-generated method stub
 		this.pn = pn;
 	}
 
 	@Override
 	public QueryResultI getCurrentResult() {
-		// TODO Auto-generated method stub
 		return qr;
 	}
 
 	@Override
 	public void addToCurrentResult(QueryResultI result) {
-		// TODO Auto-generated method stub
 		qr.gatheredSensorsValues().addAll(result.gatheredSensorsValues());
 	}
 
 	@Override
 	public boolean isDirectional() {
-		// TODO Auto-generated method stub
 		return this.directional;
 	}
 
 	@Override
 	public Set<Direction> getDirections() {
-		// TODO Auto-generated method stub
 		return this.directions;
 	}
 
 	@Override
 	public boolean noMoreHops() {
-		// TODO Auto-generated method stub
 		return this.hops >= this.maxhops;
 	}
 
 	@Override
 	public void incrementHops() {
-		// TODO Auto-generated method stub
 			this.hops++;
 	}
 
 	@Override
 	public boolean isFlooding() {
-		// TODO Auto-generated method stub
 		return this.flooding;
 	}
 
 	@Override
 	public boolean withinMaximalDistance(PositionI p) {
-		// TODO Auto-generated method stub
 		return this.p.distance(p)<=maxDistance;
 	}
 	public void setMaxDistance(double max) {
@@ -102,12 +89,10 @@ public class ExecutionState implements ExecutionStateI {
 	}
 	
 	public Set<Direction> setDirections(Set<Direction> directions) {
-		// TODO Auto-generated method stub
 		return this.directions = directions;
 	}
 
 	public void setPosition(PositionI p) {
-		// TODO Auto-generated method stub
 		this.p =p;
 		
 	}

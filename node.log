@@ -1,5 +1,7 @@
-1709429126613|starting Node component : n3
-Uri : ba55d9a5-68a8-4790-9bc2-d66c812fbafe
-1709429128629|executing node component.
-1709429128634|connexion uni directionnel vers un voisin au SW
-1709429148647|stopping node component.
+1710021473950|starting Node component : n3
+Uri : a23f3280-15bf-4f3a-93eb-bad8d2e603a8
+1710021473955|executing node component.
+1710021477633|registerAndConnectToNeighbor sera exécuté après le délai 1000000000 nanosecondes.
+1710021477633|registering node 
+1710021477637|connexion uni directionnel vers un voisin au SW
+1710021493960|stopping node component.

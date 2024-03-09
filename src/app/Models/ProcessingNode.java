@@ -1,4 +1,4 @@
-package app.Components;
+package app.Models;
 
 import java.util.Set;
 
@@ -25,42 +25,34 @@ public class ProcessingNode implements ProcessingNodeI {
 		this.position = position;
 	}
 	
-	
 	@Override
 	public String getNodeIdentifier() {
-		// TODO Auto-generated method stub
 		return this.nodeIdentifier;
 	}
 
 	@Override
 	public PositionI getPosition() {
-		// TODO Auto-generated method stub
 		return this.position;
 	}
 
 	@Override
 	public Set<NodeInfoI> getNeighbours() {
-		// TODO Auto-generated method stub
 		return this.neighbours;
 	}
 
 	@Override
 	public SensorDataI getSensorData(String sensorIdentifier) {
-		// TODO Auto-generated method stub
 		return this.sensorData;
 	}
 
 	@Override
 	public QueryResultI propagateRequest(String nodeIdentifier, RequestContinuationI requestContinuation)
 			throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void propagateRequestAsync(String nodeIdentifier, RequestContinuationI requestContinuation)
-			throws Exception {
-		// TODO Auto-generated method stub
+	public void propagateRequestAsync(String nodeIdentifier, RequestContinuationI requestContinuation)throws Exception {
 
 	}
 

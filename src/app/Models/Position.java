@@ -1,4 +1,4 @@
-package app.Components;
+package app.Models;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;

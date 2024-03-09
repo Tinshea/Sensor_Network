@@ -1,4 +1,4 @@
-package app.Components;
+package app.Models;
 
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
@@ -20,25 +20,21 @@ public class Request implements RequestI {
 
     @Override
     public String requestURI() {
-        // TODO Auto-generated method stub
         return uri;
     }
 
     @Override
     public QueryI getQueryCode() {
-        // TODO Auto-generated method stub
         return queryCode;
     }
 
     @Override
     public boolean isAsynchronous() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public ConnectionInfoI clientConnectionInfo() {
-        // TODO Auto-generated method stub
         return null;
     }
 

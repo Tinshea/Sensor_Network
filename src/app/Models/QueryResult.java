@@ -1,4 +1,4 @@
-package app.Components;
+package app.Models;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,8 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 
 public class QueryResult implements QueryResultI{
+	private static final long serialVersionUID = 7080596922014476376L;
+	
 	protected ArrayList<SensorDataI> sd = new ArrayList<>();
 	private boolean isGather;
 	protected ArrayList<String> sensitiveNodes = new ArrayList<>();
@@ -18,25 +20,21 @@ public class QueryResult implements QueryResultI{
 	
 	@Override
 	public boolean isBooleanRequest() {
-		// TODO Auto-generated method stub
 		return !this.isGather;
 	}
 
 	@Override
 	public ArrayList<String> positiveSensorNodes() {
-		// TODO Auto-generated method stub
 		return this.sensitiveNodes;
 	}
 
 	@Override
 	public boolean isGatherRequest() {
-		// TODO Auto-generated method stub
 		return this.isGather;
 	}
 
 	@Override
 	public ArrayList<SensorDataI> gatheredSensorsValues() {
-		// TODO Auto-generated method stub
 		return  this.sd;
 	}
 	

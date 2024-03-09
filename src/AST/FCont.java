@@ -6,8 +6,8 @@ import java.util.Set;
 
 import Interfaces.IBase;
 import Interfaces.ICont;
-import app.Components.ExecutionState;
-import app.Components.Position;
+import app.Models.ExecutionState;
+import app.Models.Position;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
