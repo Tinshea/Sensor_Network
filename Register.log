@@ -1,8 +1,8 @@
-1709232735079|starting register component.
-1709232737088|adding nodeInfo : n1
-1709232737088|Neighbours of n1 : 
-1709232737088|adding nodeInfo : n2
-1709232737088|Neighbours of n2 : 
-1709232737088|n1
-1709232737089|Request findByIdentifier received on n1
-1709232757088|stopping Register component.
+1709243267712|starting register component.
+1709243269725|adding nodeInfo : n1
+1709243269725|Neighbours of n1 : 
+1709243269725|adding nodeInfo : n2
+1709243269725|Neighbours of n2 : 
+1709243269725|n1
+1709243269726|Request findByIdentifier received on n1
+1709243289724|stopping Register component.
