@@ -4,6 +4,7 @@ import java.util.List;
 
 import Interfaces.ICont;
 import Interfaces.IGather;
+import app.Components.QueryResult;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
@@ -18,10 +19,10 @@ public class GQuery implements QueryI {
 		this.cont = cont;
 	}
 	
-	public QueryResultI eval(ExecutionStateI es) {
+	/*public QueryResultI eval2(ExecutionStateI es) {
 		QueryResultI res = es.getCurrentResult();
-		List<String> i = cont.eval(es);
-		i.add(0,es.getProcessingNode().getNodeIdentifier());
+		List<ProcessingNodeI> i = cont.eval(es);
+		i.add(0,es.getProcessingNode());
 		if(i.size() == 1) {
 			res.gatheredSensorsValues().addAll(gather.eval(es));
 			i.remove(0);
@@ -29,10 +30,17 @@ public class GQuery implements QueryI {
 		else {
 			res.gatheredSensorsValues().addAll(gather.eval(es));
 			i.remove(0);
-			es.
+			es.updateProcessingNode(i.get(0));
 			this.eval(es);
 		}
 		return res;
+	}*/
+	public QueryResultI eval(ExecutionStateI es) {
+		//faire un setter dans QueryResult
+		QueryResultI res = es.getCurrentResult();
+		((QueryResult) res).setGather();
+		res.gatheredSensorsValues().addAll(gather.eval(es));
+		cont.eval(es);
+		return es.getCurrentResult();
 	}
-	
 }

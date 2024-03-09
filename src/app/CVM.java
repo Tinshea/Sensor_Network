@@ -34,11 +34,20 @@ package app;
 // knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
+
+import java.util.ArrayList;
+
+import app.Components.Bcm4javaEndPointDescriptor;
+import app.Components.Descriptor;
+import app.Components.Position;
+import app.Components.Register;
 import app.Components.URIClient;
 import app.Components.URISensor;
-import app.connectors.Connector;
+import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
+import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 
 // -----------------------------------------------------------------------------
 /**
@@ -62,44 +71,23 @@ import fr.sorbonne_u.components.helpers.CVMDebugModes;
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public class			CVM
-extends		AbstractCVM
+public class CVM extends AbstractCVM
 {
-	/** URI of the provider component (convenience).						*/
-	protected static final String	CLIENT_COMPONENT_URI = "my-URI-sensor";
-	/** URI of the consumer component (convenience).						*/
-	protected static final String	SENSORNODE_COMPONENT_URI = "my-URI-client";
-	/** URI of the provider outbound port (simplifies the connection).		*/
-	protected static final String	URIGetterOutboundPortURI = "oport";
-	/** URI of the consumer inbound port (simplifies the connection).		*/
-	protected static final String	URIClientInboundPortURI = "iport";
+	
+	protected static final String URIRegisterInboundPortURI = AbstractPort.generatePortURI();
+	protected static final int NBNODE = 3;
 
-	public				CVM() throws Exception
+	public CVM() throws Exception
 	{
 		super() ;
 	}
-
-	/** Reference to the provider component to share between deploy
-	 *  and shutdown.														*/
-	protected String	URIClientURI;
-	/** Reference to the consumer component to share between deploy
-	 *  and shutdown.														*/
-	protected String	uriSensorURI;
-
-	/**
-	 * instantiate the components, publish their port and interconnect them.
-	 * 
-	 * <p><strong>Contract</strong></p>
-	 * 
-	 * <pre>
-	 * pre	!this.deploymentDone()
-	 * post	this.deploymentDone()
-	 * </pre>
-	 * 
-	 * @see fr.sorbonne_u.components.cvm.AbstractCVM#deploy()
-	 */
+												
+	protected String URIClientURI;
+	protected ArrayList<String> uriSensorsURI = new ArrayList<>();
+	protected String RegisterURI;
+	
 	@Override
-	public void			deploy() throws Exception
+	public void	deploy() throws Exception
 	{
 		assert	!this.deploymentDone() ;
 
@@ -119,77 +107,62 @@ extends		AbstractCVM
 		// ---------------------------------------------------------------------
 		// Creation phase
 		// ---------------------------------------------------------------------
+		
+		// create the register component
+				this.RegisterURI =
+					AbstractComponent.createComponent(
+							Register.class.getCanonicalName(),
+							new Object[]{URIRegisterInboundPortURI,});
+				assert	this.isDeployedComponent(this.RegisterURI);
 
+				this.toggleTracing(this.RegisterURI);
+				this.toggleLogging(this.RegisterURI);
+				
 		// create the client component
 		this.URIClientURI =
 			AbstractComponent.createComponent(
 					URIClient.class.getCanonicalName(),
-					new Object[]{CLIENT_COMPONENT_URI,
-								URIGetterOutboundPortURI});
+					new Object[]{URIRegisterInboundPortURI});
 		assert	this.isDeployedComponent(this.URIClientURI);
-		// make it trace its operations; comment and uncomment the line to see
-		// the difference
+
 		this.toggleTracing(this.URIClientURI);
 		this.toggleLogging(this.URIClientURI);
 
-		// create the consumer component
-		this.uriSensorURI =
-			AbstractComponent.createComponent(
-					URISensor.class.getCanonicalName(),
-					new Object[]{SENSORNODE_COMPONENT_URI,
-								URIClientInboundPortURI});
-		assert	this.isDeployedComponent(this.uriSensorURI);
-		// make it trace its operations; comment and uncomment the line to see
-		// the difference
-		this.toggleTracing(this.uriSensorURI);
-		this.toggleLogging(this.uriSensorURI);
-		
 	
-		// Nota: the above use of the reference to the object representing
-		// the URI consumer component is allowed only in the deployment
-		// phase of the component virtual machine (to perform the static
-		// interconnection of components in a static architecture) and
-		// inside the concerned component (i.e., where the method
-		// doPortConnection can be called with the this destination
-		// (this.doPortConenction(...)). It must never be used in another
-		// component as the references to objects used to implement component
-		// features must not be shared among components.
+		// create the consumer component
+		
+		for (int i =0 ; i < NBNODE ; i++) {
+			Position position1 = new Position(i, i); // Pour le moment ils sont tous sur le memes axe
+			BCM4JavaEndPointDescriptorI urinode1 = new Bcm4javaEndPointDescriptor(AbstractPort.generatePortURI());
+			
+			NodeInfoI desc1 = new Descriptor("n"+(i+1),urinode1,position1,100,null);
+			
+			this.uriSensorsURI.add(	AbstractComponent.createComponent(
+						URISensor.class.getCanonicalName(),
+						new Object[]{desc1, URIRegisterInboundPortURI}));
+			
+			assert	this.isDeployedComponent(uriSensorsURI.get(i));
+	
+			this.toggleTracing(uriSensorsURI.get(i));
+			this.toggleLogging(uriSensorsURI.get(i));
+		}
 
 		// ---------------------------------------------------------------------
 		// Deployment done
 		// ---------------------------------------------------------------------
 
 		super.deploy();
-		assert	this.deploymentDone();
+		assert this.deploymentDone();
 	}
 
-	/**
-	 * @see fr.sorbonne_u.components.cvm.AbstractCVM#finalise()
-	 */
 	@Override
-	public void				finalise() throws Exception
+	public void	 finalise() throws Exception
 	{
-		// Port disconnections can be done here for static architectures
-		// otherwise, they can be done in the finalise methods of components.
-		
-
 		super.finalise();
 	}
 
-	/**
-	 * disconnect the components and then call the base shutdown method.
-	 * 
-	 * <p><strong>Contract</strong></p>
-	 * 
-	 * <pre>
-	 * pre	true				// no more preconditions.
-	 * post	true				// no more postconditions.
-	 * </pre>
-	 * 
-	 * @see fr.sorbonne_u.components.cvm.AbstractCVM#shutdown()
-	 */
 	@Override
-	public void				shutdown() throws Exception
+	public void	 shutdown() throws Exception
 	{
 		assert	this.allFinalised();
 		// any disconnection not done yet can be performed here

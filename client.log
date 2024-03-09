@@ -1,3 +1,9 @@
-1708606972389|starting client component.
-1708606972478|executing client component.
-1708606992466|stopping client component.
+1709429126614|starting client component.
+1709429128626|Connected to Register
+1709429128632|executing client component.
+1709429128632|requesting node 
+1709429128635|found node : n1
+Uri :c701ef5d-18f0-4aaf-877c-a26c01d28710
+1709429128647|request result : 
+1709429128648|[Thermomètre : 0.0, radar : 0.0]
+1709429148648|stopping client component.

@@ -1,7 +1,7 @@
 package Interfaces;
 
-import AST.Position;
+import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;
 
 public interface IRBase extends IBase{
-	public Position getBase();
+	public PositionI getBase();
 }

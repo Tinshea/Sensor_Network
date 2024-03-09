@@ -7,32 +7,44 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 
 public class QueryResult implements QueryResultI{
-	protected List<SensorDataI> sd = new ArrayList<>();
-	
-	public QueryResult() {}
+	protected ArrayList<SensorDataI> sd = new ArrayList<>();
+	private boolean isGather;
+	protected ArrayList<String> sensitiveNodes = new ArrayList<>();
+	public QueryResult(ArrayList<SensorDataI> sd,boolean isGather,ArrayList<String> sensitiveNodes) {
+		this.sd = sd;
+		this.isGather = isGather;
+		this.sensitiveNodes = sensitiveNodes;
+		}
 	
 	@Override
 	public boolean isBooleanRequest() {
 		// TODO Auto-generated method stub
-		return false;
+		return !this.isGather;
 	}
 
 	@Override
 	public ArrayList<String> positiveSensorNodes() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.sensitiveNodes;
 	}
 
 	@Override
 	public boolean isGatherRequest() {
 		// TODO Auto-generated method stub
-		return true;
+		return this.isGather;
 	}
 
 	@Override
 	public ArrayList<SensorDataI> gatheredSensorsValues() {
 		// TODO Auto-generated method stub
-		return (ArrayList<SensorDataI>) this.sd;
+		return  this.sd;
+	}
+	
+	public void setGather() {
+		this.isGather = true;
+	}
+	public void setBoolean() {
+		this.isGather = false;
 	}
 
 }

@@ -10,12 +10,9 @@ public class CRand implements IRand {
 	  public CRand(Double capteur) {
 		    this.capteur = capteur;
 		  }
-	  
-	  /***
-	   *O[[CRand double]]σ : R = R[[double]])
-	   */
 	@Override
 	public double eval(ProcessingNodeI curentNode) {
+		// TODO Auto-generated method stub
 		return capteur;
 	}
 

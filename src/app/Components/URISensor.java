@@ -1,18 +1,26 @@
 package app.Components;
 
-import app.Interfaces.URISensorCI;
 import app.Ports.URISensorInboundPort;
-import app.connectors.Connector;
+import app.Ports.URISensorOutBoundPort;
+import app.connectors.ConnectorRegistre;
+import app.connectors.ConnectorSensor;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
+import AST.BQuery;
+import AST.GQuery;
 import app.Components.URISensor;
+import app.Interfaces.URISensorinCI;
+import app.Interfaces.URISensoroutCI;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
-import fr.sorbonne_u.components.cvm.AbstractCVM;
-import fr.sorbonne_u.components.examples.cps.interfaces.ports.ValueProvidingInboundPort;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
-import fr.sorbonne_u.components.ports.PortI;
-import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
@@ -22,11 +30,7 @@ import fr.sorbonne_u.cps.sensor_network.network.interfaces.SensorNodeP2PCI;
 import fr.sorbonne_u.cps.sensor_network.network.interfaces.SensorNodeP2PImplI;
 import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
-import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
-import fr.sorbonne_u.exceptions.InvariantException;
-import fr.sorbonne_u.exceptions.PostconditionException;
-import fr.sorbonne_u.exceptions.PreconditionException;
 
 // -----------------------------------------------------------------------------
 /**
@@ -38,145 +42,447 @@ import fr.sorbonne_u.exceptions.PreconditionException;
  * @author	<a>Malek Bouzarkouna, Younes Chetouani & Mohamed Amine Zemali </a>
  */
 
-@OfferedInterfaces(offered = {RequestingCI.class, SensorNodeP2PCI.class})
-@RequiredInterfaces(required = {SensorNodeP2PCI.class, RegistrationCI.class})
+@OfferedInterfaces(offered = {RequestingCI.class, SensorNodeP2PCI.class, URISensorinCI.class})
+@RequiredInterfaces(required = {SensorNodeP2PCI.class, RegistrationCI.class, URISensoroutCI.class})
 public class URISensor extends AbstractComponent implements SensorNodeP2PImplI {
 	
 	protected final URISensorInboundPort inboundPort ;
+	protected final String URI;
+	
+	protected URISensorOutBoundPort	outboundPort ;
+	
+	protected URISensorOutBoundPort	outboundPortNE ;
+	protected URISensorOutBoundPort	outboundPortNW ;
+	protected URISensorOutBoundPort	outboundPortSE ;
+	protected URISensorOutBoundPort	outboundPortSW ;
+	private Set<NodeInfoI> neighbor;
+	protected NodeInfoI descriptor;
+	private final String inboundPortRegister;
+	private ExecutionState es;
 
 	// ------------------------------------------------------------------------
 	// Constructors
 	// ------------------------------------------------------------------------
 
-	protected URISensor(String valueProvidingInboundPortURI, NodeInfoI descriptor) throws Exception {
+	protected URISensor(NodeInfoI descriptor, String inboundPortRegister) throws Exception {
 		
-		super(1, 0) ;
-		assert	valueProvidingInboundPortURI != null ;
+		super("Node : "+ descriptor.nodeIdentifier(), 1, 0) ;
+		this.descriptor = descriptor;
 
-		this.inboundPort = new URISensorInboundPort("mon-URI" ,this) ;
+		this.URI = ((BCM4JavaEndPointDescriptorI) descriptor.endPointInfo()).getInboundPortURI();
+		this.inboundPort = new URISensorInboundPort(URI,this) ;
 		this.inboundPort.localPublishPort() ;
-
-		this.getTracer().setTitle("RandomValueProvider") ;
-		this.getTracer().setRelativePosition(1, 1) ;
-
-		AbstractComponent.checkImplementationInvariant(this);
-		AbstractComponent.checkInvariant(this);
-	}
-
-	protected	URISensor(String reflectionInboundPortURI,String valueProvidingInboundPortURI) throws Exception {
 		
-		super(reflectionInboundPortURI, 1, 0);
+		this.inboundPortRegister  = inboundPortRegister;
+		
+		this.outboundPort = new URISensorOutBoundPort(this) ; 
+		this.outboundPort.publishPort() ;
+		
+		this.outboundPortNE = new URISensorOutBoundPort(this) ; 
+		this.outboundPortNW = new URISensorOutBoundPort(this) ; 
+		this.outboundPortSE = new URISensorOutBoundPort(this) ; 
+		this.outboundPortSW = new URISensorOutBoundPort(this) ; 
+		
+		this.outboundPortNE.publishPort() ;
+		this.outboundPortNW.publishPort() ;
+		this.outboundPortSE.publishPort() ;
+		this.outboundPortSW.publishPort() ;
 
-		this.inboundPort = new URISensorInboundPort("mon-URI", this) ;
-		this.inboundPort.publishPort();
-
-		this.getTracer().setTitle("RandomValueProvider") ;
-		this.getTracer().setRelativePosition(1, 1) ;
 	}
 
 	// ------------------------------------------------------------------------
 	// Component life-cycle
 	// ------------------------------------------------------------------------
+	
 	@Override
 	public void	start() throws ComponentStartException
 	{
-		this.logMessage("starting Node component.") ;
+		this.logMessage("starting Node component : " + descriptor.nodeIdentifier() + "\nUri : " + URI )  ;
 		// ---------------------------------------------------------------------
 		// Connection phase
 		// ---------------------------------------------------------------------
-
-		// do the connection
+		
+		// do the connection with the register
 		try {
 			this.doPortConnection(
-					//connecter le noeud au register  via l’interface de composants RegistrationCI
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+							this.outboundPort.getPortURI(),
+							inboundPortRegister,
+							ConnectorRegistre.class.getCanonicalName()) ;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 		super.start() ;
 	}
 	
 	public void	 execute() throws Exception {
 		
-		this.logMessage("executing client component.") ;
-		// il faut exec ça 
-		public Set<NodeInfoI> register(NodeInfoI nodeInfo) throws Exception; 
-		//ça va nous retourner un truc du genre 
-		//le registre va lui retourner l’ensemble des informations sur les nœuds
-		//qui pourront devenir ses voisins dans le réseau
+		this.logMessage("executing node component.") ;
+		
+		this.neighbor = this.outboundPort.register(descriptor) ;
 		
 		
 		//faire un  ask4connection sur les 4 voisons ici
 		
-//		Si un nœud Y reçoit une demande de connexion d’un nouveau nœud X dans une direction où
-//		Y avait déjà un voisin Z, Y doit d’abord se déconnecter de Z. Pour cela, Y appelle d’abord la
-//		méthode ask4Disconnection sur Z pour que celui-ci se déconnecte de lui, puis Y se déconnecte
-//		effectivement de Z avant de se connecter avec X. Lorsqu’un nœud se retrouve sans voisin dans
-//		une certaine direction, il appelle le registre avec la méthode findNewNeighbour en fournissant en
-//		paramètre ses informations de nœud et la direction dans laquelle il n’a plus de voisin ; le registre
-//		retourne les informations de connexion d’un nouveau voisin ou null s’il n’existe plus de voisin
-//		possible dans cette direction.
-//		this.runTask(
-//			new AbstractComponent.AbstractTask() {
-//				@Override
-//				public void run() {
-//					try {
-//						((URIClient)this.getTaskOwner()).executeAndPrintNode() ;
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}) ;
+		for (NodeInfoI node : neighbor) {
+			
+			BCM4JavaEndPointDescriptorI EndPointDescriptorNode = (BCM4JavaEndPointDescriptorI) node.endPointInfo();
+			
+			String inboundPortSensor = EndPointDescriptorNode.getInboundPortURI();
+			Direction d = descriptor.nodePosition().directionFrom(node.nodePosition());
+			
+
+		    try {
+		        if (d.equals(Direction.NE)) {
+		            this.doPortConnection(
+		                this.outboundPortNE.getPortURI(),
+		                inboundPortSensor,
+		                ConnectorSensor.class.getCanonicalName());
+		            this.logMessage("connexion uni directionnel vers un voisin au NE") ;
+		            this.outboundPortNE.ask4Connection(descriptor);
+		        } else if (d.equals(Direction.NW)) {
+		            this.doPortConnection(
+		                this.outboundPortNW.getPortURI(),
+		                inboundPortSensor,
+		                ConnectorSensor.class.getCanonicalName());
+		            this.logMessage("connexion uni directionnel vers un voisin au NW") ;
+		            this.outboundPortNW.ask4Connection(descriptor);
+		        } else if (d.equals(Direction.SE)) {
+		            this.doPortConnection(
+		                this.outboundPortSE.getPortURI(),
+		                inboundPortSensor,
+		                ConnectorSensor.class.getCanonicalName());
+		            this.logMessage("connexion uni directionnel vers un voisin au SE") ;
+		            this.outboundPortSE.ask4Connection(descriptor);
+		        } else if (d.equals(Direction.SW)) {
+		            this.doPortConnection(
+		                this.outboundPortSW.getPortURI(),
+		                inboundPortSensor,
+		                ConnectorSensor.class.getCanonicalName());
+		            this.logMessage("connexion uni directionnel vers un voisin au SW") ;
+		            this.outboundPortSW.ask4Connection(descriptor);
+		        }
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		}
 	}	
+	@Override
+	public void finalise() throws Exception {
+//		Lorsque le nœud quitte le réseau de capteur, il doit d’abord se déconnecter de ses voisins puis
+//		se désenregistrer auprès du registre en appelant la méthode unregister
+	    this.logMessage("stopping node component.");
+	    this.printExecutionLogOnFile("node");
+	      
+	    // Vérifie si le port est connecté avant de tenter de le déconnecter
+	    if (this.outboundPort.connected()) {
+	        this.doPortDisconnection(this.outboundPort.getPortURI());
+	    }
+
+	    if (this.outboundPortNE.connected()) {
+	        this.doPortDisconnection(this.outboundPortNE.getPortURI()); 
+	    }
+
+	    if (this.outboundPortNW.connected()) {
+	        this.doPortDisconnection(this.outboundPortNW.getPortURI());
+	    }
+
+	    if (this.outboundPortSE.connected()) {
+	        this.doPortDisconnection(this.outboundPortSE.getPortURI());
+	    }   
+
+	    if (this.outboundPortSW.connected()) {
+	        this.doPortDisconnection(this.outboundPortSW.getPortURI());
+	    }
+
+	    super.finalise();
+	}
+
 
 	@Override
 	public void shutdown() throws ComponentShutdownException {
-		try {
-//			Lorsque le nœud quitte le réseau de capteur, il doit d’abord se déconnecter de ses voisins puis
-//			se désenregistrer auprès du registre en appelant la méthode unregister.
-			this.inboundPort.unpublishPort() ;
+	      try {
+			this.inboundPort.unpublishPort();
 		} catch (Exception e) {
-			throw new ComponentShutdownException(e) ;
-		};
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      try {
+			this.outboundPort.unpublishPort();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      try {
+			this.outboundPortNE.unpublishPort();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      try {
+			this.outboundPortNW.unpublishPort();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      try {
+			this.outboundPortSE.unpublishPort();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      try {
+			this.outboundPortSW.unpublishPort();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		super.shutdown();
 	}
 	
 	@Override
 	public void shutdownNow() throws ComponentShutdownException {
-		// the shutdown is a good place to unpublish inbound ports.
-		try {
-			this.inboundPort.unpublishPort() ;
-		} catch (Exception e) {
-			throw new ComponentShutdownException(e) ;
-		};
+		 try {
+				this.inboundPort.unpublishPort();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		      try {
+				this.outboundPort.unpublishPort();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		      try {
+				this.outboundPortNE.unpublishPort();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		      try {
+				this.outboundPortNW.unpublishPort();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		      try {
+				this.outboundPortSE.unpublishPort();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		      try {
+				this.outboundPortSW.unpublishPort();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		super.shutdownNow();
 	}
 
 	//--------------------------------------------------------------------------
 	// Component internal services
 	//--------------------------------------------------------------------------
+	 
 	
 	public QueryResultI execute(RequestI request) throws Exception{
-		ExecutionStateI es = new ExecutionState();
-		 QueryResultI result = request.eval(es);
-		return result ;
+		this.logMessage("C'est bien arriver jusque ici :"+request.toString()) ;
+		// TODO
+		SensorDataI sensor = new SensorData(this.descriptor.nodeIdentifier(),"Thermomètre" , 0.0);
+		ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(),
+				this.descriptor.nodePosition(),this.neighbor,sensor);
+		this.logMessage("La position est la : " + this.descriptor.nodePosition().toString()) ;
+		QueryResult queryR = new QueryResult(new ArrayList<>(),false , new ArrayList<>());
+		this.es = new ExecutionState(node,queryR);
+		RequestContinuationI clientRequest = new RequestContinuation(request.getQueryCode(),request.clientConnectionInfo(), this.es);
+//		this.runTask(
+//				new AbstractComponent.AbstractTask() {
+//					@Override
+//					public void run() {
+//						try {
+//							((URISensor) this.getTaskOwner()).execute((RequestContinuationI)clientRequest) ;
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//					}
+//				});
+		execute((RequestContinuationI)clientRequest);
+		return es.getCurrentResult();
 	}
 
 	@Override
 	public void ask4Connection(NodeInfoI neighbour) throws Exception {
-		// TODO Auto-generated method stub
-		
+		this.logMessage("j'essaye de me connecter a :" + neighbour.nodeIdentifier()) ;
+	    Direction d = this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
+	    BCM4JavaEndPointDescriptorI endPointDescriptorNode = (BCM4JavaEndPointDescriptorI) neighbour.endPointInfo();
+	    
+	    String inboundPortSensor = endPointDescriptorNode.getInboundPortURI();
+
+	    try {
+	        if (d.equals(Direction.NE)) {
+	            if (this.outboundPortNE.connected()) {
+	                this.outboundPortNE.ask4Disconnection(descriptor);
+	                this.doPortDisconnection(this.outboundPortNE.getPortURI());
+	            }
+	            this.doPortConnection(
+	                this.outboundPortNE.getPortURI(),
+	                inboundPortSensor,
+	                ConnectorSensor.class.getCanonicalName());
+	            this.logMessage("connexion bidirectionnel vers un voisin au NE") ;
+
+	        } else if (d.equals(Direction.NW)) {
+	            if (this.outboundPortNW.connected()) {
+	                this.outboundPortNW.ask4Disconnection(descriptor);
+	                this.doPortDisconnection(this.outboundPortNW.getPortURI());
+	            }
+	            this.doPortConnection(
+	                this.outboundPortNW.getPortURI(),
+	                inboundPortSensor,
+	                ConnectorSensor.class.getCanonicalName());
+	            this.logMessage("connexion bidirectionnel vers un voisin au NW") ;
+
+	        } else if (d.equals(Direction.SE)) {
+	            if (this.outboundPortSE.connected()) {
+	                this.outboundPortSE.ask4Disconnection(descriptor);
+	                this.doPortDisconnection(this.outboundPortSE.getPortURI());
+	            }
+	            this.doPortConnection(
+	                this.outboundPortSE.getPortURI(),
+	                inboundPortSensor,
+	                ConnectorSensor.class.getCanonicalName());
+	            this.logMessage("connexion bidirectionnel vers un voisin au SE") ;
+
+	        } else if (d.equals(Direction.SW)) {
+	            if (this.outboundPortSW.connected()) {
+	                this.outboundPortSW.ask4Disconnection(descriptor);
+	                this.doPortDisconnection(this.outboundPortSW.getPortURI());
+	            }
+	            this.doPortConnection(
+	                this.outboundPortSW.getPortURI(),
+	                inboundPortSensor,
+	                ConnectorSensor.class.getCanonicalName());
+	            this.logMessage("connexion bidirectionnel vers un voisin au SW") ;
+
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+
+
+	
+	private void handleDisconnectionAndReconnection(URISensorOutBoundPort outboundPort, Direction d) throws Exception {
+	    if(outboundPort.connected()) {
+	        this.doPortDisconnection(outboundPort.getPortURI());
+	    }
+	    NodeInfoI node = outboundPort.findNewNeighbour(this.descriptor, d);
+	    if (node != null) {
+	        BCM4JavaEndPointDescriptorI endPointDescriptorNode = (BCM4JavaEndPointDescriptorI) node.endPointInfo();
+	        String inboundPortSensor = endPointDescriptorNode.getInboundPortURI();
+	        this.doPortConnection(
+	            outboundPort.getPortURI(),
+	            inboundPortSensor,
+	            ConnectorSensor.class.getCanonicalName());
+	        outboundPort.ask4Connection(node);
+	    }
 	}
 
 	@Override
 	public void ask4Disconnection(NodeInfoI neighbour) throws Exception {
-		// TODO Auto-generated method stub
-		
+	    Direction d = this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
+	    
+	    try {
+	        if (d.equals(Direction.NE)) {
+	            handleDisconnectionAndReconnection(this.outboundPortNE, d);
+	        } else if (d.equals(Direction.NW)) {
+	            handleDisconnectionAndReconnection(this.outboundPortNW, d);
+	        } else if (d.equals(Direction.SE)) {
+	            handleDisconnectionAndReconnection(this.outboundPortSE, d);
+	        } else if (d.equals(Direction.SW)) {
+	            handleDisconnectionAndReconnection(this.outboundPortSW, d);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }       
 	}
+
 
 	@Override
 	public QueryResultI execute(RequestContinuationI request) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		this.logMessage("zizi");
+		this.logMessage(request.getQueryCode().toString());
+		ExecutionStateI es = request.getExecutionState();
+		if(request.getQueryCode() instanceof GQuery) {
+			((GQuery) request.getQueryCode()).eval(es);
+		}else {
+			((BQuery) request.getQueryCode()).eval(es);
+		}
+	
+		SensorData sensor = new SensorData(this.descriptor.nodeIdentifier(),"radar" , 0.0);
+		ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(),
+				this.descriptor.nodePosition(),this.neighbor,sensor);
+		es.updateProcessingNode(node);
+		if(es.isFlooding()) {
+			this.logMessage("caca");
+			for(NodeInfoI n : es.getProcessingNode().getNeighbours()) {
+				Direction d = es.getProcessingNode().getPosition().directionFrom(n.nodePosition());
+				this.logMessage(Double.toString(es.getProcessingNode().getPosition().distance(n.nodePosition())));
+				if(es.withinMaximalDistance(n.nodePosition())) {
+					this.logMessage("cafca");
+					try {
+				        if (d.equals(Direction.NE)) {
+				    		this.logMessage("oco");
+				    		if(outboundPortNE.connected()) {
+				    			 this.outboundPortNE.execute(request);
+				    		}
+				        } else if (d.equals(Direction.NW)) {
+				        	this.logMessage("ossco");
+				            this.outboundPortNW.execute(request);
+				        } else if (d.equals(Direction.SE)) {
+				        	this.logMessage("os");
+				            this.outboundPortSE.execute(request);
+				        } else if (d.equals(Direction.SW)) {
+				        	this.logMessage("Penis");
+				            this.outboundPortSW.execute(request);
+				        }
+				    } catch (Exception e) {
+				        e.printStackTrace();
+				    }
+				}
+			}
+			return es.getCurrentResult();
+		}
+		if(es.isDirectional()) {
+			if(es.noMoreHops()) {
+				return es.getCurrentResult();
+			}else {
+				es.incrementHops();
+				ArrayList<Direction> tmp = new ArrayList<>();
+				tmp.addAll(es.getDirections());
+				if (tmp.isEmpty()){ return es.getCurrentResult();}
+				Direction d = tmp.get(0);
+				 if (d.equals(Direction.NE)) {
+			    		this.logMessage("oco");
+			    		if(outboundPortNE.connected()) {
+			    			this.logMessage("Je suis bien connecté ! ");
+			    		}
+			            this.outboundPortNE.execute(request);
+			        } else if (d.equals(Direction.NW)) {
+			        	this.logMessage("ossco");
+			            this.outboundPortNW.execute(request);
+			        } else if (d.equals(Direction.SE)) {
+			        	this.logMessage("os");
+			            this.outboundPortSE.execute(request);
+			        } else if (d.equals(Direction.SW)) {
+			        	this.logMessage("Penis");
+			            this.outboundPortSW.execute(request);
+			        }
+				 
+				
+				 return es.getCurrentResult();
+			}
+		}
+		 return null; 
 	}
 
 	@Override

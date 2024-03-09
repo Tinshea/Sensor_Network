@@ -1,67 +1,79 @@
 package AST;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import Enums.Dir;
+import Interfaces.ICont;
+import app.Components.ExecutionState;
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
-import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
-import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
-import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
-public class DCont {
+public class DCont implements ICont{
 
 	
-	private ArrayList<Direction> directions;
+	private Set<Direction> directions;
 	private int maxSauts;
 	
-	public DCont(ArrayList<Direction> directions,int maxSauts) {
+	public DCont(Set<Direction> directions,int maxSauts) {
 		this.directions = directions;
 		this.maxSauts = maxSauts;
 	}
 	
-	public ArrayList<Direction> getDirections() {
+	public Set<Direction> getDirections() {
 		return this.directions;
 	}
 	public int getMaxSauts() {
 		return this.maxSauts;
 	}
-	
-	public ArrayList<SensorDataI> eval(ExecutionStateI es){
-		ArrayList<SensorDataI> res = new ArrayList<>();
-		// mettre directions et nombre de sauts
-		int k = maxSauts;
-		if(es.noMoreHops() || k==0) {
+
+	/*@Override
+	public ArrayList<String> eval(ExecutionStateI es) {
+		// TODO Auto-generated method stub
+		ArrayList<String> res = new ArrayList<>();
+		if(es.noMoreHops()) {
 			return res;
 		}
-		for(int i = 0;i<k;i++) {
-			es.incrementHops();
-		}
-		ArrayList<NodeInfoI> voisins = (ArrayList<NodeInfoI>) es.getProcessingNode().getNeighbours();
-		NodeInfoI tmp = voisins.get(0);
-		switch(directions.get(0)) {
+		Set<NodeInfoI> neighbors = es.getProcessingNode().getNeighbours();
+		ArrayList<NodeInfoI> tmp = new ArrayList<>();
+		tmp.addAll(neighbors);
+		//Verifier la cond. de cont
+		ArrayList<Direction> es_directions = new ArrayList<>();
+		es_directions.addAll(es.getDirections());
+		switch (es_directions.get(0)){
 			case NE:
-				 tmp = voisins.get(0);
+				res.add(tmp.get(0).nodeIdentifier());
 				break;
 			case NW:
-				 tmp =voisins.get(1);
+				res.add(tmp.get(1).nodeIdentifier());
 				break;
 			case SE:
-				 tmp =voisins.get(2);
+				res.add(tmp.get(2).nodeIdentifier());
 				break;
 			case SW:
-				 tmp =voisins.get(3);
+				res.add(tmp.get(3).nodeIdentifier());
 				break;
 		}
-		try {
-			es.getProcessingNode().propagateRequest(tmp.nodeIdentifier(), null);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		ProcessingNodeI pn = es.getProcessingNode();
+		//Mettre à jour le executionState
+		es.getDirections().remove(0);
+		es.incrementHops();
 		return res;
+	}*/
+	
+	@Override
+	public void eval(ExecutionStateI es) {
+		// TODO Auto-generated method stub
+		((ExecutionState) es).setDirections(this.directions);
+		((ExecutionState) es).setDirectional();
+		((ExecutionState) es).setMaxSauts(maxSauts);
+		if(es.noMoreHops()) {
+			return;
+		}
+		//Mettre à jour le executionState
+		//faire l'incr a l'exec
+		//es.incrementHops();
 	}
 		
 }
