@@ -1,5 +1,6 @@
 package app.Ports;
 
+import java.time.Instant;
 import java.util.Set;
 
 import app.Interfaces.URIClientCI;
@@ -11,13 +12,14 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
+import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
+import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
 
 
 public class URIClientOutBoundPort extends AbstractOutboundPort implements	URIClientCI
 {
 	private static final long serialVersionUID = 1L;
 	
-	 // On lui passe la référence au composant qui le détient
 	public	URIClientOutBoundPort(String uri,ComponentI owner) throws Exception
 	{
 		super(uri, URIClientCI.class, owner) ;
@@ -38,22 +40,28 @@ public class URIClientOutBoundPort extends AbstractOutboundPort implements	URICl
 
 	@Override
 	public void executeAsync(RequestI request) throws Exception {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public ConnectionInfoI findByIdentifier(String sensorNodeId) throws Exception {
-		// TODO Auto-generated method stub
 		return ((LookupCI)this.getConnector()).findByIdentifier(sensorNodeId) ;
 	}
 
 	@Override
 	public Set<ConnectionInfoI> findByZone(GeographicalZoneI z) throws Exception {
-		// TODO Auto-generated method stub
 		return ((LookupCI)this.getConnector()).findByZone(z) ;
 	}
-	
+
+	@Override
+	public AcceleratedClock createClock(String clockURI, long unixEpochStartTimeInNanos, Instant startInstant,
+			double accelerationFactor) throws Exception {
+		return ((ClocksServerCI)this.getConnector()).createClock(clockURI, unixEpochStartTimeInNanos, startInstant, accelerationFactor);
+	}
+
+	@Override
+	public AcceleratedClock getClock(String clockURI) throws Exception {
+		return ((ClocksServerCI)this.getConnector()).getClock(clockURI);
+	}
 	
 }
-//-----------------------------------------------------------------------------

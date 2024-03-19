@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import app.Interfaces.RegisterCI;
+import app.Models.Position;
 import app.Ports.URIRegisterInboundPort;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
@@ -22,16 +23,24 @@ import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
 
 public class Register  extends AbstractComponent {
 	
-	protected final URIRegisterInboundPort inboundPort ;
+	// ------------------------------------------------------------------------
+	// Instance variables
+	// ------------------------------------------------------------------------
 	
+	protected final URIRegisterInboundPort inboundPort ;
 	private Set<NodeInfoI> registeredNodes = new HashSet<>();
-	//identité, position, portée de ses émetteurs et informations de connexion dans le cas de ce projet
+	
+	
+	// ------------------------------------------------------------------------
+	// Constructor
+	// ------------------------------------------------------------------------
+	
 	protected Register(String outboundPortURI) throws Exception {
 		
 		super("Register", 1, 0) ;
 		
 		this.inboundPort = new URIRegisterInboundPort(outboundPortURI ,this) ;
-		this.inboundPort.localPublishPort() ;
+		this.inboundPort.publishPort() ;
 		
 	}
 	
@@ -57,7 +66,6 @@ public class Register  extends AbstractComponent {
 		try {
 			this.inboundPort.unpublishPort() ;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		super.shutdown();
@@ -68,7 +76,6 @@ public class Register  extends AbstractComponent {
 		try {
 			this.inboundPort.unpublishPort() ;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		super.shutdownNow();
@@ -77,16 +84,13 @@ public class Register  extends AbstractComponent {
 	//-------------------------------------------------------------------------
 	// Component internal services
 	//-------------------------------------------------------------------------
+	
 		public boolean registered(String nodeIdentifier)throws Exception{
 			return registeredNodes.stream()
-	                .anyMatch(nodeInfo -> nodeInfo.nodeIdentifier().equals(nodeIdentifier));
+					.anyMatch(nodeInfo -> nodeInfo.nodeIdentifier().equals(nodeIdentifier));
 		}
 		
 		public Set<NodeInfoI> register(NodeInfoI nodeInfo) throws Exception {
-			// Enregistre un nouveau nœud et retourne 
-			//Au plus quatre voisins lui seront attribués, un au
-			//plus pour chaque direction (nord-ouest, nord-est, sud-ouest et sud-est) à condition qu’il en existe
-			//et que le nouveau nœud et le voisin soient dans leur portée d’émission mutuelle
 			
 			this.logMessage("adding nodeInfo : " + nodeInfo.nodeIdentifier()) ;
 		    registeredNodes.add(nodeInfo);
@@ -162,7 +166,6 @@ public class Register  extends AbstractComponent {
 		}
 
 		public void unregister(String nodeIdentifier) throws Exception{
-			// Désenregistre un nœud
 	        registeredNodes.removeIf(nodeInfo -> nodeInfo.nodeIdentifier().equals(nodeIdentifier));
 		}
 		
@@ -176,7 +179,6 @@ public class Register  extends AbstractComponent {
 		}
 
 		public Set<ConnectionInfoI> findByZone(GeographicalZoneI zone) throws Exception {
-		    // Filtrer les nœuds enregistrés basés sur le critère que leur position est dans la zone spécifiée
 		    return registeredNodes.stream()
 		            .filter(nodeInfo -> zone.in(nodeInfo.nodePosition()))
 		            .collect(Collectors.toSet());

@@ -1,5 +1,6 @@
 package app.Interfaces;
 
+import java.time.Instant;
 import java.util.Set;
 
 import fr.sorbonne_u.components.interfaces.RequiredCI;
@@ -11,6 +12,7 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
 import fr.sorbonne_u.cps.sensor_network.network.interfaces.SensorNodeP2PCI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
+import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
 
 
 public interface URISensoroutCI extends RequiredCI {	
@@ -30,6 +32,10 @@ public interface URISensoroutCI extends RequiredCI {
 	public QueryResultI execute(RequestContinuationI request) throws Exception ;
 
 	public void executeAsync(RequestContinuationI requestContinuation) throws Exception ;
+	
+	public AcceleratedClock createClock(String clockURI, long unixEpochStartTimeInNanos, Instant startInstant, double accelerationFactor) throws Exception;
+
+	public AcceleratedClock getClock(String clockURI) throws Exception ;
 }
 	
 //-----------------------------------------------------------------------------

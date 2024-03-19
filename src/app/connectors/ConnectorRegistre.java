@@ -2,7 +2,6 @@ package app.connectors;
 
 import java.util.Set;
 
-import app.Interfaces.RegisterCI;
 import fr.sorbonne_u.components.connectors.AbstractConnector;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;

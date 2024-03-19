@@ -11,11 +11,11 @@ public class AndBExp implements Ibexp {
 	 */
 	
 	private Ibexp bexp1;
-	private Ibexp bnexp2;
+	private Ibexp bexp2;
 	
 	  public AndBExp(Ibexp bexp1,Ibexp bexp2 ) {
 		    this.bexp1 = bexp1;
-		    this.bexp2 = bexp1;
+		    this.bexp2 = bexp2;
 		  }
 
 	public boolean eval(ProcessingNodeI curentNode){

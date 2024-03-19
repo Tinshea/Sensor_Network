@@ -1,9 +1,14 @@
 package AST;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import Interfaces.IBase;
 import Interfaces.ICont;
+import app.Models.ExecutionState;
+import app.Models.Position;
+import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
@@ -29,8 +34,9 @@ public class FCont implements ICont{
 		return this.distanceMax;
 	}
 
-	@Override
-	public ArrayList<String> eval(ExecutionStateI es) {
+	/*
+	 @Override
+	public ArrayList<String> eval2(ExecutionStateI es) {
 		PositionI p = es.getProcessingNode().getPosition();
 		ArrayList<String> res = new ArrayList<>();
 		double r = distanceMax;
@@ -45,5 +51,14 @@ public class FCont implements ICont{
 			}
 		}
 		return res;
+	}*/
+
+	@Override
+	public void eval(ExecutionStateI es) {
+		PositionI p = base.eval(es);
+		((ExecutionState)es).setPosition(p);
+		((ExecutionState)es).setFlooding();
+		((ExecutionState)es).setMaxDistance(distanceMax);
+		
 	}
 }

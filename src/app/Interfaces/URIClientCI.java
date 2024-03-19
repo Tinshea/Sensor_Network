@@ -1,5 +1,6 @@
 package app.Interfaces;
 
+import java.time.Instant;
 import java.util.Set;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
@@ -43,24 +44,10 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
+import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
+import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
 
-//-----------------------------------------------------------------------------
-/**
- * The interface <code>URIConsumerCI</code> defines the interface required by a
- * component that needs to get URI from an URI provider component.
- *
- * <p><strong>Description</strong></p>
- *
- * As a RMI remote interface, all of the methods must return
- * <code>RemoteException</code>. The choice here is to throw
- * <code>Exception</code> to cater for potential exceptions
- * thrown by the implementation methods.
- *
- * <p>Created on : 2014-01-22</p>
- *
- * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
- */
-public interface URIClientCI extends RequiredCI, LookupCI, RequestingCI {
+public interface URIClientCI extends RequiredCI, LookupCI, RequestingCI, ClocksServerCI {
 
 	
 	public QueryResultI execute(RequestI request) throws Exception ;
@@ -70,6 +57,10 @@ public interface URIClientCI extends RequiredCI, LookupCI, RequestingCI {
 	public ConnectionInfoI findByIdentifier(String sensorNodeId) throws Exception ;
 	
 	public Set<ConnectionInfoI> findByZone(GeographicalZoneI z) throws Exception ;
+	
+	public AcceleratedClock createClock(String clockURI, long unixEpochStartTimeInNanos, Instant startInstant, double accelerationFactor) throws Exception;
+
+	public AcceleratedClock getClock(String clockURI) throws Exception ;
 	
 }
 //-----------------------------------------------------------------------------
