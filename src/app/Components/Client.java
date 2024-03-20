@@ -12,6 +12,7 @@ import AST.FCont;
 import AST.FGather;
 import AST.GQuery;
 import app.Interfaces.URIClientCI;
+import app.Models.Position;
 import app.Models.Request;
 import app.Ports.URIClientOutBoundPort;
 import app.connectors.ConnectorRegistre;
@@ -20,6 +21,7 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
+import fr.sorbonne_u.components.helpers.TracerI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
@@ -53,7 +55,7 @@ public class Client extends AbstractComponent {
 	// Constructor
 	// ------------------------------------------------------------------------
 
-	protected Client(int index, String inboundPortRegister, String uriClock) throws Exception {
+	protected Client(int index, String inboundPortRegister, String uriClock, Position guipos) throws Exception {
 		
 		super("Client " + index, 0, 1) ;
 		
@@ -68,7 +70,9 @@ public class Client extends AbstractComponent {
 		this.urioutPortnode.publishPort() ;
 		
 		this.inboundPortRegister  = inboundPortRegister;
-
+		
+		TracerI tracer = this.getTracer() ;
+		tracer.setRelativePosition((int)guipos.getx(), (int)guipos.gety());
 		AbstractComponent.checkImplementationInvariant(this);
 		AbstractComponent.checkInvariant(this);
 	}
@@ -112,7 +116,6 @@ public class Client extends AbstractComponent {
 
 	@Override
 	public void execute() throws Exception {
-		this.logMessage("executing client component.") ;
 		
 		AcceleratedClock ac = outboundPortClock.getClock(TEST_CLOCK_URI);
 		
@@ -125,7 +128,6 @@ public class Client extends AbstractComponent {
 		
 		this.scheduleTask(
 				o -> { try {
-					this.logMessage("requestNodeAndconnectByName sera exécuté après le délai "+ delay +" nanosecondes.");
 					this.requestNodeAndconnectByName("n1");
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -138,7 +140,6 @@ public class Client extends AbstractComponent {
 		
 		this.scheduleTask(
 				o -> { try {
-					this.logMessage("executeAndPrintRequest sera exécuté après le délai "+ delay2 +" nanosecondes.");
 					this.executeAndPrintRequest();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -231,7 +232,7 @@ public class Client extends AbstractComponent {
 	public void requestNodeAndconnectByName (String noderequest) throws Exception {
 		ConnectionInfoI node = null;
 		try {
-			this.logMessage("requesting node ");
+			this.logMessage("requesting node :"+ noderequest);
 			node = this.urioutPortregister.findByIdentifier(noderequest) ;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -241,7 +242,7 @@ public class Client extends AbstractComponent {
 		BCM4JavaEndPointDescriptorI EndPointDescriptorNode = (BCM4JavaEndPointDescriptorI) node.endPointInfo();
 		
 		String inboundPortSensor = EndPointDescriptorNode.getInboundPortURI();
-		this.logMessage("found node : "+ node.nodeIdentifier() + "\nUri :" + inboundPortSensor);
+		this.logMessage("found node : "+ node.nodeIdentifier());
 		
 		// do the connection
 		try {

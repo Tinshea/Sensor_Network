@@ -207,7 +207,7 @@ class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
         // Coordonnée Y inversée et centrée sur la grille (en tenant compte de la taille du nœud pour le centrage)
         int pixelY = (getHeight() - gridY * gridSize);
         // Ajout du nœud avec correction pour le diamètre du nœud
-        nodes.add(new Node(name, pixelX - (50 / 2), pixelY - (95)));
+        nodes.add(new Node(name, pixelX - (50 / 2), pixelY - (50/2)));
         repaint();
     }
 

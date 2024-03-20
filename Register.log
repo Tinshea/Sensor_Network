@@ -1,8 +1,12 @@
-1709243267712|starting register component.
-1709243269725|adding nodeInfo : n1
-1709243269725|Neighbours of n1 : 
-1709243269725|adding nodeInfo : n2
-1709243269725|Neighbours of n2 : 
-1709243269725|n1
-1709243269726|Request findByIdentifier received on n1
-1709243289724|stopping Register component.
+1710950493830|starting register component.
+1710950499622|Adding nodeInfo: n8 Neighbours : []
+1710950499623|Adding nodeInfo: n1 Neighbours : []
+1710950499624|Adding nodeInfo: n6 Neighbours : []
+1710950499625|Adding nodeInfo: n9 Neighbours : [n6]
+1710950499625|Adding nodeInfo: n7 Neighbours : [n9]
+1710950499626|Adding nodeInfo: n2 Neighbours : []
+1710950499627|Adding nodeInfo: n5 Neighbours : [n7, n2, n8]
+1710950499628|Adding nodeInfo: n4 Neighbours : [n7, n2, n1, n6]
+1710950499629|Adding nodeInfo: n3 Neighbours : [n5]
+1710950500619|Request findByIdentifier received on n1
+1710950693908|stopping Register component.

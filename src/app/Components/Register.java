@@ -91,8 +91,6 @@ public class Register  extends AbstractComponent {
 		}
 		
 		public Set<NodeInfoI> register(NodeInfoI nodeInfo) throws Exception {
-			
-			this.logMessage("adding nodeInfo : " + nodeInfo.nodeIdentifier()) ;
 		    registeredNodes.add(nodeInfo);
 		
 		    Position p = (Position) nodeInfo.nodePosition();
@@ -134,10 +132,18 @@ public class Register  extends AbstractComponent {
 		    if (closestNorthWestNeighbour != null) neighbours.add(closestNorthWestNeighbour);
 		    if (closestSouthEastNeighbour != null) neighbours.add(closestSouthEastNeighbour);
 		    if (closestSouthWestNeighbour != null) neighbours.add(closestSouthWestNeighbour);
-		    this.logMessage("Neighbours of "+ nodeInfo.nodeIdentifier() +" : ");
+		    StringBuilder logMessageBuilder = new StringBuilder();
+		    logMessageBuilder.append("Adding nodeInfo: ").append(nodeInfo.nodeIdentifier()).append(" Neighbours : [");
+
 		    for (NodeInfoI neighbour : neighbours) {
-		    	this.logMessage(neighbour.nodeIdentifier());
+		        logMessageBuilder.append(neighbour.nodeIdentifier()).append(", ");
 		    }
+		    if (!neighbours.isEmpty()) {
+		        logMessageBuilder.setLength(logMessageBuilder.length() - 2); // Retire les deux derniers caractères (", ")
+		    }
+
+		    logMessageBuilder.append("]");
+		    this.logMessage(logMessageBuilder.toString());
 		    return neighbours;
 		}
 

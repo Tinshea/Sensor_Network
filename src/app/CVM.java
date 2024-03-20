@@ -66,7 +66,7 @@ public class CVM extends AbstractCVM
 	
 	public static final String TEST_CLOCK_URI = "test-clock";
 	public static final Instant START_INSTANT = Instant.parse("2024-03-18T20:05:00.00Z");
-	protected static final long START_DELAY = 8000L;
+	protected static final long START_DELAY = 6000L;
 	public static final double ACCELERATION_FACTOR = 60.0;
 	long unixEpochStartTimeInNanos = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis() + START_DELAY);
 	protected String serverClock;
@@ -110,7 +110,14 @@ public class CVM extends AbstractCVM
 		Positions.add(new Position(3, 1)); //n12
 		Positions.add(new Position(5, 1)); //n13
 		
-		NBNODE = Positions.size();
+		Positions.add(new Position(1, 7)); //n14 (nouveau point le plus haut sur une ligne impaire)
+		Positions.add(new Position(3, 7)); //n15
+		Positions.add(new Position(5, 7)); //n16
+		
+		Positions.add(new Position(2, 6)); //n17 (sur une nouvelle ligne paire entre les lignes impaires)
+		Positions.add(new Position(4, 6)); //n18
+		
+		NBNODE = 9; //Positions.size();
 	}
 												
 	@Override
@@ -152,7 +159,6 @@ public class CVM extends AbstractCVM
 					new Object[]{URIRegisterInboundPortURI,});
 		
 		assert this.isDeployedComponent(this.RegisterURI);
-
 		this.toggleTracing(this.RegisterURI);
 		this.toggleLogging(this.RegisterURI);
 				
@@ -165,6 +171,7 @@ public class CVM extends AbstractCVM
 								i + 1,
 								URIRegisterInboundPortURI,
 								TEST_CLOCK_URI,
+								new Position(i%3 + 1, (i / 3)),
 								}));
 			
 			assert this.isDeployedComponent(this.URIClientURI.get(i));
@@ -187,6 +194,8 @@ public class CVM extends AbstractCVM
 								nodeDescription, 
 								URIRegisterInboundPortURI,
 								TEST_CLOCK_URI,
+								new Position(i%3, (i / 3) + 1),
+								
 								}));
 			
 			assert	this.isDeployedComponent(uriSensorsURI.get(i));
@@ -224,11 +233,11 @@ public class CVM extends AbstractCVM
             panel = new NetworkPanel(); // Initialisez 'panel' ici
 
             frame.add(panel);
-            frame.setSize(600, 700);
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             double width = screenSize.getWidth();
             double height = screenSize.getHeight();
             
+            frame.setSize((int)width/3, (int) height);
             // Positionner la fenêtre en haut à droite
             frame.setLocation((int)width - frame.getWidth(), 0);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
