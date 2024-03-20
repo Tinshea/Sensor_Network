@@ -53,9 +53,9 @@ public class Client extends AbstractComponent {
 	// Constructor
 	// ------------------------------------------------------------------------
 
-	protected Client(String inboundPortRegister, String uriClock) throws Exception {
+	protected Client(int index, String inboundPortRegister, String uriClock) throws Exception {
 		
-		super("Client", 0, 1) ;
+		super("Client " + index, 0, 1) ;
 		
 		this.TEST_CLOCK_URI = uriClock;
 		this.outboundPortClock = new ClocksServerOutboundPort(this);
@@ -214,10 +214,10 @@ public class Client extends AbstractComponent {
 
 	public void executeAndPrintRequest() throws Exception {
 		Set<Direction> dirs = new HashSet<>();
-		dirs.add(Direction.NE);
+		dirs.add(Direction.SE);
 //		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("temperature"), new ECont()), null);
 		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("temperature"), new FCont(new ABase(),100)), null);
-//		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("temperature"), new DCont(dirs, 2)), null);
+//		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("temperature"), new DCont(dirs, 5)), null);
 	    QueryResultI queryR = this.urioutPortnode.execute( (RequestI) clientRequest);
 	    this.logMessage("request result : ");
 	    if(queryR.isBooleanRequest()) {
@@ -229,7 +229,6 @@ public class Client extends AbstractComponent {
 	}
 	
 	public void requestNodeAndconnectByName (String noderequest) throws Exception {
-		this.logMessage("On est passé par la");
 		ConnectionInfoI node = null;
 		try {
 			this.logMessage("requesting node ");

@@ -1,12 +1,9 @@
-1710021473950|starting client component.
-1710021473951|Connected to Register
-1710021473955|executing client component.
-1710021478635|requestNodeAndconnectByName sera exécuté après le délai 2000000000 nanosecondes.
-1710021478635|On est passé par la
-1710021478636|requesting node 
-1710021478638|found node : n1
-Uri :8ac33c7a-c3fc-4d86-8dbf-e2364618d1f3
-1710021480631|executeAndPrintRequest sera exécuté après le délai 3998000000 nanosecondes.
-1710021480638|request result : 
-1710021480638|[Thermomètre : 0.0, radar : 0.0]
-1710021493961|stopping client component.
+1710807153806|starting client component.
+1710807153808|Connected to Register
+1710807153812|executing client component.
+1710807163183|requestNodeAndconnectByName sera exécuté après le délai 1999000000 nanosecondes.
+1710807163183|requesting node 
+1710807163186|found node : n1
+Uri :22b41b73-5c22-4e18-86f2-df6bf67c25d7
+1710807165181|executeAndPrintRequest sera exécuté après le délai 3995000000 nanosecondes.
+1710807173818|stopping client component.

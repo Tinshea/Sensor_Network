@@ -37,9 +37,14 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import app.Components.Register;
 import app.Components.Client;
@@ -50,6 +55,7 @@ import app.Models.Position;
 import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
+import fr.sorbonne_u.exceptions.VerboseException;
 import fr.sorbonne_u.utils.aclocks.ClocksServer;
 
 public class CVM extends AbstractCVM
@@ -59,19 +65,24 @@ public class CVM extends AbstractCVM
 	// ------------------------------------------------------------------------
 	
 	public static final String TEST_CLOCK_URI = "test-clock";
-	public static final Instant START_INSTANT = Instant.parse("2024-03-09T20:05:00.00Z");
-	protected static final long START_DELAY = 3000L;
+	public static final Instant START_INSTANT = Instant.parse("2024-03-18T20:05:00.00Z");
+	protected static final long START_DELAY = 8000L;
 	public static final double ACCELERATION_FACTOR = 60.0;
 	long unixEpochStartTimeInNanos = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis() + START_DELAY);
 	protected String serverClock;
 	
+	protected ArrayList<Position> Positions  = new ArrayList<>();
+	
 	protected static final String URIRegisterInboundPortURI = AbstractPort.generatePortURI();
 	protected String RegisterURI;
 	
-	protected String URIClientURI;
+	protected ArrayList<String> URIClientURI = new ArrayList<>();
+	protected static final int NBCLIENT = 1;
 	
 	protected ArrayList<String> uriSensorsURI = new ArrayList<>();
-	protected static final int NBNODE = 3;
+	protected static int NBNODE;
+	
+	private static NetworkPanel panel;
 	
 	
 	// ------------------------------------------------------------------------
@@ -81,6 +92,25 @@ public class CVM extends AbstractCVM
 	public CVM() throws Exception
 	{
 		super() ;
+		Positions.add(new Position(1, 5)); //n1
+		Positions.add(new Position(3, 5)); //n2
+		Positions.add(new Position(5, 5)); //n3
+		
+		Positions.add(new Position(2, 4)); //n4
+		Positions.add(new Position(4, 4)); //n5
+		
+		Positions.add(new Position(1, 3)); //n6
+		Positions.add(new Position(3, 3)); //n7
+		Positions.add(new Position(5, 3)); //n8
+		
+		Positions.add(new Position(2, 2)); //n9
+		Positions.add(new Position(4, 2)); //n10
+		
+		Positions.add(new Position(1, 1)); //n11
+		Positions.add(new Position(3, 1)); //n12
+		Positions.add(new Position(5, 1)); //n13
+		
+		NBNODE = Positions.size();
 	}
 												
 	@Override
@@ -104,7 +134,7 @@ public class CVM extends AbstractCVM
 		// ---------------------------------------------------------------------
 		// Creation phase
 		// ---------------------------------------------------------------------
-		
+		createAndShowGUI();
 		//create the server clock component
 		
 		this.serverClock = AbstractComponent.createComponent(
@@ -127,32 +157,36 @@ public class CVM extends AbstractCVM
 		this.toggleLogging(this.RegisterURI);
 				
 		// create the client component
-		this.URIClientURI =
-			AbstractComponent.createComponent(
-					Client.class.getCanonicalName(),
-					new Object[]{
-							URIRegisterInboundPortURI,
-							TEST_CLOCK_URI});
-		
-		assert this.isDeployedComponent(this.URIClientURI);
-
-		this.toggleTracing(this.URIClientURI);
-		this.toggleLogging(this.URIClientURI);
+		for (int i =0 ; i < NBCLIENT ; i++) {
+			this.URIClientURI.add(
+				AbstractComponent.createComponent(
+						Client.class.getCanonicalName(),
+						new Object[]{
+								i + 1,
+								URIRegisterInboundPortURI,
+								TEST_CLOCK_URI,
+								}));
+			
+			assert this.isDeployedComponent(this.URIClientURI.get(i));
+	
+			this.toggleTracing(this.URIClientURI.get(i));
+			this.toggleLogging(this.URIClientURI.get(i));
+		}
 
 		// create the consumer component
 		
 		for (int i =0 ; i < NBNODE ; i++) {
-			Position position1 = new Position(i, i); // Pour le moment ils sont tous sur le memes axe
-			BCM4JavaEndPointDescriptorI urinode1 = new Bcm4javaEndPointDescriptor(AbstractPort.generatePortURI());
+			BCM4JavaEndPointDescriptorI urinode = new Bcm4javaEndPointDescriptor(AbstractPort.generatePortURI());
 			
-			NodeInfoI nodeDescription = new Descriptor("n"+(i+1),urinode1,position1,100,null);
+			NodeInfoI nodeDescription = new Descriptor("n"+(i+1),urinode,Positions.get(i),1.5,null);
 			
 			this.uriSensorsURI.add(	AbstractComponent.createComponent(
 						Sensor.class.getCanonicalName(),
 						new Object[]{
+								this.panel,
 								nodeDescription, 
 								URIRegisterInboundPortURI,
-								TEST_CLOCK_URI
+								TEST_CLOCK_URI,
 								}));
 			
 			assert	this.isDeployedComponent(uriSensorsURI.get(i));
@@ -184,10 +218,30 @@ public class CVM extends AbstractCVM
 		super.shutdown();
 	}
 	
+	private void createAndShowGUI() {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Network Graph");
+            panel = new NetworkPanel(); // Initialisez 'panel' ici
+
+            frame.add(panel);
+            frame.setSize(600, 700);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            double width = screenSize.getWidth();
+            double height = screenSize.getHeight();
+            
+            // Positionner la fenêtre en haut à droite
+            frame.setLocation((int)width - frame.getWidth(), 0);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+            
+        });
+    }
+	
 	public static void main(String[] args)
 	{
 		try {
 			// Create an instance of the defined component virtual machine.
+//			VerboseException.VERBOSE = true;
 			CVM a = new CVM();
 			// Execute the application.
 			a.startStandardLifeCycle(20000L);

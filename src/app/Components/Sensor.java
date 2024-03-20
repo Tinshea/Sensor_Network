@@ -7,15 +7,19 @@ import app.connectors.ConnectorSensor;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import AST.BQuery;
 import AST.GQuery;
+import app.GraphicalNetworkInterface;
 import app.Components.Sensor;
 import app.Interfaces.URISensorinCI;
 import app.Interfaces.URISensoroutCI;
 import app.Models.ExecutionState;
+import app.Models.Position;
 import app.Models.ProcessingNode;
 import app.Models.QueryResult;
 import app.Models.RequestContinuation;
@@ -71,6 +75,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	protected URISensorOutBoundPort	outboundPortSE ;
 	protected URISensorOutBoundPort	outboundPortSW ;
 	protected Set<NodeInfoI> neighbor;
+	private Map<URISensorOutBoundPort, NodeInfoI> nodeOutboundPorts;
 	protected NodeInfoI descriptor;
 	
 	protected String TEST_CLOCK_URI;
@@ -79,15 +84,18 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	protected final String inboundPortRegister;
 	
 	protected ExecutionState es;
+	
+	private GraphicalNetworkInterface gui;
 
 	// ------------------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------------------
 
-	protected Sensor(NodeInfoI descriptor, String inboundPortRegister, String uriClock) throws Exception {
+	protected Sensor(GraphicalNetworkInterface gui, NodeInfoI descriptor, String inboundPortRegister, String uriClock) throws Exception {
 		
 		super("Node : "+ descriptor.nodeIdentifier(), 0, 1) ;
-		
+		this.gui = gui;
+		gui.addGraphicalNode(descriptor.nodeIdentifier(), (int)((Position) (descriptor.nodePosition())).getx(), (int)((Position) (descriptor.nodePosition())).gety());
 		this.TEST_CLOCK_URI = uriClock;
 		this.outboundPortClock = new ClocksServerOutboundPort(this);
 		outboundPortClock.publishPort();
@@ -108,6 +116,8 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		this.outboundPortSE = new URISensorOutBoundPort(this) ; 
 		this.outboundPortSW = new URISensorOutBoundPort(this) ; 
 		
+		this.nodeOutboundPorts = new HashMap<>();
+		
 		this.outboundPortNE.publishPort() ;
 		this.outboundPortNW.publishPort() ;
 		this.outboundPortSE.publishPort() ;
@@ -121,7 +131,6 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	
 	@Override
 	public void	start() throws ComponentStartException{
-		this.logMessage("starting Node component : " + descriptor.nodeIdentifier() + "\nUri : " + URI )  ;
 		
 		// ---------------------------------------------------------------------
 		// Connection phase
@@ -155,9 +164,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		this.logMessage("executing node component.") ;
 		
 		AcceleratedClock ac = outboundPortClock.getClock(TEST_CLOCK_URI);
-		
 		ac.waitUntilStart();
-		
 		Instant i0 = ac.getStartInstant();
 		Instant i1= i0.plusSeconds(60);
 		
@@ -189,28 +196,32 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	    }
 	    
 	    if (this.outboundPort.connected()) {
+	    	this.outboundPort.unregister(descriptor.nodeIdentifier());
 	        this.doPortDisconnection(this.outboundPort.getPortURI());
 	    }
 
 	    if (this.outboundPortNE.connected()) {
+	    	this.outboundPortNE.ask4Disconnection(descriptor);
 	        this.doPortDisconnection(this.outboundPortNE.getPortURI()); 
 	    }
 
 	    if (this.outboundPortNW.connected()) {
+	    	this.outboundPortNW.ask4Disconnection(descriptor);
 	        this.doPortDisconnection(this.outboundPortNW.getPortURI());
 	    }
 
 	    if (this.outboundPortSE.connected()) {
+	    	this.outboundPortSE.ask4Disconnection(descriptor);
 	        this.doPortDisconnection(this.outboundPortSE.getPortURI());
 	    }   
 
 	    if (this.outboundPortSW.connected()) {
+	    	this.outboundPortSW.ask4Disconnection(descriptor);
 	        this.doPortDisconnection(this.outboundPortSW.getPortURI());
 	    }
 
 	    super.finalise();
 	}
-
 
 	@Override
 	public void shutdown() throws ComponentShutdownException {
@@ -314,6 +325,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		                this.outboundPortNE.getPortURI(),
 		                inboundPortSensor,
 		                ConnectorSensor.class.getCanonicalName());
+		            this.nodeOutboundPorts.put(outboundPortNE, node);
 		            this.logMessage("connexion uni directionnel vers un voisin au NE") ;
 		            
 		            if (this.outboundPortNE.connected()) {
@@ -325,6 +337,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		                this.outboundPortNW.getPortURI(),
 		                inboundPortSensor,
 		                ConnectorSensor.class.getCanonicalName());
+		            this.nodeOutboundPorts.put(outboundPortNW, node);
 		            this.logMessage("connexion uni directionnel vers un voisin au NW") ;
 		            
 		            if (this.outboundPortNW.connected()) {
@@ -336,6 +349,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		                this.outboundPortSE.getPortURI(),
 		                inboundPortSensor,
 		                ConnectorSensor.class.getCanonicalName());
+		            this.nodeOutboundPorts.put(outboundPortSE, node);
 		            this.logMessage("connexion uni directionnel vers un voisin au SE") ;
 		            
 		            if (this.outboundPortSE.connected()) {
@@ -347,6 +361,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		                this.outboundPortSW.getPortURI(),
 		                inboundPortSensor,
 		                ConnectorSensor.class.getCanonicalName());
+		            this.nodeOutboundPorts.put(outboundPortNW, node);
 		            this.logMessage("connexion uni directionnel vers un voisin au SW") ;
 		            
 		            if (this.outboundPortSW.connected()) {
@@ -365,7 +380,6 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		SensorDataI sensor = new SensorData(this.descriptor.nodeIdentifier(),"Thermomètre" , 0.0);
 		ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(),
 				this.descriptor.nodePosition(),this.neighbor,sensor);
-		this.logMessage("La position est la : " + this.descriptor.nodePosition().toString()) ;
 		
 		QueryResult queryR = new QueryResult(new ArrayList<>(),false , new ArrayList<>());
 		this.es = new ExecutionState(node,queryR);
@@ -377,10 +391,10 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 
 	@Override
 	public void ask4Connection(NodeInfoI neighbour) throws Exception {
-		
-		this.logMessage("j'essaye de me connecter a :" + neighbour.nodeIdentifier()) ;
+		gui.addGraphicalConnection(this.descriptor.nodeIdentifier(), neighbour.nodeIdentifier());
 		
 	    Direction d = this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
+	    this.neighbor.add(neighbour);
 	    
 	    BCM4JavaEndPointDescriptorI endPointDescriptorNode = (BCM4JavaEndPointDescriptorI) neighbour.endPointInfo();
 	    String inboundPortSensor = endPointDescriptorNode.getInboundPortURI();
@@ -474,7 +488,6 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 
 	@Override
 	public QueryResultI execute(RequestContinuationI request) throws Exception {
-		this.logMessage(request.getQueryCode().toString());
 		
 		ExecutionStateI es = request.getExecutionState();
 		
@@ -483,6 +496,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		}else {
 			((BQuery) request.getQueryCode()).eval(es);
 		}
+		gui.toggleNodeBlinking(this.descriptor.nodeIdentifier());
 	
 		SensorData sensor = new SensorData(this.descriptor.nodeIdentifier(),"radar" , 0.0);
 		ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(), this.descriptor.nodePosition(), this.neighbor,sensor);
@@ -491,12 +505,11 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		if(es.isFlooding()) {
 			for(NodeInfoI n : es.getProcessingNode().getNeighbours()) {
 				Direction d = es.getProcessingNode().getPosition().directionFrom(n.nodePosition());
-				this.logMessage(Double.toString(es.getProcessingNode().getPosition().distance(n.nodePosition())));
 				if(es.withinMaximalDistance(n.nodePosition())) {
 					try {
 				        if (d.equals(Direction.NE)) {
 				    		if(outboundPortNE.connected()) {
-				    			 this.outboundPortNE.execute(request);
+				    			 this.outboundPortNE.execute(request);		
 				    		}
 				        } else if (d.equals(Direction.NW)) {
 				        	if(outboundPortNW.connected()) {
@@ -511,6 +524,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 				        		this.outboundPortSW.execute(request);
 				        	}
 				        }
+				        gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),n.nodeIdentifier());
 				    } catch (Exception e) {
 				        e.printStackTrace();
 				    }
@@ -529,18 +543,22 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 				Direction d = tmp.get(0);
 				 if (d.equals(Direction.NE)) {
 			    		if(outboundPortNE.connected()) {
-				            this.outboundPortNE.execute(request);
+//			    			gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortNE).nodeIdentifier());
+				            this.outboundPortNE.execute(request);			            
 			    		}
 			        } else if (d.equals(Direction.NW)) {
 			        	if(outboundPortNW.connected()) {
-				            this.outboundPortNW.execute(request);
+//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortNW).nodeIdentifier());
+				            this.outboundPortNW.execute(request);         
 			    		}
 			        } else if (d.equals(Direction.SE)) {
 			        	if(outboundPortSE.connected()) {
+//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortSE).nodeIdentifier());
 				            this.outboundPortSE.execute(request);
 			    		}
 			        } else if (d.equals(Direction.SW)) {
 			        	if(outboundPortSW.connected()) {
+//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortSW).nodeIdentifier());
 				            this.outboundPortSW.execute(request);
 			    		}
 			        }

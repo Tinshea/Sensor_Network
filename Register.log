@@ -1,11 +1,45 @@
-1710021473946|starting register component.
-1710021477635|adding nodeInfo : n2
-1710021477635|Neighbours of n2 : 
-1710021477636|adding nodeInfo : n1
-1710021477636|Neighbours of n1 : 
-1710021477636|n2
-1710021477636|adding nodeInfo : n3
-1710021477636|Neighbours of n3 : 
-1710021477636|n2
-1710021478637|Request findByIdentifier received on n1
-1710021493955|stopping Register component.
+1710807153809|starting register component.
+1710807162187|adding nodeInfo : n6
+1710807162187|Neighbours of n6 : 
+1710807162187|adding nodeInfo : n12
+1710807162188|Neighbours of n12 : 
+1710807162188|adding nodeInfo : n8
+1710807162188|Neighbours of n8 : 
+1710807162188|adding nodeInfo : n9
+1710807162188|Neighbours of n9 : 
+1710807162188|n6
+1710807162189|n12
+1710807162189|adding nodeInfo : n3
+1710807162189|Neighbours of n3 : 
+1710807162189|adding nodeInfo : n4
+1710807162189|Neighbours of n4 : 
+1710807162189|n6
+1710807162189|adding nodeInfo : n10
+1710807162190|Neighbours of n10 : 
+1710807162190|n8
+1710807162190|n12
+1710807162190|adding nodeInfo : n1
+1710807162191|Neighbours of n1 : 
+1710807162191|n4
+1710807162191|adding nodeInfo : n11
+1710807162191|Neighbours of n11 : 
+1710807162191|n9
+1710807162192|adding nodeInfo : n13
+1710807162192|Neighbours of n13 : 
+1710807162192|n10
+1710807162192|adding nodeInfo : n2
+1710807162192|Neighbours of n2 : 
+1710807162192|n4
+1710807162193|adding nodeInfo : n7
+1710807162193|Neighbours of n7 : 
+1710807162193|n10
+1710807162193|n9
+1710807162193|n4
+1710807162194|adding nodeInfo : n5
+1710807162194|Neighbours of n5 : 
+1710807162194|n2
+1710807162194|n3
+1710807162194|n7
+1710807162194|n8
+1710807163185|Request findByIdentifier received on n1
+1710807173829|stopping Register component.

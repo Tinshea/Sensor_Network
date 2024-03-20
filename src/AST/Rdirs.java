@@ -2,7 +2,6 @@ package AST;
 
 import java.util.ArrayList;
 
-import Enums.Dir;
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 
 public class Rdirs {

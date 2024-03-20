@@ -45,17 +45,7 @@ public class URIRegisterInboundPort extends AbstractInboundPort implements Regis
 
 	@Override
 	public void unregister(String nodeIdentifier) throws Exception {
-		this.owner.runTask(
-				new AbstractComponent.AbstractTask() {
-					@Override
-					public void run() {
-						try {
-							((Register)this.getTaskOwner()).unregister(nodeIdentifier);
-						} catch (Exception e) {
-							e.printStackTrace(); ;
-						}
-					}
-				}) ;
+		this.getOwner().handleRequest(owner -> {((Register)owner).unregister(nodeIdentifier) ; return null; });
 	}
 
 	@Override

@@ -15,6 +15,12 @@ public class Position implements PositionI {
 		this.y = y;
 	}
 
+	public double getx() {
+		return x;
+	}
+	public double gety() {
+		return y;
+	}
 	@Override
 	public double distance(PositionI p) {
 		if (p instanceof Position) {
