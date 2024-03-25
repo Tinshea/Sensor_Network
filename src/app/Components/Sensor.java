@@ -126,7 +126,6 @@
 			
 			TracerI tracer = this.getTracer() ;
 			
-	//		tracer.setOrigin(tracer.getScreenHeight()/2, tracer.getScreenWidth()/2);
 			tracer.setRelativePosition((int)guipos.getx(), (int)guipos.gety());
 		}
 	

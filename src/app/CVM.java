@@ -117,7 +117,7 @@ public class CVM extends AbstractCVM
 		Positions.add(new Position(2, 6)); //n17 (sur une nouvelle ligne paire entre les lignes impaires)
 		Positions.add(new Position(4, 6)); //n18
 		
-		NBNODE = 9; //Positions.size();
+		NBNODE = Positions.size(); 
 	}
 												
 	@Override
