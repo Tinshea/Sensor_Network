@@ -8,7 +8,7 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
-public class ExecutionState implements ExecutionStateI {
+public class ExecutionState implements ExecutionStateI, Cloneable {
 	private static final long serialVersionUID = 6009720675170853565L;
 	private ProcessingNodeI pn;
 	private QueryResultI qr;
@@ -44,6 +44,7 @@ public class ExecutionState implements ExecutionStateI {
 	@Override
 	public void addToCurrentResult(QueryResultI result) {
 		qr.gatheredSensorsValues().addAll(result.gatheredSensorsValues());
+		qr.positiveSensorNodes().addAll(result.positiveSensorNodes());
 	}
 
 	@Override
@@ -95,5 +96,10 @@ public class ExecutionState implements ExecutionStateI {
 	public void setPosition(PositionI p) {
 		this.p =p;
 		
+	}
+	
+	@Override
+	public ExecutionState clone() throws CloneNotSupportedException {
+		return (ExecutionState) super.clone();
 	}
 }

@@ -128,7 +128,7 @@ public class Client extends AbstractComponent {
 		
 		this.scheduleTask(
 				o -> { try {
-					this.requestNodeAndconnectByName("n1");
+					this.requestNodeAndconnectByName("n9");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -216,9 +216,9 @@ public class Client extends AbstractComponent {
 	public void executeAndPrintRequest() throws Exception {
 		Set<Direction> dirs = new HashSet<>();
 		dirs.add(Direction.SE);
-//		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("temperature"), new ECont()), null);
-		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("temperature"), new FCont(new ABase(),100)), null);
-//		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("temperature"), new DCont(dirs, 5)), null);
+//		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("Heat"), new ECont()), null);
+		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("Heat"), new FCont(new ABase(),2)), null);
+		//RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("Heat"), new DCont(dirs, 5)), null);
 	    QueryResultI queryR = this.urioutPortnode.execute( (RequestI) clientRequest);
 	    this.logMessage("request result : ");
 	    if(queryR.isBooleanRequest()) {

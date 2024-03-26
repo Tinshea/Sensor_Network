@@ -230,6 +230,21 @@ class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
         this.addConnection(startName, endName);
     }
     
+ // Méthode pour supprimer une connexion par les noms des nœuds
+    public void removeGraphicalConnection(String startName, String endName) {
+        // Rechercher la connexion à supprimer
+        for (java.util.Iterator<Connection> iterator = connections.iterator(); iterator.hasNext();) {
+            Connection conn = iterator.next();
+            if (conn.start.name.equals(startName) && conn.end.name.equals(endName)) {
+                // Supprimer la connexion trouvée
+                iterator.remove();
+                repaint(); // Redessiner pour mettre à jour l'affichage
+                break; // Sortir de la boucle après avoir trouvé et supprimé la connexion
+            }
+        }
+    }
+
+    
     @Override
     public void startGraphicalLightAnimation(String startName, String endName) {
         Node startNode = this.findNodeByName(startName);

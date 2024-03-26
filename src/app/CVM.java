@@ -36,11 +36,14 @@ package app;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
-
+import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
@@ -52,6 +55,7 @@ import app.Components.Sensor;
 import app.Models.Bcm4javaEndPointDescriptor;
 import app.Models.Descriptor;
 import app.Models.Position;
+import app.Models.SensorData;
 import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
@@ -72,6 +76,8 @@ public class CVM extends AbstractCVM
 	protected String serverClock;
 	
 	protected ArrayList<Position> Positions  = new ArrayList<>();
+	protected ArrayList<Set<SensorDataI>> nodeSensors  = new ArrayList<>();
+
 	
 	protected static final String URIRegisterInboundPortURI = AbstractPort.generatePortURI();
 	protected String RegisterURI;
@@ -118,6 +124,23 @@ public class CVM extends AbstractCVM
 		Positions.add(new Position(4, 6)); //n18
 		
 		NBNODE = 9; //Positions.size();
+		
+		// Imaginons que SensorData implémente SensorDataI et a un constructeur adapté
+		for (int i = 1; i <= NBNODE; i++) {
+		    Set<SensorDataI> sensorsForNode = new HashSet<>();
+
+		    // Ajouter des capteurs avec des données fictives pour chaque type
+		    sensorsForNode.add(new SensorData("Node" + i, "Weather", generateSensorValue()));
+		    sensorsForNode.add(new SensorData("Node" + i, "WindSpeed", generateSensorValue()));
+		    sensorsForNode.add(new SensorData("Node" + i, "WindDirection", generateSensorValue()));
+		    sensorsForNode.add(new SensorData("Node" + i, "Smoke", generateSensorValue()));
+		    sensorsForNode.add(new SensorData("Node" + i, "Heat", generateSensorValue()));
+		    sensorsForNode.add(new SensorData("Node" + i, "Biological", generateSensorValue()));
+
+		    // Ajouter l'ensemble des capteurs pour ce nœud à l'ensemble principal
+		    nodeSensors.add(sensorsForNode);
+		}
+
 	}
 												
 	@Override
@@ -185,7 +208,7 @@ public class CVM extends AbstractCVM
 		for (int i =0 ; i < NBNODE ; i++) {
 			BCM4JavaEndPointDescriptorI urinode = new Bcm4javaEndPointDescriptor(AbstractPort.generatePortURI());
 			
-			NodeInfoI nodeDescription = new Descriptor("n"+(i+1),urinode,Positions.get(i),1.5,null);
+			NodeInfoI nodeDescription = new Descriptor("n"+(i+1), urinode, Positions.get(i), 1.5, null);
 			
 			this.uriSensorsURI.add(	AbstractComponent.createComponent(
 						Sensor.class.getCanonicalName(),
@@ -195,7 +218,7 @@ public class CVM extends AbstractCVM
 								URIRegisterInboundPortURI,
 								TEST_CLOCK_URI,
 								new Position(i%3, (i / 3) + 1),
-								
+								nodeSensors.get(i),
 								}));
 			
 			assert	this.isDeployedComponent(uriSensorsURI.get(i));
@@ -246,6 +269,12 @@ public class CVM extends AbstractCVM
         });
     }
 	
+	private Double generateSensorValue() {
+	    // Générer une valeur aléatoire entre 0.0 et 100.0
+	    double value = new Random().nextDouble() * 100;
+	    // Arrondir à deux chiffres après la virgule
+	    return Math.round(value * 100.0) / 100.0;
+	}
 	public static void main(String[] args)
 	{
 		try {
@@ -253,7 +282,7 @@ public class CVM extends AbstractCVM
 //			VerboseException.VERBOSE = true;
 			CVM a = new CVM();
 			// Execute the application.
-			a.startStandardLifeCycle(20000L);
+			a.startStandardLifeCycle(200000L);
 			// Give some time to see the traces (convenience).
 			Thread.sleep(5000L);
 			// Simplifies the termination (termination has yet to be treated

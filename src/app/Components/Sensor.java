@@ -8,6 +8,7 @@
 	import java.time.Instant;
 	import java.util.ArrayList;
 	import java.util.HashMap;
+	import java.util.HashSet;
 	import java.util.Map;
 	import java.util.Set;
 	import java.util.concurrent.TimeUnit;
@@ -41,7 +42,6 @@
 	import fr.sorbonne_u.cps.sensor_network.network.interfaces.SensorNodeP2PImplI;
 	import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 	import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
-	import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 	import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
 	import fr.sorbonne_u.utils.aclocks.ClocksServer;
 	import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
@@ -76,7 +76,9 @@
 		protected URISensorOutBoundPort	outboundPortSE ;
 		protected URISensorOutBoundPort	outboundPortSW ;
 		protected Set<NodeInfoI> neighbor;
+		protected Set<SensorDataI> sensors;
 		private Map<URISensorOutBoundPort, NodeInfoI> nodeOutboundPorts;
+		private HashSet<String> processedRequests;
 		protected NodeInfoI descriptor;
 		
 		protected String TEST_CLOCK_URI;
@@ -92,9 +94,9 @@
 		// Constructor
 		// ------------------------------------------------------------------------
 	
-		protected Sensor(GraphicalNetworkInterface gui, NodeInfoI descriptor, String inboundPortRegister, String uriClock, Position guipos) throws Exception {
+		protected Sensor(GraphicalNetworkInterface gui, NodeInfoI descriptor, String inboundPortRegister, String uriClock, Position guipos, Set<SensorDataI> sensors) throws Exception {
 			
-			super("Node : "+ descriptor.nodeIdentifier(), 0, 1) ;
+			super("Node : "+ descriptor.nodeIdentifier(), 0, 5) ;
 			this.gui = gui;
 			gui.addGraphicalNode(descriptor.nodeIdentifier(), (int)((Position) (descriptor.nodePosition())).getx(), (int)((Position) (descriptor.nodePosition())).gety());
 			this.TEST_CLOCK_URI = uriClock;
@@ -124,9 +126,12 @@
 			this.outboundPortSE.publishPort() ;
 			this.outboundPortSW.publishPort() ;
 			
+			this.processedRequests = new HashSet<>();
+			
+			this.sensors = sensors;
+			
 			TracerI tracer = this.getTracer() ;
 			
-	//		tracer.setOrigin(tracer.getScreenHeight()/2, tracer.getScreenWidth()/2);
 			tracer.setRelativePosition((int)guipos.getx(), (int)guipos.gety());
 		}
 	
@@ -161,6 +166,21 @@
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+			
+			 StringBuilder logMessageBuilder = new StringBuilder();
+		        logMessageBuilder.append("Sensor values").append(this.descriptor.nodeIdentifier()).append(": [");
+
+		        for (SensorDataI sensorData : this.sensors) {
+		            logMessageBuilder.append(sensorData.getSensorIdentifier())
+		                             .append(": ").append(sensorData.getValue()).append(", ");
+		        }
+		        if (!this.sensors.isEmpty()) {
+		            logMessageBuilder.setLength(logMessageBuilder.length() - 2); // Retire la dernière virgule et l'espace
+		        }
+
+		        logMessageBuilder.append("]");
+		        this.logMessage(logMessageBuilder.toString());
+		        
 			super.start() ;
 		}
 		
@@ -184,6 +204,19 @@
 					}
 					},
 					delay, TimeUnit.NANOSECONDS);
+			
+		    if (this.outboundPortNE.connected()) {
+		    	this.outboundPortNE.ask4Disconnection(descriptor);  
+		    }
+		    if (this.outboundPortNW.connected()) {
+		    	this.outboundPortNW.ask4Disconnection(descriptor);  
+		    }
+		    if (this.outboundPortSE.connected()) {
+		    	this.outboundPortSE.ask4Disconnection(descriptor);
+		    }   
+		    if (this.outboundPortSW.connected()) {
+		    	this.outboundPortSW.ask4Disconnection(descriptor); 
+		    }
 		
 		}	
 		
@@ -200,30 +233,15 @@
 		        this.doPortDisconnection(this.outboundPortClock.getPortURI());
 		    }
 		    
-		    if (this.outboundPort.connected()) {
+		    this.doPortDisconnection(this.outboundPortNE.getPortURI()); 
+		    this.doPortDisconnection(this.outboundPortNW.getPortURI());
+	        this.doPortDisconnection(this.outboundPortSE.getPortURI());
+	        this.doPortDisconnection(this.outboundPortSW.getPortURI());
+	        
+	        if (this.outboundPort.connected()) {
 		    	this.outboundPort.unregister(descriptor.nodeIdentifier());
 		        this.doPortDisconnection(this.outboundPort.getPortURI());
-		    }
-	
-		    if (this.outboundPortNE.connected()) {
-		    	this.outboundPortNE.ask4Disconnection(descriptor);
-		        this.doPortDisconnection(this.outboundPortNE.getPortURI()); 
-		    }
-	
-		    if (this.outboundPortNW.connected()) {
-		    	this.outboundPortNW.ask4Disconnection(descriptor);
-		        this.doPortDisconnection(this.outboundPortNW.getPortURI());
-		    }
-	
-		    if (this.outboundPortSE.connected()) {
-		    	this.outboundPortSE.ask4Disconnection(descriptor);
-		        this.doPortDisconnection(this.outboundPortSE.getPortURI());
 		    }   
-	
-		    if (this.outboundPortSW.connected()) {
-		    	this.outboundPortSW.ask4Disconnection(descriptor);
-		        this.doPortDisconnection(this.outboundPortSW.getPortURI());
-		    }
 	
 		    super.finalise();
 		}
@@ -331,7 +349,7 @@
 			                inboundPortSensor,
 			                ConnectorSensor.class.getCanonicalName());
 			            this.nodeOutboundPorts.put(outboundPortNE, node);
-			            this.logMessage("connexion uni directionnel vers un voisin au NE") ;
+			            this.logMessage("connexion uni directionnel vers un voisin au NE " + node.nodeIdentifier()) ;
 			            
 			            if (this.outboundPortNE.connected()) {
 			            	this.outboundPortNE.ask4Connection(descriptor);
@@ -343,7 +361,7 @@
 			                inboundPortSensor,
 			                ConnectorSensor.class.getCanonicalName());
 			            this.nodeOutboundPorts.put(outboundPortNW, node);
-			            this.logMessage("connexion uni directionnel vers un voisin au NW") ;
+			            this.logMessage("connexion unidirectionnel vers un voisin au NW " + node.nodeIdentifier()) ;
 			            
 			            if (this.outboundPortNW.connected()) {
 			            	this.outboundPortNW.ask4Connection(descriptor);
@@ -355,7 +373,7 @@
 			                inboundPortSensor,
 			                ConnectorSensor.class.getCanonicalName());
 			            this.nodeOutboundPorts.put(outboundPortSE, node);
-			            this.logMessage("connexion uni directionnel vers un voisin au SE") ;
+			            this.logMessage("connexion unidirectionnel vers un voisin au SE " + node.nodeIdentifier()) ;
 			            
 			            if (this.outboundPortSE.connected()) {
 			            	this.outboundPortSE.ask4Connection(descriptor);
@@ -367,7 +385,7 @@
 			                inboundPortSensor,
 			                ConnectorSensor.class.getCanonicalName());
 			            this.nodeOutboundPorts.put(outboundPortNW, node);
-			            this.logMessage("connexion uni directionnel vers un voisin au SW") ;
+			            this.logMessage("connexion unidirectionnel vers un voisin au SW " + node.nodeIdentifier()) ;
 			            
 			            if (this.outboundPortSW.connected()) {
 			            	this.outboundPortSW.ask4Connection(descriptor);
@@ -381,17 +399,9 @@
 		}
 		
 		public QueryResultI execute(RequestI request) throws Exception{
-	
-			SensorDataI sensor = new SensorData(this.descriptor.nodeIdentifier(),"Thermomètre" , 0.0);
-			ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(),
-					this.descriptor.nodePosition(),this.neighbor,sensor);
-			
-			QueryResult queryR = new QueryResult(new ArrayList<>(),false , new ArrayList<>());
-			this.es = new ExecutionState(node,queryR);
-			
 			RequestContinuationI clientRequest = new RequestContinuation(request.getQueryCode(),request.clientConnectionInfo(), this.es);
-			this.execute((RequestContinuationI)clientRequest);
-			return es.getCurrentResult();
+			QueryResultI qr = this.execute((RequestContinuationI)clientRequest);
+			return qr;
 		}
 	
 		@Override
@@ -414,7 +424,7 @@
 		                this.outboundPortNE.getPortURI(),
 		                inboundPortSensor,
 		                ConnectorSensor.class.getCanonicalName());
-		            this.logMessage("connexion bidirectionnel vers un voisin au NE") ;
+		            this.logMessage("connexion bidirectionnel vers un voisin au NE " + neighbour.nodeIdentifier()) ;
 	
 		        } else if (d.equals(Direction.NW)) {
 		            if (this.outboundPortNW.connected()) {
@@ -425,7 +435,7 @@
 		                this.outboundPortNW.getPortURI(),
 		                inboundPortSensor,
 		                ConnectorSensor.class.getCanonicalName());
-		            this.logMessage("connexion bidirectionnel vers un voisin au NW") ;
+		            this.logMessage("connexion bidirectionnel vers un voisin au NW " + neighbour.nodeIdentifier()) ;
 	
 		        } else if (d.equals(Direction.SE)) {
 		            if (this.outboundPortSE.connected()) {
@@ -436,7 +446,7 @@
 		                this.outboundPortSE.getPortURI(),
 		                inboundPortSensor,
 		                ConnectorSensor.class.getCanonicalName());
-		            this.logMessage("connexion bidirectionnel vers un voisin au SE") ;
+		            this.logMessage("connexion bidirectionnel vers un voisin au SE " + neighbour.nodeIdentifier()) ;
 	
 		        } else if (d.equals(Direction.SW)) {
 		            if (this.outboundPortSW.connected()) {
@@ -447,7 +457,7 @@
 		                this.outboundPortSW.getPortURI(),
 		                inboundPortSensor,
 		                ConnectorSensor.class.getCanonicalName());
-		            this.logMessage("connexion bidirectionnel vers un voisin au SW") ;
+		            this.logMessage("connexion bidirectionnel vers un voisin au SW " + neighbour.nodeIdentifier()) ;
 	
 		        }
 		    } catch (Exception e) {
@@ -474,7 +484,7 @@
 		@Override
 		public void ask4Disconnection(NodeInfoI neighbour) throws Exception {
 		    Direction d = this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
-		    
+		 	gui.removeGraphicalConnection(neighbour.nodeIdentifier(), this.descriptor.nodeIdentifier());
 		    try {
 		        if (d.equals(Direction.NE)) {
 		            handleDisconnectionAndReconnection(this.outboundPortNE, d);
@@ -493,46 +503,52 @@
 	
 		@Override
 		public QueryResultI execute(RequestContinuationI request) throws Exception {
-			
-			ExecutionStateI es = request.getExecutionState();
-			
+			QueryResult queryR = new QueryResult(new ArrayList<>(),false , new ArrayList<>());
+			if (this.processedRequests.contains(request.requestURI())) {
+	            return queryR;
+	        } else {
+			ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(),
+					this.descriptor.nodePosition(),this.neighbor,sensors);
+			ExecutionState es = new ExecutionState(node,queryR);
 			if(request.getQueryCode() instanceof GQuery) {
 				((GQuery) request.getQueryCode()).eval(es);
+				this.logMessage(es.getCurrentResult().gatheredSensorsValues().toString());
 			}else {
 				((BQuery) request.getQueryCode()).eval(es);
+				this.logMessage(es.getCurrentResult().positiveSensorNodes().toString());
 			}
-			gui.toggleNodeBlinking(this.descriptor.nodeIdentifier());
-		
-			SensorData sensor = new SensorData(this.descriptor.nodeIdentifier(),"radar" , 0.0);
-			ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(), this.descriptor.nodePosition(), this.neighbor,sensor);
-			es.updateProcessingNode(node);
 			
+			
+			gui.toggleNodeBlinking(this.descriptor.nodeIdentifier());
 			if(es.isFlooding()) {
+				this.processedRequests.add(request.requestURI());
 				for(NodeInfoI n : es.getProcessingNode().getNeighbours()) {
 					Direction d = es.getProcessingNode().getPosition().directionFrom(n.nodePosition());
 					if(es.withinMaximalDistance(n.nodePosition())) {
 						try {
 					        if (d.equals(Direction.NE)) {
 					    		if(outboundPortNE.connected()) {
-					    			 this.outboundPortNE.execute(request);		
+					    			 es.addToCurrentResult(this.outboundPortNE.execute(request));					    		
 					    		}
 					        } else if (d.equals(Direction.NW)) {
 					        	if(outboundPortNW.connected()) {
-					        		this.outboundPortNW.execute(request);
+					        		es.addToCurrentResult(this.outboundPortNW.execute(request));
 					        	}
 					        } else if (d.equals(Direction.SE)) {
 					            if(outboundPortSE.connected()) {
-					        		this.outboundPortSE.execute(request);
+					        		es.addToCurrentResult(this.outboundPortSE.execute(request));
 					        	}
 					        } else if (d.equals(Direction.SW)) {
-					            if(outboundPortSW.connected()) {
-					        		this.outboundPortSW.execute(request);
+					            if(outboundPortSW.connected()) {					     
+					            	es.addToCurrentResult(this.outboundPortSW.execute(request));
 					        	}
 					        }
 					        gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),n.nodeIdentifier());
 					    } catch (Exception e) {
 					        e.printStackTrace();
 					    }
+					}else {
+						return es.getCurrentResult();
 					}
 				}
 				return es.getCurrentResult();
@@ -549,30 +565,32 @@
 					 if (d.equals(Direction.NE)) {
 				    		if(outboundPortNE.connected()) {
 	//			    			gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortNE).nodeIdentifier());
-					            this.outboundPortNE.execute(request);			            
+				    			es.addToCurrentResult(this.outboundPortNE.execute(request));			            
 				    		}
 				        } else if (d.equals(Direction.NW)) {
 				        	if(outboundPortNW.connected()) {
 	//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortNW).nodeIdentifier());
-					            this.outboundPortNW.execute(request);         
+				        		es.addToCurrentResult(this.outboundPortNW.execute(request));         
 				    		}
 				        } else if (d.equals(Direction.SE)) {
 				        	if(outboundPortSE.connected()) {
 	//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortSE).nodeIdentifier());
-					            this.outboundPortSE.execute(request);
+				        		es.addToCurrentResult(this.outboundPortSE.execute(request));
+				        		this.logMessage(es.getCurrentResult().gatheredSensorsValues().toString());
 				    		}
 				        } else if (d.equals(Direction.SW)) {
 				        	if(outboundPortSW.connected()) {
 	//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortSW).nodeIdentifier());
-					            this.outboundPortSW.execute(request);
+				        		es.addToCurrentResult(this.outboundPortSW.execute(request));
 				    		}
 				        }
 					 return es.getCurrentResult();
 				}
-			}
-			 return null; 
+			}}
+			
+			 return es.getCurrentResult(); 
 		}
-	
+
 		@Override
 		public void executeAsync(RequestContinuationI requestContinuation) throws Exception {
 			// TODO Auto-generated method stub

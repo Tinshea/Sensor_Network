@@ -13,12 +13,12 @@ public class ProcessingNode implements ProcessingNodeI {
 	private String nodeIdentifier;
 	private PositionI position;
 	private Set<NodeInfoI> neighbours;
-	private SensorDataI sensorData;
+	private Set<SensorDataI> sensorData;
 	
 	public ProcessingNode( String nodeIdentifier,
 	 PositionI position,
 	 Set<NodeInfoI> neighbours,
-	 SensorDataI sensorData) {
+	 Set<SensorDataI> sensorData) {
 		this.nodeIdentifier = nodeIdentifier;
 		this.neighbours = neighbours;
 		this.sensorData = sensorData;
@@ -42,7 +42,10 @@ public class ProcessingNode implements ProcessingNodeI {
 
 	@Override
 	public SensorDataI getSensorData(String sensorIdentifier) {
-		return this.sensorData;
+		return sensorData.stream()
+	            .filter(sd-> sd.getSensorIdentifier().equals(sensorIdentifier))
+	            .findFirst()
+	            .orElse(null);
 	}
 
 	@Override
