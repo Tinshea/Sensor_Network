@@ -11,12 +11,12 @@ import AST.ECont;
 import AST.FCont;
 import AST.FGather;
 import AST.GQuery;
-import app.Interfaces.URIClientCI;
-import app.Models.Position;
+import app.Models.ClientConfig;
 import app.Models.Request;
-import app.Ports.URIClientOutBoundPort;
-import app.connectors.ConnectorRegistre;
-import app.connectors.ConnectorSensor;
+import app.Ports.URIClientOutBoundPortToNode;
+import app.Ports.URIClientOutBoundPortToRegister;
+import app.connectors.ConnectorRegistreClient;
+import app.connectors.ConnectorSensorToClient;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
@@ -37,15 +37,15 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 
 
-@RequiredInterfaces(required = {RequestingCI.class, LookupCI.class, ClocksServerCI.class, URIClientCI.class})
+@RequiredInterfaces(required = {RequestingCI.class, LookupCI.class, ClocksServerCI.class})
 public class Client extends AbstractComponent {
 	
 	// ------------------------------------------------------------------------
 	// Instance variables
 	// ------------------------------------------------------------------------
 	
-	protected URIClientOutBoundPort	urioutPortregister ; 
-	protected URIClientOutBoundPort	urioutPortnode ; 
+	protected URIClientOutBoundPortToRegister	urioutPortregister ; 
+	protected URIClientOutBoundPortToNode	urioutPortnode ; 
 	private final String inboundPortRegister;
 	
 	private String TEST_CLOCK_URI;
@@ -55,24 +55,25 @@ public class Client extends AbstractComponent {
 	// Constructor
 	// ------------------------------------------------------------------------
 
-	protected Client(int index, String inboundPortRegister, String uriClock, Position guipos) throws Exception {
+	protected Client(ClientConfig configClient) throws Exception {
 		
-		super("Client " + index, 0, 1) ;
+		super("Client " + configClient.getName(), 0, 1) ;
 		
-		this.TEST_CLOCK_URI = uriClock;
+		this.TEST_CLOCK_URI = configClient.getUriClock();
 		this.outboundPortClock = new ClocksServerOutboundPort(this);
 		outboundPortClock.publishPort();
 		
-		this.urioutPortregister = new URIClientOutBoundPort(this) ;
+		this.urioutPortregister = new URIClientOutBoundPortToRegister(this) ;
 		this.urioutPortregister.publishPort() ;
 		
-		this.urioutPortnode = new URIClientOutBoundPort(this) ;
+		this.urioutPortnode = new URIClientOutBoundPortToNode(this) ;
 		this.urioutPortnode.publishPort() ;
 		
-		this.inboundPortRegister  = inboundPortRegister;
+		this.inboundPortRegister  = configClient.getInboundPortRegister();
 		
 		TracerI tracer = this.getTracer() ;
-		tracer.setRelativePosition((int)guipos.getx(), (int)guipos.gety());
+	
+		tracer.setRelativePosition(configClient.getName() % 3, configClient.getName() / 3);
 		AbstractComponent.checkImplementationInvariant(this);
 		AbstractComponent.checkInvariant(this);
 	}
@@ -105,7 +106,7 @@ public class Client extends AbstractComponent {
 			this.doPortConnection(
 							this.urioutPortregister.getPortURI(),
 							inboundPortRegister,
-							ConnectorRegistre.class.getCanonicalName()) ;
+							ConnectorRegistreClient.class.getCanonicalName()) ;
 			this.logMessage("Connected to Register");
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -213,6 +214,7 @@ public class Client extends AbstractComponent {
 // Component internal services
 //-------------------------------------------------------------------------
 
+	
 	public void executeAndPrintRequest() throws Exception {
 		Set<Direction> dirs = new HashSet<>();
 		dirs.add(Direction.SE);
@@ -249,7 +251,7 @@ public class Client extends AbstractComponent {
 			this.doPortConnection(
 					this.urioutPortnode.getPortURI(),
 					inboundPortSensor,
-					ConnectorSensor.class.getCanonicalName()) ;
+					ConnectorSensorToClient.class.getCanonicalName()) ;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

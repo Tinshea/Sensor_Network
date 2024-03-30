@@ -1,7 +1,6 @@
 package app.Models;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;

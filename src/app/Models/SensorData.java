@@ -12,6 +12,7 @@ public class SensorData implements SensorDataI {
 	private String nodeIdentifier;
 	private String sensorIdentifier;
 	private Double value;
+	private Instant timestamp; 
 	
 	public SensorData( String nodeIdentifier,
 	 String sensorIdentifier,
@@ -19,12 +20,12 @@ public class SensorData implements SensorDataI {
 		this.nodeIdentifier = nodeIdentifier;
 		this.sensorIdentifier = sensorIdentifier;
 		this.value = value;
+		this.timestamp = Instant.now();
 	}
 	@Override
 	public String getNodeIdentifier() {
 		return this.nodeIdentifier;
 	}
-
 
 	@Override
 	public Class<? extends Serializable> getType() {
@@ -37,12 +38,6 @@ public class SensorData implements SensorDataI {
 	}
 
 	@Override
-	public Instant getTimestamp() {
-		return null;
-	}
-
-
-	@Override
 	public String getSensorIdentifier() {
 		return this.sensorIdentifier;
 	}
@@ -50,5 +45,9 @@ public class SensorData implements SensorDataI {
 	public String toString() {
 		return this.sensorIdentifier +" : "+ this.value;
 	}
+	@Override
+	   public Instant getTimestamp() {
+        return timestamp;
+    }
 
 }

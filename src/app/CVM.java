@@ -1,38 +1,5 @@
 package app;
 
-// Copyright Jacques Malenfant, Sorbonne Universite.
-// Jacques.Malenfant@lip6.fr
-//
-// This software is a computer program whose purpose is to provide a
-// basic component programming model to program with components
-// distributed applications in the Java programming language.
-//
-// This software is governed by the CeCILL-C license under French law and
-// abiding by the rules of distribution of free software.  You can use,
-// modify and/ or redistribute the software under the terms of the
-// CeCILL-C license as circulated by CEA, CNRS and INRIA at the following
-// URL "http://www.cecill.info".
-//
-// As a counterpart to the access to the source code and  rights to copy,
-// modify and redistribute granted by the license, users are provided only
-// with a limited warranty  and the software's author,  the holder of the
-// economic rights,  and the successive licensors  have only  limited
-// liability. 
-//
-// In this respect, the user's attention is drawn to the risks associated
-// with loading,  using,  modifying and/or developing or reproducing the
-// software by the user in light of its specific status of free software,
-// that may mean  that it is complicated to manipulate,  and  that  also
-// therefore means  that it is reserved for developers  and  experienced
-// professionals having in-depth computer knowledge. Users are therefore
-// encouraged to load and test the software's suitability as regards their
-// requirements in conditions enabling the security of their systems and/or 
-// data to be ensured and,  more generally, to use and operate it in the 
-// same conditions as regards security. 
-//
-// The fact that you are presently reading this means that you have had
-// knowledge of the CeCILL-C license and that you accept its terms.
-
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.AbstractPort;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
@@ -47,193 +14,70 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
-import app.Components.Register;
-import app.Components.Client;
-import app.Components.Sensor;
-import app.Models.Bcm4javaEndPointDescriptor;
-import app.Models.Descriptor;
+import app.Models.ClientConfig;
 import app.Models.Position;
+import app.Models.SensorConfig;
 import app.Models.SensorData;
-import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
+import app.config.Config;
+import app.factory.ComponentFactory;
 import fr.sorbonne_u.components.helpers.CVMDebugModes;
-import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
-import fr.sorbonne_u.exceptions.VerboseException;
 import fr.sorbonne_u.utils.aclocks.ClocksServer;
 
 public class CVM extends AbstractCVM
 {
+	
 	// ------------------------------------------------------------------------
 	// Instance variables
 	// ------------------------------------------------------------------------
-	
-	public static final String TEST_CLOCK_URI = "test-clock";
-	public static final Instant START_INSTANT = Instant.parse("2024-03-18T20:05:00.00Z");
-	protected static final long START_DELAY = 6000L;
-	public static final double ACCELERATION_FACTOR = 60.0;
-	long unixEpochStartTimeInNanos = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis() + START_DELAY);
+	protected static final String URIRegisterInboundPortURINode = AbstractPort.generatePortURI();
+	protected static final String URIRegisterInboundPortURIClient = AbstractPort.generatePortURI();
 	protected String serverClock;
-	
-	protected ArrayList<Position> Positions  = new ArrayList<>();
-	protected ArrayList<Set<SensorDataI>> nodeSensors  = new ArrayList<>();
-
-	
-	protected static final String URIRegisterInboundPortURI = AbstractPort.generatePortURI();
-	protected String RegisterURI;
-	
-	protected ArrayList<String> URIClientURI = new ArrayList<>();
-	protected static final int NBCLIENT = 1;
-	
-	protected ArrayList<String> uriSensorsURI = new ArrayList<>();
-	protected static int NBNODE;
-	
-	private static NetworkPanel panel;
-	
+    protected ArrayList<Position> positions;
+    protected ArrayList<Set<SensorDataI>> nodeSensors;
+    protected String registerURI;
+    protected ArrayList<String> clientURIs;
+    protected ArrayList<String> sensorURIs;
+    private NetworkPanel panel;
 	
 	// ------------------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------------------
 	
-	public CVM() throws Exception
-	{
-		super() ;
-		Positions.add(new Position(1, 5)); //n1
-		Positions.add(new Position(3, 5)); //n2
-		Positions.add(new Position(5, 5)); //n3
-		
-		Positions.add(new Position(2, 4)); //n4
-		Positions.add(new Position(4, 4)); //n5
-		
-		Positions.add(new Position(1, 3)); //n6
-		Positions.add(new Position(3, 3)); //n7
-		Positions.add(new Position(5, 3)); //n8
-		
-		Positions.add(new Position(2, 2)); //n9
-		Positions.add(new Position(4, 2)); //n10
-		
-		Positions.add(new Position(1, 1)); //n11
-		Positions.add(new Position(3, 1)); //n12
-		Positions.add(new Position(5, 1)); //n13
-		
-		Positions.add(new Position(1, 7)); //n14 (nouveau point le plus haut sur une ligne impaire)
-		Positions.add(new Position(3, 7)); //n15
-		Positions.add(new Position(5, 7)); //n16
-		
-		Positions.add(new Position(2, 6)); //n17 (sur une nouvelle ligne paire entre les lignes impaires)
-		Positions.add(new Position(4, 6)); //n18
-		
-		NBNODE = 9; //Positions.size();
-		
-		// Imaginons que SensorData implémente SensorDataI et a un constructeur adapté
-		for (int i = 1; i <= NBNODE; i++) {
-		    Set<SensorDataI> sensorsForNode = new HashSet<>();
+	  public CVM() throws Exception {
+	        super();
+	        this.positions = new ArrayList<>();
+	        this.nodeSensors = new ArrayList<>();
+	        this.clientURIs = new ArrayList<>();
+	        this.sensorURIs = new ArrayList<>();
+	        initializePositionsAndSensors();
+	    }
+	  
+	  private void initializePositionsAndSensors() {
+	        // Dynamically generate positions based on Config.NBNODE and generate sensor data for each position
 
-		    // Ajouter des capteurs avec des données fictives pour chaque type
-		    sensorsForNode.add(new SensorData("Node" + i, "Weather", generateSensorValue()));
-		    sensorsForNode.add(new SensorData("Node" + i, "WindSpeed", generateSensorValue()));
-		    sensorsForNode.add(new SensorData("Node" + i, "WindDirection", generateSensorValue()));
-		    sensorsForNode.add(new SensorData("Node" + i, "Smoke", generateSensorValue()));
-		    sensorsForNode.add(new SensorData("Node" + i, "Heat", generateSensorValue()));
-		    sensorsForNode.add(new SensorData("Node" + i, "Biological", generateSensorValue()));
-
-		    // Ajouter l'ensemble des capteurs pour ce nœud à l'ensemble principal
-		    nodeSensors.add(sensorsForNode);
-		}
-
-	}
+		  	initializePositions(Config.ROW, Config.COLUM);
+	        initializeSensors();
+	    }
 												
 	@Override
-	public void	deploy() throws Exception
-	{
-		assert	!this.deploymentDone() ;
+	public void deploy() throws Exception {
+	    assert !this.deploymentDone();
 
-		// ---------------------------------------------------------------------
-		// Configuration phase
-		// ---------------------------------------------------------------------
+	    configureDebugMode();
+	    createAndShowGUI();
+	    createServerClock();
+	    createRegisterComponent();
+	    createClientComponents();
+	    createSensorComponents();
 
-		// debugging mode configuration; comment and uncomment the line to see
-		// the difference
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.LIFE_CYCLE);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.INTERFACES);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.PORTS);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.CONNECTING);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.CALLING);
-		AbstractCVM.DEBUG_MODE.add(CVMDebugModes.EXECUTOR_SERVICES);
-
-		// ---------------------------------------------------------------------
-		// Creation phase
-		// ---------------------------------------------------------------------
-		createAndShowGUI();
-		//create the server clock component
-		
-		this.serverClock = AbstractComponent.createComponent(
-				ClocksServer.class.getCanonicalName(),
-				new Object[]{
-				TEST_CLOCK_URI,// URI attribuée à l’horloge 
-				unixEpochStartTimeInNanos, // moment du démarrage en temps réel Unix
-				START_INSTANT,// instant de démarrage du scénario
-				ACCELERATION_FACTOR});// facteur d’acccélération
-		
-		// create the register component
-		this.RegisterURI =
-			AbstractComponent.createComponent(
-					Register.class.getCanonicalName(),
-					new Object[]{URIRegisterInboundPortURI,});
-		
-		assert this.isDeployedComponent(this.RegisterURI);
-		this.toggleTracing(this.RegisterURI);
-		this.toggleLogging(this.RegisterURI);
-				
-		// create the client component
-		for (int i =0 ; i < NBCLIENT ; i++) {
-			this.URIClientURI.add(
-				AbstractComponent.createComponent(
-						Client.class.getCanonicalName(),
-						new Object[]{
-								i + 1,
-								URIRegisterInboundPortURI,
-								TEST_CLOCK_URI,
-								new Position(i%3 + 1, (i / 3)),
-								}));
-			
-			assert this.isDeployedComponent(this.URIClientURI.get(i));
-	
-			this.toggleTracing(this.URIClientURI.get(i));
-			this.toggleLogging(this.URIClientURI.get(i));
-		}
-
-		// create the consumer component
-		
-		for (int i =0 ; i < NBNODE ; i++) {
-			BCM4JavaEndPointDescriptorI urinode = new Bcm4javaEndPointDescriptor(AbstractPort.generatePortURI());
-			
-			NodeInfoI nodeDescription = new Descriptor("n"+(i+1), urinode, Positions.get(i), 1.5, null);
-			
-			this.uriSensorsURI.add(	AbstractComponent.createComponent(
-						Sensor.class.getCanonicalName(),
-						new Object[]{
-								this.panel,
-								nodeDescription, 
-								URIRegisterInboundPortURI,
-								TEST_CLOCK_URI,
-								new Position(i%3, (i / 3) + 1),
-								nodeSensors.get(i),
-								}));
-			
-			assert	this.isDeployedComponent(uriSensorsURI.get(i));
-	
-			this.toggleTracing(uriSensorsURI.get(i));
-			this.toggleLogging(uriSensorsURI.get(i));
-		}
-
-		// ---------------------------------------------------------------------
-		// Deployment done
-		// ---------------------------------------------------------------------
-
-		super.deploy();
-		assert this.deploymentDone();
+	    super.deploy();
+	    assert this.deploymentDone();
 	}
+
 
 	@Override
 	public void	 finalise() throws Exception
@@ -245,29 +89,56 @@ public class CVM extends AbstractCVM
 	public void	 shutdown() throws Exception
 	{
 		assert	this.allFinalised();
-		// any disconnection not done yet can be performed here
-
 		super.shutdown();
 	}
 	
-	private void createAndShowGUI() {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Network Graph");
-            panel = new NetworkPanel(); // Initialisez 'panel' ici
+	
+	
 
-            frame.add(panel);
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            double width = screenSize.getWidth();
-            double height = screenSize.getHeight();
-            
-            frame.setSize((int)width/3, (int) height);
-            // Positionner la fenêtre en haut à droite
-            frame.setLocation((int)width - frame.getWidth(), 0);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setVisible(true);
-            
-        });
-    }
+	//--------------------------------------------------------------------------
+	// services
+	//--------------------------------------------------------------------------
+	private void createServerClock() throws Exception {
+	    long unixEpochStartTimeInNanos = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis() + Config.START_DELAY);
+	    this.serverClock = AbstractComponent.createComponent(
+	        ClocksServer.class.getCanonicalName(),
+	        new Object[]{Config.TEST_CLOCK_URI, unixEpochStartTimeInNanos, Instant.parse(Config.START_INSTANT), Config.ACCELERATION_FACTOR});
+	}
+
+	
+	private void createAndShowGUI() {
+	    SwingUtilities.invokeLater(() -> {
+	        JFrame frame = new JFrame("Network Graph");
+	        panel = new NetworkPanel();
+
+	        // Définir la taille préférée du panneau en fonction de la taille de votre grille
+	        panel.setPreferredSize(new Dimension(2000, 2000)); // Ajustez en fonction de la taille de votre réseau
+
+	        // Ajouter le panneau à un JScrollPane
+	        JScrollPane scrollPane = new JScrollPane(panel);
+	        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+	        // Récupérer les dimensions de l'écran pour positionner et dimensionner le cadre
+	        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	        int width = screenSize.width;
+	        int height = screenSize.height;
+
+	        // Positionner la fenêtre en haut à droite et définir la taille de la fenêtre
+	        frame.setSize(width / 3, height);
+	        frame.setLocation(width - frame.getWidth(), 0);
+
+	        // Ajouter le JScrollPane au cadre au lieu du panneau directement
+	        frame.add(scrollPane);
+	        // Positionnez la barre de défilement verticale en bas
+	        javax.swing.SwingUtilities.invokeLater(() -> {
+	            JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+	            verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+	        });
+	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	        frame.setVisible(true);
+	    });
+	}
 	
 	private Double generateSensorValue() {
 	    // Générer une valeur aléatoire entre 0.0 et 100.0
@@ -275,6 +146,95 @@ public class CVM extends AbstractCVM
 	    // Arrondir à deux chiffres après la virgule
 	    return Math.round(value * 100.0) / 100.0;
 	}
+	
+	private void configureDebugMode() {
+	    AbstractCVM.DEBUG_MODE.add(CVMDebugModes.LIFE_CYCLE);
+	    AbstractCVM.DEBUG_MODE.add(CVMDebugModes.INTERFACES);
+	    AbstractCVM.DEBUG_MODE.add(CVMDebugModes.PORTS);
+	    AbstractCVM.DEBUG_MODE.add(CVMDebugModes.CONNECTING);
+	    AbstractCVM.DEBUG_MODE.add(CVMDebugModes.CALLING);
+	    AbstractCVM.DEBUG_MODE.add(CVMDebugModes.EXECUTOR_SERVICES);
+	}
+	
+	private void createRegisterComponent() throws Exception {
+	    this.registerURI = ComponentFactory.createRegister(URIRegisterInboundPortURINode, URIRegisterInboundPortURIClient);
+	    this.toggleTracing(this.registerURI);
+	    this.toggleLogging(this.registerURI);
+	}
+
+
+	private void createClientComponents() throws Exception {
+		
+	    for (int i = 0; i < Config.NBCLIENT; i++) {
+	    	ClientConfig configClient = new ClientConfig(
+					 URIRegisterInboundPortURIClient, 
+			            Config.TEST_CLOCK_URI, 
+			            i+1
+			        );
+	        String clientURI = ComponentFactory.createClient(configClient);
+	        
+	        this.toggleTracing(clientURI);
+	        this.toggleLogging(clientURI);
+	        clientURIs.add(clientURI);
+	    }
+	}
+
+	private void createSensorComponents() throws Exception {
+	    for (int i = 0; i < Config.NBNODE; i++) {
+	        SensorConfig configNode = new SensorConfig(
+	            this.panel, 
+	            URIRegisterInboundPortURINode, 
+	            Config.TEST_CLOCK_URI, 
+	            nodeSensors.get(i), 
+	            i+1, 
+	            positions.get(i)
+	        );
+	        
+	        String sensorURI = ComponentFactory.createSensor(configNode);
+	        
+	        this.toggleTracing(sensorURI);
+	        this.toggleLogging(sensorURI);
+	        sensorURIs.add(sensorURI);
+	    }
+	}
+	
+	private void initializeSensors() {
+	    for (int i = 1; i <= Config.NBNODE; i++) {
+	        Set<SensorDataI> sensorsForNode = new HashSet<>();
+
+	        // Ajouter des capteurs avec des données générées pour chaque type
+	        sensorsForNode.add(new SensorData("Node" + i, "Weather", generateSensorValue()));
+	        sensorsForNode.add(new SensorData("Node" + i, "WindSpeed", generateSensorValue()));
+	        sensorsForNode.add(new SensorData("Node" + i, "WindDirection", generateSensorValue()));
+	        sensorsForNode.add(new SensorData("Node" + i, "Smoke", generateSensorValue()));
+	        sensorsForNode.add(new SensorData("Node" + i, "Heat", generateSensorValue()));
+	        sensorsForNode.add(new SensorData("Node" + i, "Biological", generateSensorValue()));
+
+	        // Ajouter l'ensemble des capteurs pour ce nœud à l'ensemble principal
+	        nodeSensors.add(sensorsForNode);
+	    }
+	}
+
+	private void initializePositions(int rows, int cols) {
+	    this.positions.clear(); // Nettoyer la liste au cas où elle a été précédemment utilisée.
+	    
+	    int nodeCount = 0; // Compteur pour les nœuds créés
+	    // Itérer sur chaque ligne et colonne pour créer des nœuds
+	    for (int row = 0; row < rows; row++) {
+	        int yOffset = (row % 2 == 0) ? 0 : 1; // Décalage pour les lignes paires et impaires
+
+	        for (int col = 0; col < cols - yOffset; col++) {
+	            if (nodeCount < Config.NBNODE) {
+	                int x = col * 2 + 1 + yOffset; // x commence à 1 et alterne entre les décalages de 0 et 1
+	                int y = rows - row; // Inverser la coordonnée y pour commencer par le haut
+	                positions.add(new Position(x, y));
+	                nodeCount++;
+	            }
+	        }
+	    }
+	}
+
+	
 	public static void main(String[] args)
 	{
 		try {
@@ -282,7 +242,7 @@ public class CVM extends AbstractCVM
 //			VerboseException.VERBOSE = true;
 			CVM a = new CVM();
 			// Execute the application.
-			a.startStandardLifeCycle(200000L);
+			a.startStandardLifeCycle(20000L);
 			// Give some time to see the traces (convenience).
 			Thread.sleep(5000L);
 			// Simplifies the termination (termination has yet to be treated

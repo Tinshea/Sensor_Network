@@ -1,29 +1,28 @@
 package app.Ports;
 
 import app.Components.Sensor;
-import app.Interfaces.URISensorinCI;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
-import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
+import fr.sorbonne_u.cps.sensor_network.network.interfaces.SensorNodeP2PCI;
 
 
-public class URISensorInboundPort extends AbstractInboundPort implements URISensorinCI
+public class URISensorInboundPort extends AbstractInboundPort implements SensorNodeP2PCI
 {
 	private static final long serialVersionUID = 1L;
 
 	public URISensorInboundPort( String uri, ComponentI owner) throws Exception{
-		super(uri, URISensorinCI.class, owner) ;
+		super(uri, SensorNodeP2PCI.class, owner) ;
 
 		assert	uri != null && owner instanceof Sensor;
 	}
 
 	public URISensorInboundPort(ComponentI owner) throws Exception {
-		super(URISensorinCI.class, owner) ;
-//		assert	owner instanceof RequestingCI ;
+		super(SensorNodeP2PCI.class, owner) ;
+		assert	owner instanceof SensorNodeP2PCI ;
 	}
 
 	@Override
@@ -67,13 +66,4 @@ public class URISensorInboundPort extends AbstractInboundPort implements URISens
 		
 	}
 
-	@Override
-	public QueryResultI execute(RequestI request) throws Exception {
-		return this.getOwner().handleRequest(owner -> ((Sensor)owner).execute(request)) ;
-	}
-
-	@Override
-	public void executeAsync(RequestI request) throws Exception {
-		
-	}
 }

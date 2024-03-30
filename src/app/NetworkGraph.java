@@ -2,8 +2,6 @@ package app;
 
 import javax.swing.*;
 
-import javassist.bytecode.Descriptor.Iterator;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,24 +97,31 @@ class Light {
 
 }
 
-
-
 // Panneau personnalisé pour le dessin
 class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
-	private final List<Node> nodes = new ArrayList<>();
-    private final List<Connection> connections = new ArrayList<>();
-    private List<Light> lights = new ArrayList<>();
-    private Timer animationTimer;
-    int gridSize = 100;
-    
-    private boolean isOn = true; // État pour gérer l'affichage du rond
-
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	   private static final int PREF_WIDTH = 1000;
+	    private static final int PREF_HEIGHT = 800;
+	    private final List<Node> nodes = new ArrayList<>();
+	    private final List<Connection> connections = new ArrayList<>();
+	    private List<Light> lights = new ArrayList<>();
+	    private Timer animationTimer;
+	    int gridSize = 100;
+	    private boolean isOn = true;
+	    
     public NetworkPanel() {
+    	setPreferredSize(new Dimension(PREF_WIDTH, PREF_HEIGHT)); // Fixer la taille préférée
         Timer blinkTimer = new Timer(500, e -> {
-            isOn = !isOn; // Basculer l'état
-            repaint(); // Redessiner le panel pour refléter le changement
+            isOn = !isOn;
+            repaint();
         });
-        blinkTimer.start(); // Démarrer le timer pour clignoter
+        blinkTimer.start();
     }
     
     // Méthode pour trouver un nœud par son nom
@@ -183,29 +188,29 @@ class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
+        Graphics2D g2d = (Graphics2D) g.create();
 
-        drawGrid(g2d); // Appeler en premier pour dessiner les lignes en arrière-plan
+        drawGrid(g2d);
 
-        // Dessine tous les nœuds et les connexions
         for (Connection conn : connections) {
-            conn.draw(g);
+            conn.draw(g2d);
         }
         for (Node node : nodes) {
-            node.draw(g,isOn);
+            node.draw(g2d, isOn);
         }
         
-        // Draw the lights
-        for (Light light : new ArrayList<>(lights)) { // Create a copy to avoid ConcurrentModificationException
-            light.draw(g);
+        for (Light light : lights) {
+            light.draw(g2d);
         }
+
+        g2d.dispose();
     }
 
  // Ajoute un nœud au réseau
-    public void addNode(String name, int gridX, int gridY) {
-        int pixelX = gridX * gridSize; // Coordonnée X centrée sur la grille
+    public void addNode(String name, double gridX, double gridY) {
+        int pixelX = (int) (gridX * gridSize); // Coordonnée X centrée sur la grille
         // Coordonnée Y inversée et centrée sur la grille (en tenant compte de la taille du nœud pour le centrage)
-        int pixelY = (getHeight() - gridY * gridSize);
+        int pixelY = (int) (getHeight() - gridY * gridSize);
         // Ajout du nœud avec correction pour le diamètre du nœud
         nodes.add(new Node(name, pixelX - (50 / 2), pixelY - (50/2)));
         repaint();
@@ -221,7 +226,7 @@ class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
         }
     }
     @Override
-    public void addGraphicalNode(String name, int x, int y) {
+    public void addGraphicalNode(String name, double x, double y) {
         this.addNode(name, x, y);
     }
     
@@ -261,57 +266,83 @@ class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
         }
     }
 
+
+
 }
 
 public class NetworkGraph {
-//    public  void startGraph() {
-//        SwingUtilities.invokeLater(() -> {
-//            JFrame frame = new JFrame("Network Graph");
-//            NetworkPanel panel = new NetworkPanel();
-//
-//            frame.add(panel);
-//            frame.setSize(800, 800); 
-//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//            frame.setVisible(true);
-//
-//                // Ajouter un formulaire pour la création de nœuds
-//                JPanel formPanel = new JPanel(new GridLayout(0, 2));
-//                
-//                JTextField nameField = new JTextField();
-//                JTextField xField = new JTextField();
-//                JTextField yField = new JTextField();
-//                JButton addNodeButton = new JButton("Add Node");
-//                
-//                formPanel.add(new JLabel("Node Name:"));
-//                formPanel.add(nameField);
-//                formPanel.add(new JLabel("X Coordinate:"));
-//                formPanel.add(xField);
-//                formPanel.add(new JLabel("Y Coordinate:"));
-//                formPanel.add(yField);
-//                formPanel.add(addNodeButton);
-//                
-//                // Logique pour ajouter un nœud au panel
-//                addNodeButton.addActionListener(e -> {
-//                    String name = nameField.getText();
-//                    int x = Integer.parseInt(xField.getText());
-//                    int y = Integer.parseInt(yField.getText());
-//                    panel.addNode(name, x, y);
-//                });
-//                
-//                frame.add(formPanel, BorderLayout.NORTH);
-//                frame.add(panel, BorderLayout.CENTER);
-//            
-//            JButton animateButton = new JButton("Animate Light");
-//            animateButton.addActionListener(e -> {
-//                Node startNode = panel.findNodeByName("n2");
-//                Node endNode = panel.findNodeByName("n2");
-//                if (startNode != null && endNode != null) {
-//                    panel.startLightAnimation(startNode, endNode);
-//                }
-//            });
-//            
-//            frame.add(animateButton, BorderLayout.SOUTH);
-//        });
-	//   }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Network Graph");
+            NetworkPanel panel = new NetworkPanel();
+
+            frame.setSize(800, 800);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            // Ajouter un formulaire pour la création de nœuds
+            JPanel formPanel = new JPanel(new GridLayout(0, 2));
+
+            JTextField nameField = new JTextField();
+            JTextField xField = new JTextField();
+            JTextField yField = new JTextField();
+            JButton addNodeButton = new JButton("Add Node");
+
+            JTextField startNodeField = new JTextField();
+            JTextField endNodeField = new JTextField();
+            JButton connectNodesButton = new JButton("Connect Nodes");
+
+            formPanel.add(new JLabel("Node Name:"));
+            formPanel.add(nameField);
+            formPanel.add(new JLabel("X Coordinate:"));
+            formPanel.add(xField);
+            formPanel.add(new JLabel("Y Coordinate:"));
+            formPanel.add(yField);
+            formPanel.add(addNodeButton);
+
+            // Champs pour la connexion des nœuds
+            formPanel.add(new JLabel("Start Node Name:"));
+            formPanel.add(startNodeField);
+            formPanel.add(new JLabel("End Node Name:"));
+            formPanel.add(endNodeField);
+            formPanel.add(connectNodesButton);
+
+            // Logique pour ajouter un nœud au panel
+            addNodeButton.addActionListener(e -> {
+                String name = nameField.getText();
+                try {
+                    double x = Double.parseDouble(xField.getText());
+                    double y = Double.parseDouble(yField.getText());
+                    panel.addGraphicalNode(name, x, y);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame,
+                        "X and Y coordinates must be valid numbers.",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            // Logique pour connecter deux nœuds
+            connectNodesButton.addActionListener(e -> {
+                String startNodeName = startNodeField.getText();
+                String endNodeName = endNodeField.getText();
+                panel.addGraphicalConnection(startNodeName, endNodeName);
+            });
+
+            frame.add(formPanel, BorderLayout.NORTH);
+            frame.add(panel, BorderLayout.CENTER);
+
+            JButton animateButton = new JButton("Animate Light");
+            animateButton.addActionListener(e -> {
+                // Exemple : changer pour récupérer les noms à partir des champs de texte ou autre
+                String startName = "n1";
+                String endName = "n2";
+                panel.startGraphicalLightAnimation(startName, endName);
+            });
+
+            frame.add(animateButton, BorderLayout.SOUTH);
+            frame.setVisible(true);
+        });
+    }
 }
 

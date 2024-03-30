@@ -4,9 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import app.Interfaces.RegisterCI;
 import app.Models.Position;
-import app.Ports.URIRegisterInboundPort;
+import app.Ports.URIRegisterInboundPortForClient;
+import app.Ports.URIRegisterInboundPortForNode;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
@@ -18,7 +18,7 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.GeographicalZoneI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.RegistrationCI;
 
-@OfferedInterfaces(offered = {LookupCI.class, RegistrationCI.class, RegisterCI.class})
+@OfferedInterfaces(offered = {LookupCI.class, RegistrationCI.class})
 
 
 public class Register  extends AbstractComponent {
@@ -27,7 +27,8 @@ public class Register  extends AbstractComponent {
 	// Instance variables
 	// ------------------------------------------------------------------------
 	
-	protected final URIRegisterInboundPort inboundPort ;
+	protected final URIRegisterInboundPortForNode inboundPortNode ;
+	protected final URIRegisterInboundPortForClient inboundPortClient ;
 	private Set<NodeInfoI> registeredNodes = new HashSet<>();
 	
 	
@@ -35,12 +36,15 @@ public class Register  extends AbstractComponent {
 	// Constructor
 	// ------------------------------------------------------------------------
 	
-	protected Register(String outboundPortURI) throws Exception {
+	protected Register(String inboundPortURINode, String inboundPortURIClient) throws Exception {
 		
 		super("Register", 1, 0) ;
 		
-		this.inboundPort = new URIRegisterInboundPort(outboundPortURI ,this) ;
-		this.inboundPort.publishPort() ;
+		this.inboundPortNode = new URIRegisterInboundPortForNode(inboundPortURINode ,this) ;
+		this.inboundPortNode.publishPort() ;
+		
+		this.inboundPortClient = new URIRegisterInboundPortForClient(inboundPortURIClient ,this) ;
+		this.inboundPortClient.publishPort() ;
 		
 	}
 	
@@ -64,7 +68,8 @@ public class Register  extends AbstractComponent {
 	@Override
 	public void shutdown() throws ComponentShutdownException {
 		try {
-			this.inboundPort.unpublishPort() ;
+			this.inboundPortNode.unpublishPort() ;
+			this.inboundPortClient.unpublishPort() ;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -74,7 +79,8 @@ public class Register  extends AbstractComponent {
 	@Override
 	public void shutdownNow() throws ComponentShutdownException {
 		try {
-			this.inboundPort.unpublishPort() ;
+			this.inboundPortNode.unpublishPort() ;
+			this.inboundPortClient.unpublishPort() ;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
