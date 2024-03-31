@@ -206,8 +206,8 @@ public class CVM extends AbstractCVM
 	        sensorsForNode.add(new SensorData("Node" + i, "Weather", generateSensorValue()));
 	        sensorsForNode.add(new SensorData("Node" + i, "WindSpeed", generateSensorValue()));
 	        sensorsForNode.add(new SensorData("Node" + i, "WindDirection", generateSensorValue()));
-	        sensorsForNode.add(new SensorData("Node" + i, "Smoke", generateSensorValue()));
-	        sensorsForNode.add(new SensorData("Node" + i, "Heat", generateSensorValue()));
+	        sensorsForNode.add(new SensorData("Node" + i, "Smoke", 3.0));
+	        sensorsForNode.add(new SensorData("Node" + i, "Heat", 50.0));
 	        sensorsForNode.add(new SensorData("Node" + i, "Biological", generateSensorValue()));
 
 	        // Ajouter l'ensemble des capteurs pour ce nœud à l'ensemble principal
@@ -242,7 +242,7 @@ public class CVM extends AbstractCVM
 //			VerboseException.VERBOSE = true;
 			CVM a = new CVM();
 			// Execute the application.
-			a.startStandardLifeCycle(20000L);
+			a.startStandardLifeCycle(200000L);
 			// Give some time to see the traces (convenience).
 			Thread.sleep(5000L);
 			// Simplifies the termination (termination has yet to be treated

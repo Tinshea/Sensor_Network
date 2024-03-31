@@ -9,17 +9,17 @@ public class QueryResult implements QueryResultI{
 	private static final long serialVersionUID = 7080596922014476376L;
 	
 	protected ArrayList<SensorDataI> sd = new ArrayList<>();
-	private boolean isGather;
+	private boolean isGather = false;
+	private boolean isBoolean= false;
 	protected ArrayList<String> sensitiveNodes = new ArrayList<>();
-	public QueryResult(ArrayList<SensorDataI> sd,boolean isGather,ArrayList<String> sensitiveNodes) {
+	public QueryResult(ArrayList<SensorDataI> sd,ArrayList<String> sensitiveNodes) {
 		this.sd = sd;
-		this.isGather = isGather;
 		this.sensitiveNodes = sensitiveNodes;
 		}
 	
 	@Override
 	public boolean isBooleanRequest() {
-		return !this.isGather;
+		return this.isBoolean;
 	}
 
 	@Override
@@ -38,9 +38,11 @@ public class QueryResult implements QueryResultI{
 	}
 	
 	public void setGather() {
+		this.isBoolean = false;
 		this.isGather = true;
 	}
 	public void setBoolean() {
+		this.isBoolean = true;
 		this.isGather = false;
 	}
 

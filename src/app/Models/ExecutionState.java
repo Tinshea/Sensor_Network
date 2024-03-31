@@ -1,5 +1,6 @@
 package app.Models;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
@@ -23,7 +24,6 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 	public ExecutionState(ProcessingNodeI pn, QueryResultI qr) {
 		this.pn = pn;
 		this.qr = qr;
-		this.p = pn.getPosition();
 	}
 
 	@Override
@@ -98,8 +98,18 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 		
 	}
 	
-	@Override
-	public ExecutionState clone() throws CloneNotSupportedException {
-		return (ExecutionState) super.clone();
-	}
+	 @Override
+	    public ExecutionState clone() throws CloneNotSupportedException {
+	        ExecutionState cloned = (ExecutionState) super.clone();
+
+	        // Directions est un Set qui doit être cloné pour une copie profonde
+	        if (this.directions != null) {
+	            cloned.directions = new HashSet<>(this.directions);
+	        }
+
+	        // Les autres champs sont immuables ou ont des types primitifs, donc pas besoin de copie profonde.
+
+	        return cloned;
+	    }
+	
 }

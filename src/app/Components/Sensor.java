@@ -14,10 +14,12 @@ import app.connectors.ConnectorSensorToSensor;
 	import java.util.Map;
 	import java.util.Set;
 	import java.util.concurrent.TimeUnit;
-	
-	import AST.BQuery;
-	import AST.GQuery;
-	import app.GraphicalNetworkInterface;
+
+import javax.swing.JOptionPane;
+
+import AST.Query.BQuery;
+import AST.Query.GQuery;
+import app.GraphicalNetworkInterface;
 	import app.Components.Sensor;
 	import app.Models.Bcm4javaEndPointDescriptor;
 	import app.Models.Descriptor;
@@ -399,14 +401,21 @@ import app.connectors.ConnectorSensorToSensor;
 		}
 		
 		public QueryResultI execute(RequestI request) throws Exception{
+			ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(),
+                    this.descriptor.nodePosition(),this.neighbor,sensors);
+            QueryResult queryR = new QueryResult(new ArrayList<>(),new ArrayList<>());
+			 ExecutionState executionState = new ExecutionState(node,queryR);
+			 this.es = executionState;
 			RequestContinuationI clientRequest = new RequestContinuation(request.getQueryCode(),request.clientConnectionInfo(), this.es);
 			QueryResultI qr = this.execute((RequestContinuationI)clientRequest);
+			this.logMessage(qr.positiveSensorNodes().toString());
+		    JOptionPane.showMessageDialog(null, "oui c'est bien passé :" +qr.isBooleanRequest(), "Information", JOptionPane.INFORMATION_MESSAGE);
+
 			return qr;
 		}
 	
 		@Override
 		public void ask4Connection(NodeInfoI neighbour) throws Exception {
-			this.logMessage("co entre" + this.descriptor.nodeIdentifier()+ "et" + neighbour.nodeIdentifier());
 			gui.addGraphicalConnection(this.descriptor.nodeIdentifier(), neighbour.nodeIdentifier());
 			
 		    Direction d = this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
@@ -527,22 +536,26 @@ import app.connectors.ConnectorSensorToSensor;
 	
 		@Override
 		public QueryResultI execute(RequestContinuationI request) throws Exception {
-			QueryResult queryR = new QueryResult(new ArrayList<>(),false , new ArrayList<>());
-			if (this.processedRequests.contains(request.requestURI())) {
-	            return queryR;
-	        } else {
-			ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(),
-					this.descriptor.nodePosition(),this.neighbor, sensors);
-			ExecutionState es = new ExecutionState(node,queryR);
-			if(request.getQueryCode() instanceof GQuery) {
-				((GQuery) request.getQueryCode()).eval(es);
-				this.logMessage(es.getCurrentResult().gatheredSensorsValues().toString());
-			}else {
-				((BQuery) request.getQueryCode()).eval(es);
-				this.logMessage(es.getCurrentResult().positiveSensorNodes().toString());
-			}
-			
-			
+	            if (this.processedRequests.contains(request.requestURI())) {
+	                return  new QueryResult(new ArrayList<>(),new ArrayList<>());
+	            } else {
+	            ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(),
+	                    this.descriptor.nodePosition(),this.neighbor,sensors);
+	            ExecutionState es = null;
+	            try {
+	                es = ((ExecutionState) request.getExecutionState()).clone();
+	            } catch (CloneNotSupportedException e) {
+	                e.printStackTrace();
+	                // Gérer l'exception, par exemple en initialisant `es` avec une nouvelle instance par défaut ou en lançant une exception runtime.
+	            }
+	            es.updateProcessingNode(node);
+	            if(request.getQueryCode() instanceof GQuery) {
+	                ((GQuery) request.getQueryCode()).eval(es);
+	                this.logMessage(es.getCurrentResult().gatheredSensorsValues().toString());
+	            }else {
+	                ((BQuery) request.getQueryCode()).eval(es);
+	                this.logMessage(es.getCurrentResult().positiveSensorNodes().toString());
+	            }
 			gui.toggleNodeBlinking(this.descriptor.nodeIdentifier());
 			if(es.isFlooding()) {
 				this.processedRequests.add(request.requestURI());
@@ -552,19 +565,19 @@ import app.connectors.ConnectorSensorToSensor;
 						try {
 					        if (d.equals(Direction.NE)) {
 					    		if(outboundPortNE.connected()) {
-					    			 es.addToCurrentResult(this.outboundPortNE.execute(request));					    		
+					    			 this.outboundPortNE.execute(request);					    		
 					    		}
 					        } else if (d.equals(Direction.NW)) {
 					        	if(outboundPortNW.connected()) {
-					        		es.addToCurrentResult(this.outboundPortNW.execute(request));
+					        		this.outboundPortNW.execute(request);
 					        	}
 					        } else if (d.equals(Direction.SE)) {
 					            if(outboundPortSE.connected()) {
-					        		es.addToCurrentResult(this.outboundPortSE.execute(request));
+					        		this.outboundPortSE.execute(request);
 					        	}
 					        } else if (d.equals(Direction.SW)) {
 					            if(outboundPortSW.connected()) {					     
-					            	es.addToCurrentResult(this.outboundPortSW.execute(request));
+					            	this.outboundPortSW.execute(request);
 					        	}
 					        }
 					        gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),n.nodeIdentifier());
@@ -581,31 +594,30 @@ import app.connectors.ConnectorSensorToSensor;
 				if(es.noMoreHops()) {
 					return es.getCurrentResult();
 				}else {
-					es.incrementHops();
 					ArrayList<Direction> tmp = new ArrayList<>();
 					tmp.addAll(es.getDirections());
 					if (tmp.isEmpty()){ return es.getCurrentResult();}
-					Direction d = tmp.get(0);
+					Direction d = tmp.get(0); // pas le comportement attendu
 					 if (d.equals(Direction.NE)) {
 				    		if(outboundPortNE.connected()) {
 	//			    			gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortNE).nodeIdentifier());
-				    			es.addToCurrentResult(this.outboundPortNE.execute(request));			            
+				    			this.outboundPortNE.execute(request);			            
 				    		}
 				        } else if (d.equals(Direction.NW)) {
 				        	if(outboundPortNW.connected()) {
 	//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortNW).nodeIdentifier());
-				        		es.addToCurrentResult(this.outboundPortNW.execute(request));         
+				        		this.outboundPortNW.execute(request);         
 				    		}
 				        } else if (d.equals(Direction.SE)) {
 				        	if(outboundPortSE.connected()) {
 	//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortSE).nodeIdentifier());
-				        		es.addToCurrentResult(this.outboundPortSE.execute(request));
-				        		this.logMessage(es.getCurrentResult().gatheredSensorsValues().toString());
+				        		this.outboundPortSE.execute(request);
+				        		es.getCurrentResult().gatheredSensorsValues().toString();
 				    		}
 				        } else if (d.equals(Direction.SW)) {
 				        	if(outboundPortSW.connected()) {
 	//			        		gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),this.nodeOutboundPorts.get(outboundPortSW).nodeIdentifier());
-				        		es.addToCurrentResult(this.outboundPortSW.execute(request));
+				        		this.outboundPortSW.execute(request);
 				    		}
 				        }
 					 return es.getCurrentResult();

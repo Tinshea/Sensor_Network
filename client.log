@@ -1,7 +1,7 @@
-1711837148629|starting client component.
-1711837148629|Connected to Register
-1711837155529|requesting node :n9
-1711837155531|found node : n9
-1711837157549|request result : 
-1711837157549|[Heat : 78.1, Heat : 50.48, Heat : 20.46, Heat : 65.91, Heat : 98.99, Heat : 65.04, Heat : 26.86, Heat : 14.82, Heat : 84.78, Heat : 69.2, Heat : 6.2, Heat : 43.94, Heat : 37.94, Heat : 83.26, Heat : 4.6, Heat : 14.24, Heat : 14.0, Heat : 78.73, Heat : 43.52, Heat : 5.97, Heat : 85.52, Heat : 60.6, Heat : 89.71, Heat : 99.36, Heat : 67.84, Heat : 56.74, Heat : 94.14, Heat : 6.94, Heat : 96.1, Heat : 25.6, Heat : 7.76, Heat : 63.15, Heat : 5.75, Heat : 52.82, Heat : 45.29, Heat : 16.09, Heat : 5.38, Heat : 34.92, Heat : 86.99, Heat : 44.73, Heat : 2.62, Heat : 93.49, Heat : 83.93, Heat : 55.46, Heat : 22.4, Heat : 44.65, Heat : 71.94, Heat : 54.7, Heat : 20.72, Heat : 96.02]
-1711837168656|stopping client component.
+1711922957119|starting client component.
+1711922957120|Connected to Register
+1711922964697|requesting node :n1
+1711922964698|found node : n1
+1711922966704|request result : 
+1711922966704|[]
+1711923157135|stopping client component.

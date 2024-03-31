@@ -5,13 +5,24 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import AST.ABase;
-import AST.DCont;
-import AST.ECont;
-import AST.FCont;
-import AST.FGather;
-import AST.GQuery;
+import javax.swing.JOptionPane;
+
+import AST.BEXP.AndBExp;
+import AST.BEXP.CExpBExp;
+import AST.Base.ABase;
+import AST.CEXP.GeqCExp;
+import AST.Base.RBase;
+import AST.Cont.DCont;
+import AST.Cont.FCont;
+import AST.Dirs.Fdirs;
+import AST.Dirs.Rdirs;
+import AST.Gather.FGather;
+import AST.Query.BQuery;
+import AST.Query.GQuery;
+import AST.Rand.CRand;
+import AST.Rand.SRand;
 import app.Models.ClientConfig;
+import app.Models.Position;
 import app.Models.Request;
 import app.Ports.URIClientOutBoundPortToNode;
 import app.Ports.URIClientOutBoundPortToRegister;
@@ -129,7 +140,7 @@ public class Client extends AbstractComponent {
 		
 		this.scheduleTask(
 				o -> { try {
-					this.requestNodeAndconnectByName("n9");
+					this.requestNodeAndconnectByName("n1");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -219,10 +230,21 @@ public class Client extends AbstractComponent {
 		Set<Direction> dirs = new HashSet<>();
 		dirs.add(Direction.SE);
 //		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("Heat"), new ECont()), null);
-		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("Heat"), new FCont(new ABase(),2)), null);
-		//RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("Heat"), new DCont(dirs, 5)), null);
+//		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("Heat"), new FCont(new ABase(new Position(1, 9)),3)), null);
+//		RequestI clientRequest = new Request((QueryI) new GQuery (new FGather("Heat"), new DCont(new Rdirs(Direction.SE, new Fdirs(Direction.SW)), 3)), null);
+		RequestI clientRequest =  new Request( (QueryI) new BQuery(
+                new AndBExp(new CExpBExp(new GeqCExp(
+                new SRand("Heat"),
+                new CRand(50.0))),
+                new CExpBExp(
+              new GeqCExp(
+                new SRand("Smoke"),
+                new CRand(3.0)))),
+                new DCont(new Fdirs(Direction.SE), 2)), null);
 	    QueryResultI queryR = this.urioutPortnode.execute( (RequestI) clientRequest);
-	    this.logMessage("request result : ");
+	 
+	    this.logMessage("request result : ");	    
+	    this.logMessage(queryR.positiveSensorNodes().toString());
 	    if(queryR.isBooleanRequest()) {
 	    	this.logMessage(queryR.positiveSensorNodes().toString());
 	    }

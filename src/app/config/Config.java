@@ -6,8 +6,8 @@ public class Config {
     public static final long START_DELAY = 6000L;
     public static final double ACCELERATION_FACTOR = 60.0;
     public static final int NBCLIENT = 1;
-    public static final int NBNODE = 50;
-    public static final int ROW = 9;
-    public static final int COLUM = 9;
+    public static final int NBNODE = 9;
+    public static final int ROW = 5;
+    public static final int COLUM = 3;
     
 }
