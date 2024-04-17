@@ -5,8 +5,11 @@ import app.Models.ExecutionState;
 import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 
+import java.io.Serializable;
 
-public class FCont implements ICont{
+
+public class FCont implements ICont, Serializable {
+	private static final long serialVersionUID = 15L;
 
 	private IBase base;
 	private double distanceMax;

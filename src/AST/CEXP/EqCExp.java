@@ -4,7 +4,10 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 import AST.Rand.IRand;
 
-public class EqCExp implements Icexp {
+import java.io.Serializable;
+
+public class EqCExp implements Icexp , Serializable {
+	private static final long serialVersionUID = 8L;
 
 	private IRand rand1;
 	private IRand rand2;

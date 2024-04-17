@@ -2,13 +2,11 @@ package AST.BEXP;
 
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 
-public class AndBExp implements Ibexp {
+import java.io.Serializable;
 
+public class AndBExp implements Ibexp , Serializable {
+	private static final long serialVersionUID = 3L;
 
-	/*
-	Commit test
-	 */
-	
 	private Ibexp bexp1;
 	private Ibexp bexp2;
 	

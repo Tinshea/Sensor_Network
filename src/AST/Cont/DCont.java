@@ -5,7 +5,10 @@ import app.Models.ExecutionState;
 
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 
-public class DCont implements ICont{
+import java.io.Serializable;
+
+public class DCont implements ICont, Serializable {
+	private static final long serialVersionUID = 13L;
 
 	
 	private IDirs directions;

@@ -2,11 +2,14 @@ package AST.Cont;
 
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 
-public class ECont implements ICont {
+import java.io.Serializable;
+
+public class ECont implements ICont , Serializable {
+	private static final long serialVersionUID = 14L;
 
 	@Override
 	public void eval(ExecutionStateI es) {
-		// TODO Auto-generated method stub
+		//Rien faire
 	}
 	
 	

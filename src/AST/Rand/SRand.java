@@ -4,7 +4,10 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
-public class SRand implements IRand {
+import java.io.Serializable;
+
+public class SRand implements IRand , Serializable {
+	private static final long serialVersionUID = 23L;
 	
 	private String sensorId;
 	

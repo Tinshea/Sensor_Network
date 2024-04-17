@@ -3,8 +3,9 @@ package AST.BEXP;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 
-public class SBExp implements Ibexp {
-	
+import java.io.Serializable;
+
+public class SBExp implements Ibexp, Serializable {
 	
 	private String sensorId;
 	
@@ -12,8 +13,8 @@ public class SBExp implements Ibexp {
 		    this.sensorId = sensorId;
 		  }
 	
-	public boolean eval(ExecutionStateI curentNode){
-		SensorDataI currentNodeSensor = curentNode.getProcessingNode().getSensorData(sensorId);
+	public boolean eval(ExecutionStateI es){
+		SensorDataI currentNodeSensor = es.getProcessingNode().getSensorData(sensorId);
 		return (boolean)currentNodeSensor.getValue();
 	}
 

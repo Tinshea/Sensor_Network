@@ -1,11 +1,13 @@
 package AST.Dirs;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 
-public class Rdirs implements IDirs {
+public class Rdirs implements IDirs , Serializable {
+	private static final long serialVersionUID = 17L;
 
 	private Direction direction;
 

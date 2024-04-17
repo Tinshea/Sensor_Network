@@ -1,7 +1,6 @@
-1711922957122|Sensor valuesn1: [WindDirection: 8.36, WindSpeed: 78.53, Weather: 75.58, Heat: 50.0, Biological: 54.77, Smoke: 3.0]
-1711922957130|executing node component.
-1711922963700|registerAndConnectToNeighbor sera exécuté après le délai 1000000000 nanosecondes.
-1711922963700|registering node 
-1711922963701|connexion unidirectionnel vers un voisin au SE n4
-1711922966703|[n1]
-1711923157140|stopping node component.
+1713310680532|Sensor valuesn1: [Weather: 31.2, Biological: 6.0, WindDirection: 84.98, Smoke: 3.0, WindSpeed: 59.75, Heat: 50.0]
+1713310680544|executing node component.
+1713310684167|Registering node and connecting to neighbors
+1713310684172|Connection established towards neighbor at NE: n4
+1713310684183|Connection established towards neighbor at NW: n3
+1713310880580|stopping node component.

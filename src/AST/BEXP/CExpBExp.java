@@ -4,7 +4,10 @@ import AST.BEXP.Ibexp;
 import AST.CEXP.Icexp;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 
-public class CExpBExp implements Ibexp {
+import java.io.Serializable;
+
+public class CExpBExp implements Ibexp , Serializable {
+	private static final long serialVersionUID = 4L;
 	
 	private Icexp cexp;
 	

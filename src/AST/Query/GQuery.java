@@ -12,6 +12,7 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
 public class GQuery implements QueryI, Serializable {
+	private static final long serialVersionUID = 21L;
 	private IGather gather;
 	private ICont cont;
 

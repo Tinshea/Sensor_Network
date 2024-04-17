@@ -3,6 +3,8 @@ package app.Models;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
@@ -59,6 +61,7 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 
 	@Override
 	public boolean noMoreHops() {
+		JOptionPane.showMessageDialog(null, "hops : "+ this.hops+ " max hops : "+this.maxhops , "Information", JOptionPane.INFORMATION_MESSAGE);
 		return this.hops >= this.maxhops;
 	}
 
@@ -66,6 +69,7 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 	public void incrementHops() {
 			this.hops++;
 	}
+	
 
 	@Override
 	public boolean isFlooding() {
@@ -111,5 +115,21 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 
 	        return cloned;
 	    }
+
+	public Integer getMaxHops() {
+		return this.maxhops;
+	}
+	
+	public Integer getHops() {
+		return hops;
+}
+
+	public Double getMaxDistance() {
+		return this.maxDistance;
+	}
+
+	public PositionI getPosition() {
+		return this.p;
+	}
 	
 }

@@ -1,12 +1,14 @@
 package AST.Gather;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 
-public class RGather implements IGather {
+public class RGather implements IGather , Serializable {
+    private static final long serialVersionUID = 19L;
 
     private String sensorID;
     private IGather gather;

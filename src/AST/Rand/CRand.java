@@ -3,7 +3,10 @@ package AST.Rand;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
-public class CRand implements IRand {
+import java.io.Serializable;
+
+public class CRand implements IRand , Serializable {
+	private static final long serialVersionUID = 22L;
 	
 	private Double capteur;
 	
