@@ -1,6 +1,8 @@
-1713310680523|starting client component.
-1713310680524|Connected to Register
-1713310685164|Requesting node: n9
-1713310685165|Found node: n9
-1713310685167|Connected to n9
-1713310880561|stopping client component.
+1713446815008|starting client component.
+1713446815008|Connected to Register
+1713446818771|Requesting node: n1
+1713446818773|Found node: n1
+1713446818773|Connected to n1
+1713446819770|request result n°1 : 
+1713446819772|[Heat : 11.76]
+1713447015079|stopping client component.

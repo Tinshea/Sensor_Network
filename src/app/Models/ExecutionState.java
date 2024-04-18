@@ -22,7 +22,7 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 	private int maxhops;
 	private Double maxDistance;
 	private PositionI p;
-	
+
 	public ExecutionState(ProcessingNodeI pn, QueryResultI qr) {
 		this.pn = pn;
 		this.qr = qr;
@@ -61,15 +61,13 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 
 	@Override
 	public boolean noMoreHops() {
-		JOptionPane.showMessageDialog(null, "hops : "+ this.hops+ " max hops : "+this.maxhops , "Information", JOptionPane.INFORMATION_MESSAGE);
 		return this.hops >= this.maxhops;
 	}
 
 	@Override
 	public void incrementHops() {
-			this.hops++;
+		this.hops++;
 	}
-	
 
 	@Override
 	public boolean isFlooding() {
@@ -78,51 +76,51 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 
 	@Override
 	public boolean withinMaximalDistance(PositionI p) {
-		return this.p.distance(p)<=maxDistance;
+		return this.p.distance(p) <= maxDistance;
 	}
+
 	public void setMaxDistance(double max) {
-		this.maxDistance =max;
+		this.maxDistance = max;
 	}
+
 	public void setFlooding() {
 		this.flooding = true;
 	}
+
 	public void setDirectional() {
 		this.directional = true;
 	}
+
 	public void setMaxSauts(int sauts) {
 		this.maxhops = sauts;
 	}
-	
+
 	public Set<Direction> setDirections(Set<Direction> directions) {
 		return this.directions = directions;
 	}
 
 	public void setPosition(PositionI p) {
-		this.p =p;
-		
+		this.p = p;
+
 	}
-	
-	 @Override
-	    public ExecutionState clone() throws CloneNotSupportedException {
-	        ExecutionState cloned = (ExecutionState) super.clone();
 
-	        // Directions est un Set qui doit être cloné pour une copie profonde
-	        if (this.directions != null) {
-	            cloned.directions = new HashSet<>(this.directions);
-	        }
+	@Override
+	public ExecutionState clone() throws CloneNotSupportedException {
+		ExecutionState cloned = (ExecutionState) super.clone();
+		if (this.directions != null) {
+			cloned.directions = new HashSet<>(this.directions);
+		}
 
-	        // Les autres champs sont immuables ou ont des types primitifs, donc pas besoin de copie profonde.
-
-	        return cloned;
-	    }
+		return cloned;
+	}
 
 	public Integer getMaxHops() {
 		return this.maxhops;
 	}
-	
+
 	public Integer getHops() {
 		return hops;
-}
+	}
 
 	public Double getMaxDistance() {
 		return this.maxDistance;
@@ -131,5 +129,5 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 	public PositionI getPosition() {
 		return this.p;
 	}
-	
+
 }

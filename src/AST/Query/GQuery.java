@@ -21,23 +21,11 @@ public class GQuery implements QueryI, Serializable {
 		this.cont = cont;
 	}
 	public QueryResultI eval(ExecutionStateI es) {
-		// init un arraylist pour les nodes collectés
+		((QueryResult) es.getCurrentResult()).setGather() ;
 		ArrayList<SensorDataI> nodes = (ArrayList<SensorDataI>) gather.eval(es);
 		this.cont.eval(es);
 		QueryResultI res = new QueryResult(nodes, new ArrayList<>());	
-		((QueryResult) res).setGather();
 		es.addToCurrentResult(res);
 		return es.getCurrentResult();
 	}
 }
-/* Ancienne version
-	public QueryResultI eval(ExecutionStateI es) {
-		//faire un setter dans QueryResult
-		this.cont.eval(es);
-		QueryResultI res = es.getCurrentResult();
-		((QueryResult) res).setGather();
-		res.gatheredSensorsValues().addAll(gather.eval(es));
-		cont.eval(es);
-		return es.getCurrentResult();
-	}
-	*/

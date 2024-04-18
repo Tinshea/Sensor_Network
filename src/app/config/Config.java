@@ -35,11 +35,11 @@ public class Config {
     /**
      * The number of nodes in the network simulation or configuration.
      */
-    public static final int NBNODE = 50;
+    public static final int NBNODE = 100;
 
     /**
      * The number of columns in the network layout or graphical representation,
      * used in arranging the visual components.
      */
-    public static final int COLUM = 3;
+    public static final int COLUM = 5;
 }

@@ -27,6 +27,11 @@ public class RequestContinuation extends Request implements RequestContinuationI
         super(queryCode, clientConnectionInfo);
         this.es = es;
     }
+    
+    public RequestContinuation(QueryI queryCode, ConnectionInfoI clientConnectionInfo, ExecutionStateI es, String uri) {
+        super(queryCode, clientConnectionInfo, uri);
+        this.es = es;
+    }
 
     /**
      * Retrieves the execution state associated with this request.

@@ -181,24 +181,28 @@ public class Register  extends AbstractComponent {
 	}
 
 	public NodeInfoI findNewNeighbour(NodeInfoI nodeInfo, Direction direction) throws Exception {
+	    if (!(nodeInfo.nodePosition() instanceof Position)) {
+	        throw new IllegalArgumentException("Node position must be of type Position");
+	    }
 	    Position position = (Position) nodeInfo.nodePosition();
 	    NodeInfoI closestNeighbour = null;
 	    double closestDistance = Double.MAX_VALUE;
+
 	    for (NodeInfoI potentialNeighbour : registeredNodes) {
-	        if (!potentialNeighbour.nodeIdentifier().equals(nodeInfo.nodeIdentifier())) {
+	        if (!potentialNeighbour.nodeIdentifier().equals(nodeInfo.nodeIdentifier()) && potentialNeighbour.nodePosition() instanceof Position) {
 	            Position potentialPosition = (Position) potentialNeighbour.nodePosition();
 	            double distance = position.distance(potentialPosition);
 	            Direction potentialDirection = position.directionFrom(potentialPosition);
-	            if (distance <= nodeInfo.nodeRange() && distance <= potentialNeighbour.nodeRange() && potentialDirection == direction) {
-	                if (distance < closestDistance) {
-	                    closestDistance = distance;
-	                    closestNeighbour = potentialNeighbour;
-	                }
+
+	            if (distance <= nodeInfo.nodeRange() && distance < closestDistance && potentialDirection.equals(direction)) {
+	                closestDistance = distance;
+	                closestNeighbour = potentialNeighbour;
 	            }
 	        }
 	    }
 	    return closestNeighbour;
 	}
+
 	
 	 /**
      * Unregisters a node from the sensor network.

@@ -219,17 +219,18 @@ public class CVM extends AbstractCVM {
 	    
 	    // You can add more predefined sets as needed
 	    predefinedRequestSets.add(Arrays.asList(
-	    	createRequest(RequestType.FCONT_BASED, null, new Position(1, 9), 10)
+	    	createRequest(RequestType.FCONT_BASED, null, new Position(2, 1), 3)
 
 	    ));
 	    predefinedRequestSets.add(Arrays.asList(
 	        createRequest(RequestType.FCONT_BASED, null, new Position(1, 9), 10),
-	        createRequest(RequestType.DCONT, Direction.NE, 5),
-	        createRequest(RequestType.BQUERY_COMPLEX, Direction.SE, 50.0, 3.0, 2)
+	        createRequest(RequestType.DCONT, Direction.NE, 5)
+	       
 	    ));
 	    predefinedRequestSets.add(Arrays.asList(
 	        createRequest(RequestType.SIMPLE, null),
-	        createRequest(RequestType.DCONT, Direction.SE, 3)
+	        createRequest(RequestType.DCONT, Direction.SE, 3),
+	    	createRequest(RequestType.BQUERY_COMPLEX, Direction.NE, 50.0, 3.0, 2)
 	    ));
 
 
@@ -244,7 +245,7 @@ public class CVM extends AbstractCVM {
 	            Config.TEST_CLOCK_URI, 
 	            i + 1, 
 	            requests,
-	            "n9"
+	            "n1"
 	        );
 
 	        String clientURI = ComponentFactory.createClient(configClient);
@@ -285,8 +286,8 @@ public class CVM extends AbstractCVM {
 	        sensorsForNode.add(new SensorData("Node" + i, "Weather", generateSensorValue()));
 	        sensorsForNode.add(new SensorData("Node" + i, "WindSpeed", generateSensorValue()));
 	        sensorsForNode.add(new SensorData("Node" + i, "WindDirection", generateSensorValue()));
-	        sensorsForNode.add(new SensorData("Node" + i, "Smoke", 3.0));
-	        sensorsForNode.add(new SensorData("Node" + i, "Heat", 50.0));
+	        sensorsForNode.add(new SensorData("Node" + i, "Smoke", generateSensorValue()));
+	        sensorsForNode.add(new SensorData("Node" + i, "Heat", generateSensorValue()));
 	        sensorsForNode.add(new SensorData("Node" + i, "Biological", generateSensorValue()));
 
 	        nodeSensors.add(sensorsForNode);

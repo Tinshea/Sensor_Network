@@ -2,6 +2,9 @@ package app.Models;
 
 import java.io.Serializable;
 import java.time.Instant;
+
+import javax.swing.JOptionPane;
+
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 
 /**
@@ -58,6 +61,7 @@ public class SensorData implements SensorDataI, Serializable {
      */
     @Override
     public Serializable getValue() {
+ 
         return value;
     }
 

@@ -34,6 +34,7 @@ import app.Ports.URIClientOutBoundPortToRegister;
 import app.connectors.ConnectorRegistreClient;
 import app.connectors.ConnectorSensorToClient;
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
@@ -42,6 +43,8 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.BCM4JavaEndPointDescriptorI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.RequestResultCI;
+import fr.sorbonne_u.cps.sensor_network.network.interfaces.SensorNodeP2PCI;
 import fr.sorbonne_u.cps.sensor_network.nodes.interfaces.RequestingCI;
 import fr.sorbonne_u.cps.sensor_network.registry.interfaces.LookupCI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
@@ -70,6 +73,7 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 * @version 1.0
 */
 @RequiredInterfaces(required = {RequestingCI.class, LookupCI.class, ClocksServerCI.class})
+@OfferedInterfaces(offered = {RequestResultCI.class})
 public class Client extends AbstractComponent {
 	
 	// ------------------------------------------------------------------------
@@ -288,12 +292,13 @@ public class Client extends AbstractComponent {
 
 	private void printQueryResult(QueryResultI queryResult) {
 		nbExecutedRequest++;
-	    logMessage("request result "+ nbExecutedRequest + " : ");
+	    logMessage("request result n°"+ nbExecutedRequest + " : ");
 	    if (queryResult.isBooleanRequest()) {
 	        logMessage(queryResult.positiveSensorNodes().toString());
-	    } else {
+	    } else if (queryResult.isGatherRequest()) {
 	        logMessage(queryResult.gatheredSensorsValues().toString());
 	    }
+	    
 	}
 	
 	private void requestNodeAndConnectByName(String nodeName) throws Exception {

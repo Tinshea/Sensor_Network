@@ -2,6 +2,8 @@ package app.Models;
 
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
@@ -70,7 +72,7 @@ public class ProcessingNode implements ProcessingNodeI {
     @Override
     public SensorDataI getSensorData(String sensorIdentifier) {
     	 for(SensorDataI sensorData : this.sensorData){
-             if (sensorData.getNodeIdentifier().equals(sensorIdentifier)){
+             if (sensorData.getSensorIdentifier().equals(sensorIdentifier)){
                  return sensorData;
              }
          }
@@ -87,10 +89,10 @@ public class ProcessingNode implements ProcessingNodeI {
     @Override
     public QueryResultI propagateRequest(String nodeIdentifier, RequestContinuationI requestContinuation)
             throws Exception {
-        // Implementation details would be necessary here
+    	
         return null;
     }
-
+    
     /**
      * Propagates a data request to a specified node identifier, asynchronously.
      * @param nodeIdentifier The identifier of the node to which the request should be propagated.

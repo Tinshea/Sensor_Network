@@ -30,6 +30,11 @@ public class Request implements RequestI {
         this.uri = AbstractPort.generatePortURI();
     }
 
+    public Request(QueryI queryCode, ConnectionInfoI client, String uri) {
+        this.queryCode = queryCode;
+        this.client = client;
+        this.uri = uri;
+    }
     /**
      * Retrieves the unique URI for this request.
      *
