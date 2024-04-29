@@ -1,11 +1,14 @@
 package AST.CEXP;
 
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
-import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 import AST.Rand.IRand;
 
 import java.io.Serializable;
 
+/**
+ * The class GCExp must be used to compare two Icexp, it return true if the first Icexp is strictly superior
+ * than the second Icexp.
+ */
 public class GCExp implements Icexp , Serializable {
 	private static final long serialVersionUID = 9L;
 

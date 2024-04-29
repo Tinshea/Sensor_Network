@@ -1,6 +1,8 @@
-1713446815012|Sensor valuesn38: [Weather: 31.85, Biological: 74.28, Smoke: 90.56, WindSpeed: 80.91, Heat: 32.2, WindDirection: 21.93]
-1713446815028|executing node component.
-1713446817783|Registering node and connecting to neighbors
-1713446817791|Connection established towards neighbor at NE: n43
-1713446817791|Connection established towards neighbor at SW: n33
-1713447015087|stopping node component.
+1713743202057|Sensor valuesn38: [WindDirection: 78.38, Biological: 64.81, Heat: 36.17, WindSpeed: 33.5, Weather: 37.26, Smoke: 43.0, Humidity: 26.66]
+1713743202069|executing node component.
+1713743204556|Registering node and connecting to neighbors
+1713743204636|Connection established towards neighbor at SW: n33
+1713743204636|Connection established towards neighbor at NW: n42
+1713743204710|Connection established towards neighbor at NE: n43
+1713743204725|Connection established towards neighbor at SE: n34
+1713743402136|stopping node component.

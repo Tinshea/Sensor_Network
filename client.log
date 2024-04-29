@@ -1,8 +1,11 @@
-1713446815008|starting client component.
-1713446815008|Connected to Register
-1713446818771|Requesting node: n1
-1713446818773|Found node: n1
-1713446818773|Connected to n1
-1713446819770|request result n°1 : 
-1713446819772|[Heat : 11.76]
-1713447015079|stopping client component.
+1713743202052|starting client component.
+1713743202053|Connected to Register
+1713743205555|Requesting node: n5
+1713743205557|Found node: n5
+1713743205557|Connected to n5
+1713743210548|request result: [Node5:  Heat(32.07)]
+1713743210549|request result: [n14, n7]
+1713743210549|request result: [Node5:  Heat(32.07), Node5:  Heat(32.07), Node5:  Heat(32.07), Node10:  Heat(5.77), Node10:  Heat(5.77), Node10:  Heat(5.77), Node6:  Heat(29.41), Node6:  Heat(29.41), Node6:  Heat(29.41), Node11:  Heat(42.66), Node11:  Heat(42.66), Node11:  Heat(42.66), Node2:  Heat(11.55), Node1:  Heat(64.73)]
+1713743210549|request result: [Node5:  Heat(32.07), Node10:  Heat(5.77), Node6:  Heat(29.41), Node11:  Heat(42.66), Node2:  Heat(11.55), Node1:  Heat(64.73)]
+1713743210550|request result: [Node5:  Heat(32.07), Node5:  WindDirection(91.95), Node10:  Heat(5.77), Node10:  WindDirection(80.64), Node6:  Heat(29.41), Node6:  WindDirection(46.33), Node11:  Heat(42.66), Node11:  WindDirection(68.37), Node15:  Heat(74.33), Node15:  WindDirection(99.54), Node19:  Heat(32.46), Node19:  WindDirection(77.54), Node14:  Heat(72.99), Node14:  WindDirection(0.37), Node7:  Heat(91.59), Node7:  WindDirection(93.07), Node2:  Heat(11.55), Node2:  WindDirection(80.64), Node1:  Heat(64.73), Node1:  WindDirection(47.72)]
+1713743402125|stopping client component.

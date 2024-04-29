@@ -3,7 +3,6 @@ package Tests.AST.CEXP;
 
 import AST.CEXP.GCExp;
 import AST.Rand.CRand;
-import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,23 +1,25 @@
 package app.Components;
 
-import app.Ports.URISensorInboundPort;
-import app.Ports.URISensorInboundPortClient;
-import app.Ports.URISensorOutBoundPortToNode;
-import app.Ports.URISensorOutBoundPortToRegister;
+import app.Ports.URINodeInboundPortForNode;
+import app.Ports.URINodeInboundPortForClient;
+import app.Ports.URINodeOutBoundPortToNode;
+import app.Ports.URINodeOutBoundPortToRegister;
+import app.Ports.URINodeOutboundPortToClient;
 import app.connectors.ConnectorRegistreNode;
+import app.connectors.ConnectorSensorToClient;
 import app.connectors.ConnectorSensorToSensor;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import javax.swing.JOptionPane;
-
 import AST.Query.BQuery;
 import AST.Query.GQuery;
 import app.gui.GraphicalNetworkInterface;
@@ -75,49 +77,54 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
  */
 
 @OfferedInterfaces(offered = { RequestingCI.class, SensorNodeP2PCI.class })
-@RequiredInterfaces(required = { SensorNodeP2PCI.class, RegistrationCI.class, ClocksServerCI.class, RequestResultCI.class })
+@RequiredInterfaces(required = { SensorNodeP2PCI.class, RegistrationCI.class, ClocksServerCI.class,
+		RequestResultCI.class })
 public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 
 	// ------------------------------------------------------------------------
 	// Instance variables
 	// ------------------------------------------------------------------------
 
-	private final URISensorInboundPort inboundPortSensor;
-	private final URISensorInboundPortClient inboundPortClient;
-
-	private URISensorOutBoundPortToRegister outboundPortRegistre;
-
-	private URISensorOutBoundPortToNode outboundPortNE;
-	private URISensorOutBoundPortToNode outboundPortNW;
-	private URISensorOutBoundPortToNode outboundPortSE;
-	private URISensorOutBoundPortToNode outboundPortSW;
-	private Set<NodeInfoI> neighbor;
-	private Set<SensorDataI> sensors;
-	private Map<URISensorOutBoundPortToNode, NodeInfoI> nodeOutboundPorts;
-	private HashSet<String> processedRequests;
+	private final URINodeInboundPortForNode inboundPortSensor;
+	private final URINodeInboundPortForClient inboundPortClient;
+    private ExecutorService executorService;
+	private URINodeOutBoundPortToRegister outboundPortRegistre;
+	private final String inboundPortRegister;
+	
+	private URINodeOutBoundPortToNode outboundPortNE;
+	private URINodeOutBoundPortToNode outboundPortNW;
+	private URINodeOutBoundPortToNode outboundPortSE;
+	private URINodeOutBoundPortToNode outboundPortSW;
+	
+	private Set<NodeInfoI> neighbor = new CopyOnWriteArraySet<>();
+	private Set<SensorDataI> sensors = new CopyOnWriteArraySet<>();
+	private ConcurrentMap<String, NodeInfoI> nodeOutboundPorts = new ConcurrentHashMap<>();
+	private Set<String> processedRequests = ConcurrentHashMap.newKeySet();  // Thread-safe set
 	private NodeInfoI descriptor;
 
 	private String TEST_CLOCK_URI;
 	private ClocksServerOutboundPort outboundPortClock;
 
-	private final String inboundPortRegister;
+	private URINodeOutboundPortToClient outBoundPortClient;
 
 	private GraphicalNetworkInterface gui;
+	private int nbthread;
 
 	// ------------------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------------------
 
 	protected Sensor(SensorConfig config) throws Exception {
-		super("Node : " + config.getName(), 0, 5);
+		super("Node : " + config.getName(),config.getNbthread() , 1);
+		this.nbthread = config.getNbthread();
 		this.gui = config.getGui();
 		this.TEST_CLOCK_URI = config.getUriClock();
 		this.sensors = config.getSensors();
 
-		this.inboundPortSensor = new URISensorInboundPort(this);
+		this.inboundPortSensor = new URINodeInboundPortForNode(this);
 		this.inboundPortSensor.publishPort();
 
-		this.inboundPortClient = new URISensorInboundPortClient(this);
+		this.inboundPortClient = new URINodeInboundPortForClient(this);
 		this.inboundPortClient.publishPort();
 
 		BCM4JavaEndPointDescriptorI urinodeSensor = new Bcm4javaEndPointDescriptor(inboundPortSensor.getPortURI());
@@ -129,9 +136,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		initializeOutboundPorts();
 
 		this.processedRequests = new HashSet<>();
-
 		gui.addGraphicalNode("n" + config.getName(), config.getPosition().getx(), config.getPosition().gety());
-		// Ajustement de la position du tracer
 		TracerI tracer = this.getTracer();
 		int index = config.getName() - 1;
 		tracer.setRelativePosition(index % 3, (index / 3) + 1);
@@ -142,8 +147,11 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	// ------------------------------------------------------------------------
 
 	@Override
-	public void start() throws ComponentStartException {
-
+	public synchronized void start() throws ComponentStartException {
+		
+		  executorService = Executors.newFixedThreadPool(nbthread-4); // We subtract 4 to let some for the execution of the neighbours
+		  
+		  
 		// ---------------------------------------------------------------------
 		// Connection phase
 		// ---------------------------------------------------------------------
@@ -219,7 +227,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	}
 
 	@Override
-	public void finalise() throws Exception {
+	public synchronized void finalise() throws Exception {
 		// Lorsque le nœud quitte le réseau de capteur, il doit d’abord se déconnecter
 		// de ses voisins puis
 		// se désenregistrer auprès du registre en appelant la méthode unregister
@@ -257,7 +265,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	}
 
 	@Override
-	public void shutdown() throws ComponentShutdownException {
+	public synchronized void shutdown() throws ComponentShutdownException {
 		try {
 			outboundPortClock.unpublishPort();
 		} catch (Exception e) {
@@ -297,7 +305,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	}
 
 	@Override
-	public void shutdownNow() throws ComponentShutdownException {
+	public synchronized void shutdownNow() throws ComponentShutdownException {
 		try {
 			outboundPortClock.unpublishPort();
 		} catch (Exception e) {
@@ -353,17 +361,35 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 */
 	public QueryResultI execute(RequestI request) throws Exception {
 		gui.resetNodesBlink();
-		ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(), this.descriptor.nodePosition(),
-				this.neighbor, sensors);
 		QueryResult queryR = new QueryResult(new ArrayList<>(), new ArrayList<>());
-		ExecutionState executionState = new ExecutionState(node, queryR);
-		RequestContinuationI clientRequest = new RequestContinuation(request.getQueryCode(),
-				request.clientConnectionInfo(), executionState);
-		if (request.isAsynchronous()) {
-			return null;
-		} else {
-			return this.execute((RequestContinuationI) clientRequest);
+		ExecutionState executionState = new ExecutionState(null, queryR);
+		RequestContinuationI clientRequest = new RequestContinuation(request, executionState, request.requestURI());
+		evaluateQuery(clientRequest);
+		if (executionState.isContinuationSet()) {
+			handleQueryPropagation(clientRequest);
 		}
+		return queryR;
+
+	}
+
+	public void executeAsync(RequestI request) throws Exception {
+		// utiliser pool de thread de bcm
+		  executorService.submit(() -> {
+	            try {
+		QueryResult queryR = new QueryResult(new ArrayList<>(), new ArrayList<>());
+		ExecutionState executionState = new ExecutionState(null, queryR);
+		RequestContinuationI clientRequest = new RequestContinuation(request, executionState, request.requestURI());
+		evaluateQuery(clientRequest);
+		if (executionState.isContinuationSet()) {
+			handleQueryPropagation(clientRequest);
+		}else {
+			this.sendToClient(clientRequest, executionState);
+		}
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        });
+
 	}
 
 	/**
@@ -377,21 +403,18 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 * This method checks if a request has been processed before to avoid redundant
 	 * processing and potential infinite loops in the network.
 	 * </p>
-	 * 
-	 * @param request The {@link RequestContinuationI} instance containing the
-	 *                continuation details.
+	 *
 	 * @return A {@link QueryResultI} object representing the aggregated or
 	 *         evaluated result after executing the query.
 	 * @throws Exception If there are issues in query processing or during network
 	 *                   communication.
 	 */
 	@Override
-	public QueryResultI execute(RequestContinuationI request) throws Exception {
-		logNeighbors();
-		if (this.processedRequests.contains(request.requestURI())) {
+	public QueryResultI execute(RequestContinuationI requestContinuation) throws Exception {
+		if (this.processedRequests.contains(requestContinuation.requestURI())) {
 			return new QueryResult(new ArrayList<>(), new ArrayList<>());
 		}
-		return processQuery(request);
+		return processQuery(requestContinuation);
 	}
 
 	/**
@@ -411,8 +434,9 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 */
 	@Override
 	public void executeAsync(RequestContinuationI requestContinuation) throws Exception {
-		// TODO Auto-generated method stub
-
+		if (!(this.processedRequests.contains(requestContinuation.requestURI()))) {
+			processQuery(requestContinuation);
+		}
 	}
 
 	/**
@@ -445,15 +469,15 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 * @throws Exception If there is an issue in managing the disconnection.
 	 */
 	@Override
-	public void ask4Disconnection(NodeInfoI neighbour) throws Exception {
-		gui.removeGraphicalConnection(this.descriptor.nodeIdentifier(), neighbour.nodeIdentifier());
+	public void ask4Disconnection(NodeInfoI neighbour) throws Exception{
 		Direction direction = this.descriptor.nodePosition().directionFrom(neighbour.nodePosition());
-		URISensorOutBoundPortToNode outboundPort = getPortByDirection(direction);
+		URINodeOutBoundPortToNode outboundPort = getPortByDirection(direction);
 		if (outboundPort != null) {
 			try {
 				if (outboundPort.connected()) {
 					this.doPortDisconnection(outboundPort.getPortURI());
 					this.neighbor.remove(neighbour);
+					gui.removeGraphicalConnection(this.descriptor.nodeIdentifier(), neighbour.nodeIdentifier());
 				}
 				NodeInfoI node = outboundPortRegistre.findNewNeighbour(this.descriptor, direction);
 				if (node != null) {
@@ -463,17 +487,17 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 //		            logger.error("Error handling disconnection and reconnection", e);
 			}
 			logNeighbors();
-			} else {
+		} else {
 //		        this.logMessage("Invalid direction: {}", direction);
 		}
 	}
 
 	public void logNeighbors() {
-	    StringBuilder sb = new StringBuilder("Current neighbors: ");
-	    for (NodeInfoI neighbor : this.neighbor) {
-	        sb.append("\n\tNeighbor ID: ").append(neighbor.nodeIdentifier());
-	    }
-	    this.logMessage(sb.toString());
+		StringBuilder sb = new StringBuilder("Current neighbors: ");
+		for (NodeInfoI neighbor : this.neighbor) {
+			sb.append("\n\tNeighbor ID: ").append(neighbor.nodeIdentifier());
+		}
+		this.logMessage(sb.toString());
 	}
 
 	/**
@@ -483,7 +507,7 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 * @return The outbound port corresponding to the given direction or
 	 *         {@code null} if the direction is invalid.
 	 */
-	private URISensorOutBoundPortToNode getPortByDirection(Direction direction) {
+	private URINodeOutBoundPortToNode getPortByDirection(Direction direction) {
 		switch (direction) {
 		case NE:
 			return outboundPortNE;
@@ -535,9 +559,9 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 *                   port connections/disconnections, or any other
 	 *                   operation-related exceptions.
 	 */
-	private void connectToNeighbor(NodeInfoI node, boolean ask) throws Exception {
+	private synchronized void connectToNeighbor(NodeInfoI node, boolean ask) throws Exception {
 		Direction direction = descriptor.nodePosition().directionFrom(node.nodePosition());
-		URISensorOutBoundPortToNode portToUse = getPortByDirection(direction);
+		URINodeOutBoundPortToNode portToUse = getPortByDirection(direction);
 
 		if (portToUse == null) {
 			this.logMessage("Invalid direction specified: " + direction);
@@ -549,9 +573,8 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 			portToUse.ask4Disconnection(descriptor);
 			doPortDisconnection(portToUse.getPortURI());
 		}
-		
 		doPortConnection(portToUse.getPortURI(), inboundPortSensor, ConnectorSensorToSensor.class.getCanonicalName());
-		nodeOutboundPorts.put(portToUse, node);
+		nodeOutboundPorts.put(portToUse.getPortURI(), node);
 		this.logMessage("Connection established towards neighbor at " + direction + ": " + node.nodeIdentifier());
 		gui.addGraphicalConnection(this.descriptor.nodeIdentifier(), node.nodeIdentifier());
 		if (ask) {
@@ -559,7 +582,6 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 		}
 	}
 
-	
 	/**
 	 * Processes a request by orchestrating various steps including state
 	 * preparation, query evaluation, UI updates, and query propagation based on the
@@ -573,8 +595,8 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 */
 	private QueryResultI processQuery(RequestContinuationI request) throws Exception {
 		evaluateQuery(request);
-		gui.toggleNodeBlinking(this.descriptor.nodeIdentifier());
-		return handleQueryPropagation(request);
+		handleQueryPropagation(request);
+		return ((ExecutionState) request.getExecutionState()).getCurrentResult();
 	}
 
 //	/**
@@ -594,20 +616,19 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 *
 	 * @param request The {@link RequestContinuationI} instance containing the query
 	 *                and related information.
-	 * @param es      The {@link ExecutionState} which is to be used and modified
-	 *                during query evaluation.
 	 */
 	private void evaluateQuery(RequestContinuationI request) {
 		this.processedRequests.add(request.requestURI());
 		ExecutionState es = (ExecutionState) request.getExecutionState();
-		ProcessingNode node = new ProcessingNode(this.descriptor.nodeIdentifier(), this.descriptor.nodePosition(),
-				this.neighbor, sensors);
-		es.updateProcessingNode(node);
+		ProcessingNode processingNode = new ProcessingNode(this.descriptor.nodeIdentifier(),
+				this.descriptor.nodePosition(), this.neighbor, this.sensors);
+		es.updateProcessingNode(processingNode);
 		if (request.getQueryCode() instanceof GQuery) {
 			((GQuery) request.getQueryCode()).eval(es);
 		} else {
 			((BQuery) request.getQueryCode()).eval(es);
 		}
+		gui.toggleNodeBlinking(this.descriptor.nodeIdentifier());
 	}
 
 	/**
@@ -616,21 +637,32 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 *
 	 * @param request The {@link RequestContinuationI} instance containing the query
 	 *                and its continuation data.
-	 * @param es      The {@link ExecutionState} used to determine the propagation
-	 *                strategy.
 	 * @return The result of the query after attempting propagation, if applicable.
 	 * @throws Exception if there is an issue during query propagation.
 	 */
-	private QueryResultI handleQueryPropagation(RequestContinuationI request) throws Exception {
-		ExecutionState executionState = ((ExecutionState) request.getExecutionState()).clone();
-		RequestContinuationI clientRequest = new RequestContinuation(request.getQueryCode(),
-				request.clientConnectionInfo(), executionState, request.requestURI());
+	private void handleQueryPropagation(RequestContinuationI request) throws Exception {
+		ExecutionState executionState = (ExecutionState) request.getExecutionState();
 		if (executionState.isFlooding()) {
-			return propagateFlooding(clientRequest);
+			propagateFlooding(request);
 		} else if (executionState.isDirectional()) {
-			return handleDirectionalPropagation(clientRequest);
+			if (!(executionState.noMoreHops() || executionState.getDirections().isEmpty())) {
+				handleDirectionalPropagation(request);
+			} else {
+				if (request.isAsynchronous())
+					sendToClient(request, executionState);
+			}
 		}
-		return executionState.getCurrentResult();
+
+	}
+
+	private synchronized void sendToClient(RequestContinuationI request, ExecutionState executionState) throws Exception {
+//		 JOptionPane.showMessageDialog(null, "Propagate flooding has started", "Information", JOptionPane.INFORMATION_MESSAGE);
+		String InboundPortClient = ((BCM4JavaEndPointDescriptorI) request.clientConnectionInfo().endPointInfo())
+				.getInboundPortURI();
+		this.doPortConnection(outBoundPortClient.getPortURI(), InboundPortClient,
+				ConnectorSensorToClient.class.getCanonicalName());
+		this.outBoundPortClient.acceptRequestResult(request.requestURI(), executionState.getCurrentResult());
+		this.doPortDisconnection(this.outBoundPortClient.getPortURI());
 	}
 
 	/**
@@ -638,25 +670,30 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 * to all reachable neighbors within a maximal distance.
 	 *
 	 * @param request The request continuation instance.
-	 * @param es      The current execution state holding network topology and
-	 *                distance metrics.
 	 * @return The current result of the query after flooding to neighbors.
 	 * @throws Exception if there is an issue during the flooding propagation.
 	 */
-	private QueryResultI propagateFlooding(RequestContinuationI request) throws Exception {
-		ExecutionState es = (ExecutionState) request.getExecutionState();
-		synchronized (neighbor) {
-			for (NodeInfoI n : neighbor) {
-				Direction d = this.descriptor.nodePosition().directionFrom(n.nodePosition());
-				if (es.withinMaximalDistance(n.nodePosition())) {
-					executeNeighborQuery(d, request);
-				} else {
-					return es.getCurrentResult();
-				}
-			}
-		}
-		return es.getCurrentResult();
+	private void propagateFlooding(RequestContinuationI request) throws Exception {
+	    ExecutionState executionState = (ExecutionState) request.getExecutionState();
+
+	    // Display a message box to confirm the method was called (for demonstration)
+//	    JOptionPane.showMessageDialog(null, "Propagate flooding has started", "Information", JOptionPane.INFORMATION_MESSAGE);
+
+	    for (NodeInfoI n : neighbor) {
+	        Direction d = this.descriptor.nodePosition().directionFrom(n.nodePosition());
+	        if (executionState.withinMaximalDistance(n.nodePosition())) {
+	        	executeNeighborQuery(d, request);
+	        }
+	    }
+
+	    // Decide whether to execute tasks asynchronously or synchronously
+	    if (request.isAsynchronous()) {
+		        sendToClient(request, executionState);
+	    } 
 	}
+
+
+
 
 	/**
 	 * Manages directional query propagation based on the specified directions
@@ -669,10 +706,6 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 * @param request The request continuation detailing the query continuation. It
 	 *                is used to pass along the query specifics as the propagation
 	 *                proceeds to different directions.
-	 * @param es      The execution state which includes directional information and
-	 *                propagation logic. It provides context such as available
-	 *                directions, whether more hops are possible, and the current
-	 *                result of the query propagation.
 	 * @return The query result after attempting directional propagation. If no
 	 *         propagation occurs, the current result of the execution state is
 	 *         returned.
@@ -680,24 +713,19 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 *                   as a failure in executing the query on the neighbor or
 	 *                   issues with connection handling.
 	 */
-	private QueryResultI handleDirectionalPropagation(RequestContinuationI request)
-			throws Exception {
+	private void handleDirectionalPropagation(RequestContinuationI request) throws Exception {
 		ExecutionState es = (ExecutionState) request.getExecutionState();
 		ArrayList<Direction> directions = new ArrayList<>(es.getDirections());
-		if (directions.isEmpty() || es.noMoreHops()) {
-			return es.getCurrentResult();
-		}
-
 		Iterator<Direction> directionIterator = directions.iterator();
+		 
 		while (directionIterator.hasNext()) {
 			Direction d = directionIterator.next();
-			URISensorOutBoundPortToNode port = getPortByDirection(d);
+			URINodeOutBoundPortToNode port = getPortByDirection(d);
 			if (port != null && port.connected()) {
-				executeNeighborQuery(d, request);
+				 executeNeighborQuery(d, request);
 				break;
-			}
+			}			
 		}
-		return es.getCurrentResult();
 	}
 
 	/**
@@ -706,16 +734,27 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 * @param direction The direction in which the neighbor node is located.
 	 * @param request   The {@link RequestContinuationI} instance detailing the
 	 *                  query continuation.
-	 * @return 
+	 * @return
 	 * @throws Exception if there is an issue executing the query on the neighbor
 	 *                   node.
 	 */
 	private QueryResultI executeNeighborQuery(Direction direction, RequestContinuationI request) throws Exception {
-		URISensorOutBoundPortToNode port = getPortByDirection(direction);
+		URINodeOutBoundPortToNode port = getPortByDirection(direction);
+		ExecutionState executionState = ((ExecutionState) request.getExecutionState());
+		ExecutionState executionStateClone = executionState.clone();
+		RequestContinuationI clientRequest = new RequestContinuation(request, executionStateClone, request.requestURI());
 		if (port != null && port.connected()) {
 			gui.startGraphicalLightAnimation(this.descriptor.nodeIdentifier(),
-					this.nodeOutboundPorts.get(port).nodeIdentifier());
-			return port.execute(request);
+					this.nodeOutboundPorts.get(port.getPortURI()).nodeIdentifier());
+			if (request.isAsynchronous()) {
+//		    JOptionPane.showMessageDialog(null, "Propagate flooding has started", "Information", JOptionPane.INFORMATION_MESSAGE);
+				port.executeAsync(clientRequest);
+			} else {
+				executionStateClone.resetQuery();
+				QueryResultI qr =  port.execute(clientRequest);
+				executionState.addToCurrentResult(qr);
+				return qr;
+			}
 		}
 		return null;
 	}
@@ -728,22 +767,24 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	 * @throws Exception If there is an issue initializing or publishing the ports.
 	 */
 	private void initializeOutboundPorts() throws Exception {
-		this.outboundPortRegistre = new URISensorOutBoundPortToRegister(this);
-		this.outboundPortNE = new URISensorOutBoundPortToNode(this);
-		this.outboundPortNW = new URISensorOutBoundPortToNode(this);
-		this.outboundPortSE = new URISensorOutBoundPortToNode(this);
-		this.outboundPortSW = new URISensorOutBoundPortToNode(this);
+		this.outboundPortRegistre = new URINodeOutBoundPortToRegister(this);
+		this.outboundPortNE = new URINodeOutBoundPortToNode(this);
+		this.outboundPortNW = new URINodeOutBoundPortToNode(this);
+		this.outboundPortSE = new URINodeOutBoundPortToNode(this);
+		this.outboundPortSW = new URINodeOutBoundPortToNode(this);
 
-		this.nodeOutboundPorts = new HashMap<>();
+		this.outBoundPortClient = new URINodeOutboundPortToClient(this);
+
 
 		this.outboundPortClock = new ClocksServerOutboundPort(this);
 
-		// Publication des ports sortants
 		this.outboundPortRegistre.publishPort();
 		this.outboundPortNE.publishPort();
 		this.outboundPortNW.publishPort();
 		this.outboundPortSE.publishPort();
 		this.outboundPortSW.publishPort();
+
+		this.outBoundPortClient.publishPort();
 
 		this.outboundPortClock.publishPort();
 	}

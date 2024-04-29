@@ -1,8 +1,7 @@
 package app.Models;
 
 import java.util.ArrayList;
-
-import javax.swing.JOptionPane;
+import java.util.Objects;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
@@ -12,7 +11,7 @@ import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
  * both gathered sensor data and boolean-based results indicating the presence or absence
  * of certain conditions at sensor nodes.
  */
-public class QueryResult implements QueryResultI {
+public class QueryResult implements QueryResultI, Cloneable{
     private static final long serialVersionUID = 7080596922014476376L;
     
     protected ArrayList<SensorDataI> sd;          // List to hold sensor data results
@@ -29,6 +28,28 @@ public class QueryResult implements QueryResultI {
     public QueryResult(ArrayList<SensorDataI> sd, ArrayList<String> sensitiveNodes) {
         this.sd = sd;
         this.sensitiveNodes = sensitiveNodes;
+    }
+    
+    /**
+     * Clone method to perform a deep copy of QueryResult objects.
+     *
+     * @return a deep-cloned instance of QueryResult
+     * @throws CloneNotSupportedException if the object's class does not support the Cloneable interface.
+     */
+    @Override
+    public QueryResult clone() throws CloneNotSupportedException {
+        QueryResult cloned = (QueryResult) super.clone();
+        cloned.sd = new ArrayList<>(this.sd.size());
+        for (SensorDataI sensorDataI : this.sd) {
+        if (sensorDataI instanceof SensorData) {
+            SensorData sensorData = (SensorData) sensorDataI;
+            cloned.sd.add(sensorData.clone()); // Clone each SensorData object
+        } else {
+            throw new CloneNotSupportedException("SensorDataI instance is not of type SensorData and cannot be cloned");
+        }
+        }
+        cloned.sensitiveNodes = new ArrayList<>(this.sensitiveNodes);
+        return cloned;
     }
 
     /**
@@ -86,5 +107,14 @@ public class QueryResult implements QueryResultI {
     public void setBoolean() {
         this.isBoolean = true;
         this.isGather = false;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof QueryResult)) return false;
+        QueryResult that = (QueryResult) o;
+        return Objects.equals(this.gatheredSensorsValues(), that.gatheredSensorsValues()) &&
+               Objects.equals(this.positiveSensorNodes(), that.positiveSensorNodes());
     }
 }

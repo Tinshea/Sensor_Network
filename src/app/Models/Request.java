@@ -15,7 +15,8 @@ public class Request implements RequestI {
     private static final long serialVersionUID = 1L;
     private final String uri;          // Unique URI for this request, automatically generated
     private ConnectionInfoI client;    // Connection information for the client issuing the request
-    private QueryI queryCode;          // The query code associated with this request
+	private QueryI queryCode;          // The query code associated with this request
+	private boolean isAynchronous = false;
 
     /**
      * Constructs a Request with specified query code and client connection information.
@@ -63,10 +64,15 @@ public class Request implements RequestI {
      */
     @Override
     public boolean isAsynchronous() {
-        return false;
+        return isAynchronous;
     }
+    
 
-    /**
+	public void setAsynchronous(boolean isaAynchronous) {
+		this.isAynchronous = isaAynchronous;
+	}
+
+	/**
      * Retrieves the client connection information associated with this request.
      *
      * @return The {@link ConnectionInfoI} that contains details about how the client is connected.
@@ -75,4 +81,7 @@ public class Request implements RequestI {
     public ConnectionInfoI clientConnectionInfo() {
         return client;
     }
+    public void setClient(ConnectionInfoI client) {
+		this.client = client;
+	}
 }

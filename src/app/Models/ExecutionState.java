@@ -1,10 +1,8 @@
 package app.Models;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.swing.JOptionPane;
-
 import fr.sorbonne_u.cps.sensor_network.interfaces.Direction;
 import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
@@ -14,18 +12,19 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 public class ExecutionState implements ExecutionStateI, Cloneable {
 	private static final long serialVersionUID = 6009720675170853565L;
 	private ProcessingNodeI pn;
-	private QueryResultI qr;
+	private QueryResultI queryResult;
 	private boolean directional = false;
 	private boolean flooding = false;
+	private boolean isContinuation = false;
 	private Set<Direction> directions;
 	private int hops = 0;
 	private int maxhops;
 	private Double maxDistance;
 	private PositionI p;
 
-	public ExecutionState(ProcessingNodeI pn, QueryResultI qr) {
+	public ExecutionState(ProcessingNodeI pn, QueryResultI queryResult) {
 		this.pn = pn;
-		this.qr = qr;
+		this.queryResult = queryResult;
 	}
 
 	@Override
@@ -40,13 +39,13 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 
 	@Override
 	public QueryResultI getCurrentResult() {
-		return qr;
+		return queryResult;
 	}
 
 	@Override
 	public void addToCurrentResult(QueryResultI result) {
-		qr.gatheredSensorsValues().addAll(result.gatheredSensorsValues());
-		qr.positiveSensorNodes().addAll(result.positiveSensorNodes());
+		queryResult.gatheredSensorsValues().addAll(result.gatheredSensorsValues());
+		queryResult.positiveSensorNodes().addAll(result.positiveSensorNodes());
 	}
 
 	@Override
@@ -110,7 +109,9 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 		if (this.directions != null) {
 			cloned.directions = new HashSet<>(this.directions);
 		}
-
+		cloned.queryResult = ((QueryResult)this.queryResult).clone(); 
+		cloned.directional = this.directional;
+		cloned.flooding = this.flooding;
 		return cloned;
 	}
 
@@ -129,5 +130,33 @@ public class ExecutionState implements ExecutionStateI, Cloneable {
 	public PositionI getPosition() {
 		return this.p;
 	}
+
+	@Override
+	public boolean isContinuationSet() {
+		return this.isContinuation;
+	}
+	
+	public void setContinuation(boolean isContinuation) {
+		this.isContinuation = isContinuation;
+	}
+	
+	public String buildQueryResultString() {
+	    StringBuilder resultBuilder = new StringBuilder();
+	    resultBuilder.append("request result :");
+
+	    if (queryResult.isBooleanRequest()) {
+	        resultBuilder.append(queryResult.positiveSensorNodes().toString());
+	    } else if (queryResult.isGatherRequest()) {
+	        resultBuilder.append(queryResult.gatheredSensorsValues().toString());
+	    }
+
+	    return resultBuilder.toString();
+	}
+	
+
+	public void resetQuery() {
+		this.queryResult =  new QueryResult(new ArrayList<>(), new ArrayList<>());
+	}
+
 
 }

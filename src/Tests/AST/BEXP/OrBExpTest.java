@@ -34,8 +34,8 @@ public class OrBExpTest {
         ExecutionState es = new ExecutionState(processingNode, null);
 
         // Create SBExp instances for true and false scenarios
-        SBExp trueExp = new SBExp("sensor1");
-        SBExp falseExp = new SBExp("sensor2");
+        SBExp trueExp = new SBExp("type1");
+        SBExp falseExp = new SBExp("type2");
 
         // Test OR scenarios
         OrBExp orTrueTrue = new OrBExp(trueExp, trueExp);

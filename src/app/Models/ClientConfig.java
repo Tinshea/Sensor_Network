@@ -14,6 +14,7 @@ public class ClientConfig {
     private final int name;                   // A unique identifier for the client
     private final List<RequestI> requests;    // List of requests the client will execute
     private final String requestNodeName;     // Name of the node to request data from
+    private final boolean isRequestAsync;
 
     /**
      * Constructs a new ClientConfig with specified parameters.
@@ -24,12 +25,14 @@ public class ClientConfig {
      * @param requests A list of {@link RequestI} objects representing the requests the client will perform.
      * @param requestNodeName The default node from which the client will request data.
      */
-    public ClientConfig(String inboundPortRegister, String uriClock, int name, List<RequestI> requests, String requestNodeName) {
+    public ClientConfig(String inboundPortRegister, String uriClock, int name, List<RequestI> requests, String requestNodeName, boolean isRequestAsync) {
         this.inboundPortRegister = inboundPortRegister;
         this.uriClock = uriClock;
         this.name = name;
         this.requests = requests;
         this.requestNodeName = requestNodeName;
+		this.isRequestAsync = isRequestAsync;
+        
     }
 
     /**
@@ -76,4 +79,8 @@ public class ClientConfig {
     public List<RequestI> getRequests() {
         return requests;
     }
+
+	public boolean getIsRequestAsync() {
+		return isRequestAsync;
+	}
 }

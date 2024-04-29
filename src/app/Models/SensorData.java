@@ -2,16 +2,13 @@ package app.Models;
 
 import java.io.Serializable;
 import java.time.Instant;
-
-import javax.swing.JOptionPane;
-
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 
 /**
  * Represents data collected by a sensor within a sensor network. This class encapsulates
  * the identifier of the node and sensor, the value of the data, and the timestamp when the data was recorded.
  */
-public class SensorData implements SensorDataI, Serializable {
+public class SensorData implements SensorDataI, Serializable, Cloneable{
     
     private static final long serialVersionUID = -4202232058504256513L;
 
@@ -33,7 +30,22 @@ public class SensorData implements SensorDataI, Serializable {
         this.value = value;
         this.timestamp = Instant.now();  // Capture the timestamp at the moment of data creation
     }
-
+    
+    /**
+     * Creates and returns a copy of this object.
+     *
+     * @return a clone of this instance.
+     * @throws CloneNotSupportedException if the object's class does not support the Cloneable interface.
+     */
+    @Override
+    public SensorData clone() throws CloneNotSupportedException {
+        SensorData cloned = (SensorData) super.clone();
+        cloned.timestamp = this.timestamp; // Instant is immutable, so we can share references
+        // Handle cloning of the value if necessary. Assuming value is immutable or final state.
+        // If the value needs deep cloning and is mutable, additional logic will be needed.
+        return cloned;
+    }
+    
     /**
      * Retrieves the node identifier for this sensor data.
      *
@@ -82,8 +94,18 @@ public class SensorData implements SensorDataI, Serializable {
      */
     @Override
     public String toString() {
-        return sensorIdentifier + " : " + value;
+        return nodeIdentifier +": " +" "+ sensorIdentifier +"("+ value+")";
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;  // Check for reference equality.
+        if (obj == null || getClass() != obj.getClass()) return false;  // Check for null and ensure the objects are of the same class.
+
+        SensorDataI that = (SensorDataI) obj;  // Type cast the object to SensorDataI.
+        return this.toString().equals(that.toString());  // Compare the string representations.
+    }
+
 
     /**
      * Retrieves the timestamp when the data was recorded.

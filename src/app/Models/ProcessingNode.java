@@ -2,12 +2,8 @@ package app.Models;
 
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
 import fr.sorbonne_u.cps.sensor_network.interfaces.NodeInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.PositionI;
-import fr.sorbonne_u.cps.sensor_network.interfaces.QueryResultI;
-import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 
@@ -77,30 +73,5 @@ public class ProcessingNode implements ProcessingNodeI {
              }
          }
          return null;
-    }
-
-    /**
-     * Propagates a data request to a specified node identifier, synchronously.
-     * @param nodeIdentifier The identifier of the node to which the request should be propagated.
-     * @param requestContinuation Continuation information for handling the request.
-     * @return A {@link QueryResultI} representing the result of the query.
-     * @throws Exception If there is an error in processing the request.
-     */
-    @Override
-    public QueryResultI propagateRequest(String nodeIdentifier, RequestContinuationI requestContinuation)
-            throws Exception {
-    	
-        return null;
-    }
-    
-    /**
-     * Propagates a data request to a specified node identifier, asynchronously.
-     * @param nodeIdentifier The identifier of the node to which the request should be propagated.
-     * @param requestContinuation Continuation information for handling the request.
-     * @throws Exception If there is an error in processing the request.
-     */
-    @Override
-    public void propagateRequestAsync(String nodeIdentifier, RequestContinuationI requestContinuation) throws Exception {
-        // Implementation details would be necessary here
     }
 }

@@ -52,6 +52,7 @@ public class FCont implements ICont, Serializable {
 	//Amine a fait
 	@Override
 	public void eval(ExecutionStateI es) {
+		((ExecutionState) es).setContinuation(true);
 		((ExecutionState)es).setMaxDistance(distanceMax);
 		PositionI p = base.eval(es);
 		((ExecutionState)es).setPosition(p);

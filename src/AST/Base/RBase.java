@@ -5,11 +5,7 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import java.io.Serializable;
 
 /**
- * The class RBase represents a "runtime base" in an abstract syntax tree (AST).
- * This node is typically used to evaluate runtime properties or states.
- *
- * It implements Serializable to allow for state to be persisted or transferred
- * over the network or between components in a sensor network simulation.
+ * The class RBase implements IBase, it is used to return the position of the current node.
  */
 public class RBase implements IBase, Serializable {
 	private static final long serialVersionUID = 2L;

@@ -3,6 +3,7 @@ package app.gui;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents a visual node in a graphical network interface. This class encapsulates
@@ -47,12 +48,12 @@ class Node {
      *             This should be controlled by an external timer or similar mechanism
      *             to create a blinking effect.
      */
-    public void draw(Graphics g, boolean isOn) {
+    public void draw(Graphics g, AtomicBoolean isOn) {
         g.setColor(Color.BLACK); // Set color for outer circle
         g.fillOval(x, y, DIAMETER, DIAMETER); // Draw the outer circle
 
         // Change fill color based on blinking state and whether it is the 'on' phase
-        if (isBlinking && isOn) {
+        if (isBlinking && isOn.get()) {
             g.setColor(Color.RED); // Blinking color
         } else {
             g.setColor(Color.WHITE); // Default color

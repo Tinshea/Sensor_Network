@@ -30,7 +30,9 @@ public class URIClientOutBoundPortToNode extends AbstractOutboundPort implements
 	}
 
 	@Override
-	public void executeAsync(RequestI request) throws Exception {
+	public void  executeAsync(RequestI request) throws Exception {
+		((RequestingCI )this.getConnector()).executeAsync(request) ;
+		
 		
 	}
 

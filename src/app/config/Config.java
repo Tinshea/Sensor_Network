@@ -19,7 +19,7 @@ public class Config {
     /**
      * The initial delay in milliseconds before starting the simulation or network operations.
      */
-    public static final long START_DELAY = 4000L;
+    public static final long START_DELAY = 10000L;
 
     /**
      * The factor by which time is accelerated in the simulation, aiding in faster execution
@@ -30,16 +30,18 @@ public class Config {
     /**
      * The number of clients in the network simulation or configuration.
      */
-    public static final int NBCLIENT = 1;
+    public static final int NBCLIENT = 4;
 
     /**
      * The number of nodes in the network simulation or configuration.
      */
-    public static final int NBNODE = 100;
+    public static final int NBNODE = 50;
 
     /**
      * The number of columns in the network layout or graphical representation,
      * used in arranging the visual components.
      */
     public static final int COLUM = 5;
+    
+    public static final boolean ASYNC = true;
 }

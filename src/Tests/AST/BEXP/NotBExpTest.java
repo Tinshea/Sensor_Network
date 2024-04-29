@@ -34,8 +34,8 @@ public class NotBExpTest {
         ExecutionState es = new ExecutionState(processingNode, null);
 
         // Create SBExp instances for true and false scenarios
-        SBExp trueExp = new SBExp("sensor1");
-        SBExp falseExp = new SBExp("sensor2");
+        SBExp trueExp = new SBExp("type1");
+        SBExp falseExp = new SBExp("type2");
 
         // Test NOT of true (should be false)
         NotBExp notTrue = new NotBExp(trueExp);

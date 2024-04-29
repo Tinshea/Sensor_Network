@@ -5,7 +5,6 @@ import AST.BEXP.CExpBExp;
 import AST.CEXP.GeqCExp;
 import AST.CEXP.LeqCExp;
 import AST.Rand.CRand;
-import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

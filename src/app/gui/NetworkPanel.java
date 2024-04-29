@@ -4,13 +4,15 @@ package app.gui;
 import javax.swing.*;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 // Panneau personnalisé pour le dessin
 
 import javax.swing.JPanel;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 
 /**
  * Custom JPanel class that provides functionality for drawing and animating a network
@@ -20,25 +22,27 @@ import javax.swing.JPanel;
  */
 public class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
 	private static final long serialVersionUID = 1L;
-	private static final int PREF_WIDTH = 1000;
-	private static final int PREF_HEIGHT = 800;
-    private final List<Node> nodes = new ArrayList<>();
-    private final List<Connection> connections = new ArrayList<>();
-    private List<Light> lights = new ArrayList<>();
+    private static final int PREF_WIDTH = 1000;
+    private static final int PREF_HEIGHT = 800;
+    private final List<Node> nodes = new CopyOnWriteArrayList<>();
+    private final List<Connection> connections = new CopyOnWriteArrayList<>();
+    private List<Light> lights = new CopyOnWriteArrayList<>();
+
+
     private Timer animationTimer;
-    int gridSize = 100;
-    private boolean isOn = true;
+    private int gridSize = 100;
+    private AtomicBoolean isOn = new AtomicBoolean(true);
     
     /**
      * Constructs a NetworkPanel with predefined dimensions and initializes a blinking timer
      * for node animation effects. The panel is set with a preferred size and starts a timer
-     * that toggles the blinking state of nodes, triggering repaints at regular intervals.
+     * that toggles the blinking state of nodes, triggering repaintSafelys at regular intervals.
      */
     public NetworkPanel() {
         setPreferredSize(new Dimension(PREF_WIDTH, PREF_HEIGHT));
         javax.swing.Timer blinkTimer = new javax.swing.Timer(500, e -> {
-            isOn = !isOn;
-            repaint();
+            isOn.set(!isOn.get());
+            repaintSafely();
         });
         blinkTimer.start();
     }
@@ -66,12 +70,16 @@ public class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
     public void startLightAnimation(Node start, Node end) {
         Point startPoint = new Point(start.x + Node.DIAMETER / 2, start.y + Node.DIAMETER / 2);
         Point endPoint = new Point(end.x + Node.DIAMETER / 2, end.y + Node.DIAMETER / 2);
-        lights.add(new Light(startPoint, endPoint));
+        synchronized (this) {  // Synchronize access if needed
+            lights.add(new Light(startPoint, endPoint));
+        }
 
         if (animationTimer == null || !animationTimer.isRunning()) {
             animationTimer = new javax.swing.Timer(10, e -> {
-                lights.removeIf(light -> !light.move());
-                repaint();
+                synchronized (this) {  // Ensure atomic updates
+                    lights.removeIf(light -> !light.move());
+                }
+                repaintSafely();
                 if (lights.isEmpty()) {
                     animationTimer.stop();
                 }
@@ -79,6 +87,7 @@ public class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
             animationTimer.start();
         }
     }
+
     
     /**
      * Draws a grid background with dashed lines, enhancing the visibility of node positioning
@@ -143,7 +152,7 @@ public class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
         int pixelX = (int) (gridX * gridSize);  // Convert grid coordinates to pixel for x-axis
         int pixelY = (int) (getHeight() - gridY * gridSize);  // Convert grid coordinates to pixel for y-axis, inversing to match graphical layout
         nodes.add(new Node(name, pixelX - (Node.DIAMETER / 2), pixelY - (Node.DIAMETER / 2)));  // Center the node by adjusting for diameter
-        repaint();  // Redraw the panel to display the new node
+        repaintSafely();  // Redraw the panel to display the new node
     }
 
 
@@ -159,7 +168,7 @@ public class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
         Node endNode = findNodeByName(endName);
         if (startNode != null && endNode != null) {
             connections.add(new Connection(startNode, endNode));
-            repaint();  // Redraw to update the graphical display with the new connection
+            repaintSafely();  // Redraw to update the graphical display with the new connection
         }
     }
 
@@ -193,7 +202,7 @@ public class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
 
     /**
      * Removes a graphical connection between two nodes identified by their names. The connection,
-     * if found, is removed from the graphical display, and the panel is repainted to reflect this change.
+     * if found, is removed from the graphical display, and the panel is repaintSafelyed to reflect this change.
      *
      * @param startName The name of the starting node of the connection to be removed.
      * @param endName The name of the ending node of the connection to be removed.
@@ -203,7 +212,7 @@ public class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
             Connection conn = iterator.next();
             if (conn.start.name.equals(startName) && conn.end.name.equals(endName)) {
                 iterator.remove();
-                repaint();  // Update the display to remove the connection
+                repaintSafely();  // Update the display to remove the connection
                 break;
             }
         }
@@ -249,4 +258,9 @@ public class NetworkPanel extends JPanel implements GraphicalNetworkInterface {
             node.toggleBlinking(false);  // Disable blinking for all nodes
         }
     }
+    
+    public void repaintSafely() {
+        SwingUtilities.invokeLater(this::repaint);
+    }
+
 }

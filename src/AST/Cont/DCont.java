@@ -20,6 +20,7 @@ public class DCont implements ICont, Serializable {
 	}
 	@Override
 	public void eval(ExecutionStateI es) {
+		((ExecutionState) es).setContinuation(true);;
 		((ExecutionState) es).incrementHops();
 		((ExecutionState) es).setMaxSauts(maxSauts);
 		((ExecutionState) es).setDirectional();

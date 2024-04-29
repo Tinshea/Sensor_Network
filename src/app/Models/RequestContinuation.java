@@ -2,6 +2,7 @@ package app.Models;
 
 import fr.sorbonne_u.cps.sensor_network.interfaces.ConnectionInfoI;
 import fr.sorbonne_u.cps.sensor_network.interfaces.RequestContinuationI;
+import fr.sorbonne_u.cps.sensor_network.interfaces.RequestI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
 
@@ -12,10 +13,9 @@ import fr.sorbonne_u.cps.sensor_network.requests.interfaces.QueryI;
  * the execution needs to be maintained and accessible.
  */
 public class RequestContinuation extends Request implements RequestContinuationI {
-
-    private static final long serialVersionUID = 1643394860402250861L;
+	private static final long serialVersionUID = 1643394860402250861L;
     private ExecutionStateI es; // Holds the state of the request's execution.
-
+    private boolean leaf = true; // Holds the state of the request's execution.
     /**
      * Constructs a RequestContinuation with the specified query code, client connection info, and execution state.
      *
@@ -23,15 +23,18 @@ public class RequestContinuation extends Request implements RequestContinuationI
      * @param clientConnectionInfo The {@link ConnectionInfoI} providing details about the client's connection.
      * @param es The {@link ExecutionStateI} object that tracks the current state of the request's execution.
      */
-    public RequestContinuation(QueryI queryCode, ConnectionInfoI clientConnectionInfo, ExecutionStateI es) {
-        super(queryCode, clientConnectionInfo);
+    public RequestContinuation(RequestI request, ExecutionStateI es, String uri) {
+        super(request.getQueryCode(), request.clientConnectionInfo(), uri);
         this.es = es;
+        this.setAsynchronous(request.isAsynchronous());
     }
     
-    public RequestContinuation(QueryI queryCode, ConnectionInfoI clientConnectionInfo, ExecutionStateI es, String uri) {
-        super(queryCode, clientConnectionInfo, uri);
+    public RequestContinuation(RequestContinuationI request, ExecutionStateI es, String uri) {
+        super(request.getQueryCode(), request.clientConnectionInfo(), uri);
         this.es = es;
+        this.setAsynchronous(request.isAsynchronous());
     }
+
 
     /**
      * Retrieves the execution state associated with this request.
@@ -42,4 +45,12 @@ public class RequestContinuation extends Request implements RequestContinuationI
     public ExecutionStateI getExecutionState() {
         return this.es;
     }
+
+	public boolean isLeaf() {
+		return leaf;
+	}
+
+	public void setLeaf() {
+		this.leaf = false;
+	}
 }

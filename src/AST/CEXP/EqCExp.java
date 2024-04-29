@@ -1,11 +1,14 @@
 package AST.CEXP;
 
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
-import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 import AST.Rand.IRand;
 
 import java.io.Serializable;
 
+
+/**
+ * The class EqCExp must be used to evaluate the equality between two Icexp, it return true if they are equal.
+ */
 public class EqCExp implements Icexp , Serializable {
 	private static final long serialVersionUID = 8L;
 

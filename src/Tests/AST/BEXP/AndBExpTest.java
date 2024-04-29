@@ -5,10 +5,12 @@ import AST.BEXP.SBExp;
 import app.Models.ExecutionState;
 import app.Models.Position;
 import app.Models.ProcessingNode;
+import app.Models.QueryResult;
 import app.Models.SensorData;
 import fr.sorbonne_u.cps.sensor_network.interfaces.SensorDataI;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,16 +32,16 @@ public class AndBExpTest {
         ProcessingNode processingNode = new ProcessingNode("nodeTest", new Position(2.0, 3.0), null, sensorDataISet);
 
         // Create ExecutionState
-        ExecutionState es = new ExecutionState(processingNode, null);
-
+        ExecutionState es = new ExecutionState(processingNode, new QueryResult(new ArrayList<>(), new ArrayList<>()));
+        
         // True & True scenario
-        SBExp trueExp1 = new SBExp("sensor1");
-        SBExp trueExp2 = new SBExp("sensor1");
+        SBExp trueExp1 = new SBExp("type1");
+        SBExp trueExp2 = new SBExp("type1");
         AndBExp andTrueTrue = new AndBExp(trueExp1, trueExp2);
         assertTrue(andTrueTrue.eval(es), "AND expression should be true when both are true.");
 
         // True & False scenario
-        SBExp falseExp = new SBExp("sensor2");
+        SBExp falseExp = new SBExp("type2");
         AndBExp andTrueFalse = new AndBExp(trueExp1, falseExp);
         assertFalse(andTrueFalse.eval(es), "AND expression should be false when one is false.");
 
@@ -48,7 +50,7 @@ public class AndBExpTest {
         assertFalse(andFalseTrue.eval(es), "AND expression should be false when one is false.");
 
         // False & False scenario
-        SBExp falseExp2 = new SBExp("sensor2");
+        SBExp falseExp2 = new SBExp("type2");
         AndBExp andFalseFalse = new AndBExp(falseExp, falseExp2);
         assertFalse(andFalseFalse.eval(es), "AND expression should be false when both are false.");
     }

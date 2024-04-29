@@ -22,7 +22,7 @@ public class SBExpTest {
     @Test
     public void testEval() {
         // Given
-        String sensorId = "noeudTest";
+        String sensorId = "sensorTest";
         SensorDataI sensor = new SensorData("noeudTest","sensorTest",true);
         Set<SensorDataI> sensorDataISet = new HashSet<SensorDataI>();
         sensorDataISet.add(sensor);

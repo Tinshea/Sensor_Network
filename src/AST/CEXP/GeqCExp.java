@@ -1,7 +1,6 @@
 package AST.CEXP;
 
 import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ExecutionStateI;
-import fr.sorbonne_u.cps.sensor_network.requests.interfaces.ProcessingNodeI;
 import AST.Rand.IRand;
 
 import java.io.Serializable;

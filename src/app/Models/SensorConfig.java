@@ -16,6 +16,7 @@ public class SensorConfig {
     private final Set<SensorDataI> sensors;                  // A set of data points that this sensor will monitor
     private final int name;                                  // An identifier for the sensor
     private final Position position;                         // The physical or logical position of the sensor
+	private final int nbthread;
 
     /**
      * Constructs a SensorConfig with specific settings for a sensor.
@@ -28,13 +29,14 @@ public class SensorConfig {
      * @param position The position of the sensor, encapsulated in a {@link Position} object.
      */
     public SensorConfig(GraphicalNetworkInterface gui, String inboundPortRegister, String uriClock, 
-                        Set<SensorDataI> sensors, int name, Position position) {
+                        Set<SensorDataI> sensors, int name, Position position, int nbthread) {
         this.gui = gui;
         this.inboundPortRegister = inboundPortRegister;
         this.uriClock = uriClock;
         this.sensors = sensors;
         this.name = name;
         this.position = position;
+        this.nbthread = nbthread;
     }
 
     /**
@@ -84,4 +86,9 @@ public class SensorConfig {
     public Position getPosition() {
         return position;
     }
+
+	public int getNbthread() {
+		// TODO Auto-generated method stub
+		return this.nbthread;
+	}
 }

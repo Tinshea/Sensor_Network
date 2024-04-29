@@ -18,9 +18,9 @@ public class SRandTest {
     @Test
     public void testEvalWithValidSensorData() {
         // Set up sensor data
-        String sensorId = "sensor1";
+        String sensorId = "temperature";
         double expectedValue = 42.0;
-        SensorData sensorData = new SensorData(sensorId, "temperature", expectedValue);
+        SensorData sensorData = new SensorData("node1",sensorId, expectedValue);
 
         Set<SensorDataI> sensorDataSet = new HashSet<>();
         sensorDataSet.add(sensorData);
@@ -53,12 +53,13 @@ public class SRandTest {
                 "Should throw NullPointerException if sensor data does not exist.");
     }
 
+    
     @Test
     public void testEvalWithIncorrectType() {
         // Setup sensor data with incorrect type (not double)
-        String sensorId = "sensor1";
+        String sensorId = "Temperature";
         String incorrectTypeValue = "not_a_double";
-        SensorData sensorData = new SensorData(sensorId, "temperature", incorrectTypeValue);
+        SensorData sensorData = new SensorData("node1",sensorId, incorrectTypeValue);
 
         Set<SensorDataI> sensorDataSet = new HashSet<>();
         sensorDataSet.add(sensorData);
