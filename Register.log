@@ -1,45 +1,56 @@
-1710807153809|starting register component.
-1710807162187|adding nodeInfo : n6
-1710807162187|Neighbours of n6 : 
-1710807162187|adding nodeInfo : n12
-1710807162188|Neighbours of n12 : 
-1710807162188|adding nodeInfo : n8
-1710807162188|Neighbours of n8 : 
-1710807162188|adding nodeInfo : n9
-1710807162188|Neighbours of n9 : 
-1710807162188|n6
-1710807162189|n12
-1710807162189|adding nodeInfo : n3
-1710807162189|Neighbours of n3 : 
-1710807162189|adding nodeInfo : n4
-1710807162189|Neighbours of n4 : 
-1710807162189|n6
-1710807162189|adding nodeInfo : n10
-1710807162190|Neighbours of n10 : 
-1710807162190|n8
-1710807162190|n12
-1710807162190|adding nodeInfo : n1
-1710807162191|Neighbours of n1 : 
-1710807162191|n4
-1710807162191|adding nodeInfo : n11
-1710807162191|Neighbours of n11 : 
-1710807162191|n9
-1710807162192|adding nodeInfo : n13
-1710807162192|Neighbours of n13 : 
-1710807162192|n10
-1710807162192|adding nodeInfo : n2
-1710807162192|Neighbours of n2 : 
-1710807162192|n4
-1710807162193|adding nodeInfo : n7
-1710807162193|Neighbours of n7 : 
-1710807162193|n10
-1710807162193|n9
-1710807162193|n4
-1710807162194|adding nodeInfo : n5
-1710807162194|Neighbours of n5 : 
-1710807162194|n2
-1710807162194|n3
-1710807162194|n7
-1710807162194|n8
-1710807163185|Request findByIdentifier received on n1
-1710807173829|stopping Register component.
+1715549136166|starting register component.
+1715549144597|Adding nodeInfo: n19 Neighbours : []
+1715549144597|Adding nodeInfo: n6 Neighbours : []
+1715549144598|Adding nodeInfo: n40 Neighbours : []
+1715549144598|Adding nodeInfo: n22 Neighbours : []
+1715549144598|Adding nodeInfo: n41 Neighbours : []
+1715549144598|Adding nodeInfo: n35 Neighbours : [n40]
+1715549144598|Adding nodeInfo: n30 Neighbours : [n35]
+1715549144599|Adding nodeInfo: n33 Neighbours : []
+1715549144599|Adding nodeInfo: n17 Neighbours : [n22]
+1715549144599|Adding nodeInfo: n31 Neighbours : [n35]
+1715549144599|Adding nodeInfo: n3 Neighbours : []
+1715549144600|Adding nodeInfo: n42 Neighbours : []
+1715549144600|Adding nodeInfo: n11 Neighbours : [n6]
+1715549144600|Adding nodeInfo: n24 Neighbours : [n19]
+1715549144601|Adding nodeInfo: n47 Neighbours : [n42]
+1715549144601|Adding nodeInfo: n23 Neighbours : [n19]
+1715549144602|Adding nodeInfo: n27 Neighbours : [n22, n31]
+1715549144602|Adding nodeInfo: n4 Neighbours : []
+1715549144602|Adding nodeInfo: n28 Neighbours : [n24, n33, n23]
+1715549144602|Adding nodeInfo: n12 Neighbours : [n17]
+1715549144603|Adding nodeInfo: n45 Neighbours : [n40]
+1715549144603|Adding nodeInfo: n49 Neighbours : [n45]
+1715549144603|Adding nodeInfo: n15 Neighbours : [n19, n11]
+1715549144603|Adding nodeInfo: n29 Neighbours : [n24, n33]
+1715549144605|Adding nodeInfo: n20 Neighbours : [n15, n24]
+1715549144605|Adding nodeInfo: n25 Neighbours : [n29, n20, n30]
+1715549144605|Adding nodeInfo: n13 Neighbours : [n17]
+1715549144605|Adding nodeInfo: n48 Neighbours : []
+1715549144605|Adding nodeInfo: n16 Neighbours : [n12, n20, n11]
+1715549144606|Adding nodeInfo: n26 Neighbours : [n22, n31, n30]
+1715549144606|Adding nodeInfo: n5 Neighbours : []
+1715549144607|Adding nodeInfo: n14 Neighbours : [n19]
+1715549144607|Adding nodeInfo: n9 Neighbours : [n13, n4]
+1715549144607|Adding nodeInfo: n34 Neighbours : [n29, n30]
+1715549144610|Adding nodeInfo: n10 Neighbours : [n15, n6, n5, n14]
+1715549144610|Adding nodeInfo: n32 Neighbours : [n28]
+1715549144610|Adding nodeInfo: n43 Neighbours : [n47, n48]
+1715549144611|Adding nodeInfo: n2 Neighbours : [n6]
+1715549144611|Adding nodeInfo: n44 Neighbours : [n49, n48, n40]
+1715549144611|Adding nodeInfo: n21 Neighbours : [n16, n17, n26, n25]
+1715549144611|Adding nodeInfo: n46 Neighbours : [n41, n42]
+1715549144612|Adding nodeInfo: n8 Neighbours : [n12, n13, n3, n4]
+1715549144612|Adding nodeInfo: n38 Neighbours : [n43, n34, n33, n42]
+1715549144612|Adding nodeInfo: n50 Neighbours : [n46]
+1715549144613|Adding nodeInfo: n18 Neighbours : [n22, n13]
+1715549144613|Adding nodeInfo: n7 Neighbours : [n12, n2, n11, n3]
+1715549144613|Adding nodeInfo: n1 Neighbours : [n6, n5]
+1715549144613|Adding nodeInfo: n39 Neighbours : [n44, n43, n35, n34]
+1715549144614|Adding nodeInfo: n37 Neighbours : [n41, n32, n33, n42]
+1715549144614|Adding nodeInfo: n36 Neighbours : [n31, n40]
+1715549145591|Request findByIdentifier received on n5
+1715549145591|Request findByIdentifier received on n5
+1715549145591|Request findByIdentifier received on n5
+1715549145591|Request findByIdentifier received on n5
+1715549156220|stopping Register component.
