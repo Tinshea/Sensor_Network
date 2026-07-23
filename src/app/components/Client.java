@@ -186,7 +186,7 @@ public class Client extends AbstractComponent {
 		Instant start = ac.getStartInstant();
 		Instant i2 = start.plusSeconds(120);
 
-		long delay = ac.nanoDelayUntilInstant(start.plusSeconds(taskIndex * delayBetweenTasks));
+		long delay = ac.nanoDelayUntilInstant(i2);
 
 		this.scheduleTask(o -> {
 			try {

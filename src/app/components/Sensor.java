@@ -259,7 +259,16 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	        this.outboundPortSW.ask4Disconnection(descriptor);
 	    }
 	    
-        this.outboundPortRegistre.unregister(descriptor.nodeIdentifier());
+	    // The CVM may already have finalised the registry by the time this node shuts
+	    // down, so unregistering is best effort.
+	    if (this.outboundPortRegistre.connected()) {
+	        try {
+	            this.outboundPortRegistre.unregister(descriptor.nodeIdentifier());
+	        } catch (Exception | AssertionError e) {
+	            // BCM reports the "component already stopped" precondition as an AssertionError.
+	            this.logMessage("could not unregister from the registry: " + e.getMessage());
+	        }
+	    }
 
 
 	    if (this.outboundPortClock.connected()) {

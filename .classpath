@@ -7,13 +7,9 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-	<classpathentry kind="lib" path="/media/malek/Hdd_2to/Projet/M1/S2/Composant/Projet/CPS2/deployment/jars/BCM4Java-26032024.jar"/>
-	<classpathentry kind="lib" path="/media/malek/Hdd_2to/Projet/M1/S2/Composant/Projet/CPS2/deployment/jars/javassist.jar"/>
-	<classpathentry kind="lib" path="/media/malek/Hdd_2to/Projet/M1/S2/Composant/Projet/CPS2/deployment/jars/sensor-network-interfaces.jar"/>
-	<classpathentry kind="lib" path="/media/malek/Hdd_2to/Projet/M1/S2/Composant/Projet/CPS2/deployment/jars/jing.jar"/>
-	<classpathentry kind="lib" path="/media/malek/Hdd_2to/Projet/M1/S2/Composant/Projet/CPScleaned/AMT_Inc/deployment/jars/BCM4Java-23022024.jar"/>
-	<classpathentry kind="lib" path="/media/malek/Hdd_2to/Projet/M1/S2/Composant/Projet/CPScleaned/AMT_Inc/deployment/jars/javassist.jar"/>
-	<classpathentry kind="lib" path="/media/malek/Hdd_2to/Projet/M1/S2/Composant/Projet/CPScleaned/AMT_Inc/deployment/jars/jing.jar"/>
-	<classpathentry kind="lib" path="/media/malek/Hdd_2to/Projet/M1/S2/Composant/Projet/CPScleaned/AMT_Inc/deployment/jars/sensor-network-interfaces.jar"/>
+	<classpathentry kind="lib" path="deployment/jars/BCM4Java-26032024.jar"/>
+	<classpathentry kind="lib" path="deployment/jars/javassist.jar"/>
+	<classpathentry kind="lib" path="deployment/jars/sensor-network-interfaces.jar"/>
+	<classpathentry kind="lib" path="deployment/jars/jing.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
