@@ -185,9 +185,32 @@ Switch between them with `Config.ASYNC`.
 | **Mono-JVM** | `app.CVM` | Clock, registry, 4 clients and 50 nodes in one JVM |
 | **Multi-JVM** | `app.DistributedCVM` | `jvm0` hosts the clock and registry; `jvm1`–`jvm5` each host 1 client + 10 nodes, bound over RMI |
 
-The multi-JVM mode needs BCM4Java's `GlobalRegistry` and `DCVMCyclicBarrier` running alongside the JVMs. The shell scripts in `deployment/` (`launch`, `start-gregistry`, `start-dcvm`, `start-cyclicbarrier`) orchestrate this on Linux.
+Multi-JVM needs BCM4Java's `GlobalRegistry` and `DCVMCyclicBarrier` running alongside the six JVMs. One command brings the whole thing up:
 
-> **Before running multi-JVM**, edit `deployment/config.xml`: the `<host dir="...">` attribute still holds an absolute path from the original development machine and must point at your own `deployment/` directory. The mono-JVM scenario needs no configuration at all.
+```bash
+./run-multijvm.sh          # Linux/macOS
+.\run-multijvm.ps1         # Windows
+```
+
+Per-JVM output lands in `logs/multijvm/`; query results in `deployment/client.log`. The original author scripts (`deployment/launch`, `start-gregistry`, `start-dcvm`, `start-cyclicbarrier`) do the same thing on Linux, but run everything off `CPS.jar` rather than freshly compiled classes.
+
+### Multi-JVM is timing-sensitive
+
+The distributed deployment works, but getting a clean end-to-end run is a matter of timing rather than configuration. What consistently succeeds: all eight processes start, the RMI registry binds, and all 50 nodes register across JVM boundaries with correct neighbour sets. What is fragile is the window in which queries actually propagate.
+
+Two deadlines are in tension, and both derive from `Config.START_DELAY` (8 s) and the 60× acceleration factor:
+
+- **jvm0 must publish first.** It creates the clock and the registry during `instantiateAndPublish`, while jvm1–5 *connect* to those ports in that same barrier phase — so the cyclic barrier does not order the two. Start them together and jvm1–5 die with `GlobalRegistryResponseException: clock-server-101 not bound!`.
+- **But not too early.** The shared clock starts 8 s after jvm0 creates it. Give jvm0 a head start longer than that and the simulated schedule has already elapsed before jvm1–5 finish deploying, so clients fire queries through connectors that are still null.
+
+`--head-start` / `-Jvm0HeadStartSeconds` (default 10) controls this gap. On the machine used here a 10 s head start produced a fully correct run — queries entering at `n5` in jvm1 and returning readings from `n11`, `n14`, `n15` and `n19` in jvm2, which is the whole point of the distributed mode:
+
+```
+request result: [Node5: Heat(85.33), Node5: WindDirection(11.65), Node1: Heat(53.77), ...
+                 Node11: Heat(23.65), Node15: Heat(55.52), Node19: Heat(59.13), Node14: Heat(39.47), ...]
+```
+
+That result was not reliably reproducible: other runs came up clean but with queries never leaving the entry node. Widening the timing budget properly means raising `Config.START_DELAY`, which is deliberately left alone here since it also affects the mono-JVM scenario. **The mono-JVM scenario is the one to run if you just want to see the system work** — it is deterministic and needs no tuning.
 
 ---
 
@@ -256,7 +279,8 @@ Raw result tables are in `test_performance/`.
 
 ```
 Sensor_Network/
-├── run.sh / run.ps1        # build + run, no IDE required
+├── run.sh / run.ps1                    # build + run mono-JVM or tests, no IDE required
+├── run-multijvm.sh / run-multijvm.ps1  # bring up the full 6-JVM deployment
 ├── src/
 │   ├── app/
 │   │   ├── CVM.java              # mono-JVM deployment

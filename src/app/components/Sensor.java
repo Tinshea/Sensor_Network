@@ -239,25 +239,39 @@ public class Sensor extends AbstractComponent implements SensorNodeP2PImplI {
 	}
 
 
+	/**
+	 * Tells a neighbour this node is leaving, tolerating a neighbour that is already
+	 * gone.
+	 *
+	 * Shutdown is not ordered across components, and even less so across JVMs: the
+	 * neighbour on the other end may already have been finalised, in which case BCM
+	 * rejects the call with an {@code isStarted()} precondition. Nothing useful is
+	 * left to do at that point, so the failure is logged rather than propagated.
+	 *
+	 * @param port      outbound port towards the neighbour, may be unconnected.
+	 * @param direction label used for logging only.
+	 */
+	private void disconnectQuietly(URINodeOutBoundPortToNode port, String direction) {
+	    try {
+	        if (port.connected()) {
+	            port.ask4Disconnection(descriptor);
+	        }
+	    } catch (Exception | AssertionError e) {
+	        // BCM reports the "component already stopped" precondition as an AssertionError.
+	        this.logMessage("could not disconnect from " + direction + " neighbour: " + e.getMessage());
+	    }
+	}
+
 	@Override
 	public synchronized void finalise() throws Exception {
 	    // When the node leaves the sensor network, it must first disconnect from its neighbors and then
 	    // unregister itself from the registry by calling the unregister method
 	    this.logMessage("stopping node component.");
 
-	    // Check if the port is connected before attempting to disconnect it
-	    if (this.outboundPortNE.connected()) {
-	        this.outboundPortNE.ask4Disconnection(descriptor);
-	    }
-	    if (this.outboundPortNW.connected()) {
-	        this.outboundPortNW.ask4Disconnection(descriptor);
-	    }
-	    if (this.outboundPortSE.connected()) {
-	        this.outboundPortSE.ask4Disconnection(descriptor);
-	    }
-	    if (this.outboundPortSW.connected()) {
-	        this.outboundPortSW.ask4Disconnection(descriptor);
-	    }
+	    disconnectQuietly(this.outboundPortNE, "NE");
+	    disconnectQuietly(this.outboundPortNW, "NW");
+	    disconnectQuietly(this.outboundPortSE, "SE");
+	    disconnectQuietly(this.outboundPortSW, "SW");
 	    
 	    // The CVM may already have finalised the registry by the time this node shuts
 	    // down, so unregistering is best effort.

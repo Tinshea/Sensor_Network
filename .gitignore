@@ -2,4 +2,5 @@
 bin
 bin-test
 .junit
+logs
 *.class
