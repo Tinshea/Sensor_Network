@@ -247,34 +247,6 @@ Test run finished after 197 ms
 
 ---
 
-## Performance
-
-Measured on the multi-JVM deployment, varying the delay between client query emissions against the per-node thread-pool size.
-
-**Throughput (queries/s)**
-
-| Threads \ Delay | 1 s | 2 s | 3 s |
-|---|---|---|---|
-| **1** | 0.12 | 0.17 | 0.12 |
-| **2** | 0.17 | 1.38 | 1.44 |
-| **5** | 1.38 | 1.44 | 1.38 |
-| **10** | 1.38 | 1.38 | 1.38 |
-
-**Mean query execution time (ms)**
-
-| Threads \ Delay | 1 s | 2 s | 3 s |
-|---|---|---|---|
-| **1** | 11.00 | 15.00 | 11.50 |
-| **2** | 13.33 | 36.36 | 36.13 |
-| **5** | 29.73 | 36.13 | 32.09 |
-| **10** | 21.68 | 24.95 | 17.13 |
-
-A single thread per node serialises propagation and caps throughput at roughly a tenth of what the mesh can sustain. Throughput saturates at **2–5 threads**; past that, extra threads only add scheduling overhead. Latency rises with concurrency precisely because more queries are in flight at once — the mesh is trading per-query latency for parallelism, which is the intended behaviour of the asynchronous model.
-
-Raw result tables are in `test_performance/`.
-
----
-
 ## Project structure
 
 ```
